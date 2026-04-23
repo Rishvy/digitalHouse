@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#f95630",
+                    "on-secondary-container": "#525252",
+                    "error-dim": "#b92902",
+                    "background": "#f6f6f6",
+                    "on-tertiary-container": "#516000",
+                    "on-error-container": "#520c00",
+                    "surface-dim": "#d2d5d5",
+                    "secondary-dim": "#4f4f4f",
+                    "primary-fixed": "#ffd709",
+                    "secondary-fixed-dim": "#d4d4d4",
+                    "on-primary-container": "#5b4b00",
+                    "on-secondary-fixed": "#3f3f3f",
+                    "primary-dim": "#5e4e00",
+                    "outline": "#757777",
+                    "on-primary-fixed": "#453900",
+                    "surface-container": "#e7e8e8",
+                    "primary-container": "#ffd709",
+                    "tertiary": "#536200",
+                    "surface-tint": "#6c5a00",
+                    "surface-container-high": "#e1e3e3",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-background": "#2d2f2f",
+                    "secondary": "#5b5b5b",
+                    "surface": "#f6f6f6",
+                    "primary": "#6c5a00",
+                    "on-tertiary-fixed-variant": "#5b6b00",
+                    "inverse-on-surface": "#9c9d9d",
+                    "on-primary": "#fff2cd",
+                    "on-tertiary": "#e5ff76",
+                    "secondary-container": "#e2e2e2",
+                    "surface-container-low": "#f0f1f1",
+                    "inverse-primary": "#ffd709",
+                    "on-error": "#ffefec",
+                    "tertiary-container": "#e3fd74",
+                    "on-secondary": "#f3f3f3",
+                    "surface-container-highest": "#dbdddd",
+                    "surface-variant": "#dbdddd",
+                    "on-surface": "#2d2f2f",
+                    "on-tertiary-fixed": "#414d00",
+                    "inverse-surface": "#0c0f0f",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#efc900",
+                    "on-primary-fixed-variant": "#665500",
+                    "on-secondary-fixed-variant": "#5b5b5b",
+                    "error": "#b02500",
+                    "surface-bright": "#f6f6f6",
+                    "tertiary-fixed": "#e3fd74",
+                    "outline-variant": "#acadad",
+                    "on-surface-variant": "#5a5c5c",
+                    "tertiary-fixed-dim": "#d5ee68",
+                    "tertiary-dim": "#485500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #f6f6f6; color: #2d2f2f; }
+        .headline-text { font-family: 'Space Grotesk', sans-serif; }
+        .glass-nav { backdrop-filter: blur(24px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl flex items-center justify-between px-8 py-4 max-w-full shadow-sm">
+<div class="text-2xl font-black text-[#2d2f2f] uppercase font-headline tracking-tight">
+            K.T Digital House
+        </div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-headline font-bold tracking-tight text-[#6c5a00] border-b-2 border-[#ffd709] pb-1 hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_3}}">Catalog</a>
+<a class="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_10}}">Design Editor</a>
+<a class="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">Services</a>
+<a class="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">About</a>
+</div>
+<div class="flex items-center gap-6">
+<a href="{{DATA:SCREEN:SCREEN_15}}"><span class="material-symbols-outlined text-on-surface hover:text-primary transition-colors cursor-pointer" data-icon="shopping_cart">shopping_cart</span></a>
+<a href="{{DATA:SCREEN:SCREEN_9}}"><span class="material-symbols-outlined text-on-surface hover:text-primary transition-colors cursor-pointer" data-icon="account_circle">account_circle</span></a>
+<button class="md:hidden material-symbols-outlined" data-icon="menu">menu</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center pt-20 px-8 overflow-hidden bg-surface">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-4/5 z-0 opacity-20 md:opacity-100">
+<img class="w-full h-full object-cover rounded-l-[4rem]" data-alt="High-end professional digital printing machine in a clean, minimalist studio setting with bright cinematic lighting and yellow accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7YX1AjHjDLPtIm_hA4kAHiHrzfmaG2CarphkV8U9a75f9TBwAV7lti4Yqm69t9XklWpYFDMomvqKybPgrc513Kj-xll6aqXxn5h40FesFf0WsIL0BrpAvOx5qIZ7V6ZcMklYta4VmU_T0JYnGLp97zFgIa2ek5cmb00MROUasByGQNvtHp2hcGsgOjEhRN9b4oT043cPXpAk_rH7kCSzsCjUyanoISl5Enqa7zY177TRUQuhEOBDRf6ulFt7NB6TcSE3BpgBfQ0M"/>
+</div>
+<div class="relative z-10 max-w-4xl">
+<p class="font-label text-sm uppercase tracking-widest text-primary mb-4 font-bold">Innovation in Print</p>
+<h1 class="font-headline text-7xl md:text-9xl font-black tracking-tighter text-on-surface leading-[0.9] mb-8">
+                The Future of <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">Custom Print</span>
+</h1>
+<p class="font-body text-xl text-on-surface-variant max-w-lg mb-10 leading-relaxed">
+                Elevate your brand with precision-engineered tactile experiences. From high-energy editorial posters to artisanal wedding stationery.
+            </p>
+<div class="flex flex-wrap gap-4">
+<a class="inline-block bg-primary-container text-on-primary-fixed px-10 py-5 rounded font-headline font-bold text-lg uppercase tracking-wider hover:scale-105 active:scale-95 transition-all" href="{{DATA:SCREEN:SCREEN_10}}">Start Designing</a>
+<a class="inline-block bg-on-surface text-surface px-10 py-5 rounded font-headline font-bold text-lg uppercase tracking-wider hover:scale-105 active:scale-95 transition-all" href="{{DATA:SCREEN:SCREEN_3}}">View Catalog</a>
+</div>
+</div>
+</section>
+<!-- Category Bento Grid -->
+<section class="py-24 px-8 bg-surface-container-low">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-16">
+<div>
+<h2 class="font-headline text-5xl font-black uppercase tracking-tighter">Explore Collections</h2>
+<div class="h-1.5 w-32 bg-primary-container mt-4"></div>
+</div>
+<p class="hidden md:block font-body text-on-surface-variant max-w-xs text-right">
+                    Curated print solutions designed for high-impact visual communication.
+                </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[1000px] md:h-[800px]">
+<!-- Large Featured: Posters -->
+<div class="md:col-span-2 md:row-span-2 relative group overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Modern abstract art posters hanging on a gallery wall with moody editorial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaVUnPkSUm-QFbTCTJSQMCWcFPL0ABFF89AZkMr-kMn04OMFYRbuwjGBU422ocNpR6g4lVnGv08wbGnbovJvHLhpuYQfZv35X8tU2w_NgTxP1g7gHQEiger6rxKxcy8I_K_ERYZ8C1XaAaXfbLN1FmBizucDnY6q9P7Rv6Sbq-ZjgfLYbPwjIhAMoDyE20ANemqPR11PGAgJyTFChc981n0gvJ5_1KUXmH0--n_-UQrQL7xJ2L8_-6pJnoQ3P1xL13T8L14y4vz9Y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+<span class="text-primary-container font-headline font-bold uppercase text-sm mb-2">Editor's Choice</span>
+<h3 class="text-white font-headline text-4xl font-bold uppercase">Posters</h3>
+<p class="text-white/80 font-body mt-2">Large scale, high-definition prints for bold statements.</p>
+</div>
+</div>
+<!-- Business Cards -->
+<a class="relative group overflow-hidden bg-surface-container-highest" href="{{DATA:SCREEN:SCREEN_3}}">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Luxury thick-stock business cards with gold foil lettering on a minimalist dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAsHZpDaHr6wB5p2LjPCdh8MZPVWqhGi96C-d9Gy9ateUs2OK-LIZbNU_8k9RqaJmw6R1j5c9-WLPIyXv9N8unEGElw_FvUG9ZCo3l1nDMAbH9gS3U5g8Xpm8B9sYhi0zoqTv-JNyLkFEFl2kElBmKCdoEq3bYMxLrk3hfus9Id3BVFUIZQkbJae6pAz_lFtNQZpV6MSwUeRdkO3zlzuZDulYFyKirbFYWms0RugHgp6BDM-NJYxDpapJYmQs0WGjdEtT72rN6pJQ"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-6">
+<h3 class="text-white font-headline text-xl font-bold uppercase">Business Cards</h3>
+</div>
+</a>
+<!-- Wedding Cards -->
+<a class="relative group overflow-hidden bg-surface-container-highest" href="{{DATA:SCREEN:SCREEN_7}}">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Elegant cream colored wedding invitation suite with silk ribbons and dried flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQZUp70PUDQGr_FcYh3XFmY7J59IzxuI6W284oV8jOgSaNZlJKJwKFPBg0afvAlUwB6ihDXj9ZnVN5QCpMC-mO8RKhNrGyqaCXxJPVG7Offj_4VVJofUEsgq1bI9IoH4xeY3WNZeEvYbPqmnsjT5eeUb0lhEo2EGpK4iJaGLbjJ8pK6zVIXr93zOL_swNxCohdD3MZLl1gkTi-gJ0V7SBKqc5wqdHJWBSHRQSP521dK73XFMkt8czKjEHIZi2ep-Np0xnsB-gB614"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-6">
+<h3 class="text-white font-headline text-xl font-bold uppercase">Wedding Cards</h3>
+</div>
+</a>
+<!-- Mugs & Stickers (Split) -->
+<div class="grid grid-cols-2 gap-4 md:col-span-2">
+<div class="relative group overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Minimalist ceramic mug with custom typography design on a clean wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBXVriZ-XLdlPkdNAQ3mnPIaJVz_OGyjxiQ3qUZ3bvNO34jXWeUkjcNnY1JTURMOD0VH9dYbr2XeOjAPZ9TLEr8174aJXLi1mVf37tJlI7hLJ3Jcb7S-Rumk_aSZwC8d2gR76iehmyj5m0pyN3h_X7ucElJjJrvqLFLNzK79JT-WOvvtB3FJzMV7Zf9DPuzentCtjuCWe7-qg8wR4XsWgAfPlEQJDSDNoyAAdfVgwn9GK5R1eRf2xoX7X5tlHoQvrG3YaJdDgNrH8"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-4">
+<h3 class="text-white font-headline text-sm font-bold uppercase">Mugs</h3>
+</div>
+</div>
+<div class="relative group overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Colorful laptop stickers with vibrant graphic design and matte finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVNaDMfOkbTrfO1rSxLTiVgcbNQsu1qXRDSkuAWMh8CZdO8a4sk8Ezxhl6QF6WQz2sH8_iDWRv2RjLtZoXhNP6pHHHMxmhXvow3RIPFBWMwuuQxmEvLEnh1rLDGrC55PSyRHi5frvmSnt2NEp_PXO__O_XxB1SlgeyZ8hbubF1d3e50QTYJhD02p-STVu5YWQeHS13trTn3akqPQAOCYHtmA2mCQJXdEISvuFJ0BecndB4Jwaw4Qq_K_cuP8XHZV8znhx2GtaNm3g"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-4">
+<h3 class="text-white font-headline text-sm font-bold uppercase">Stickers</h3>
+</div>
+</div>
+</div>
+<!-- Polaroids & Books -->
+<div class="relative group overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Stack of polaroid photos scattered on a neutral surface with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpZiSMtO8knCPhngPxQvtt12KrsaZMtgIYUvAkJWUTqrLRT9orfDbkTyeVeM7Em9SUI6WwTMeR_WBMPp1G0RZLPgvDuYAr9fXT-8HX9mVs_jh2lTv9jMDl459EkndyWAgo8FmFWVpIwvi-O58XJqHlanEzAf4TFftXWUcP2EDA6O9ludnf6aX6GC9fbAlZPIImaG8Wktr4f7Ij3knQnuiC7LtYsOHOLtyumqUIu4Bgmah5kDZMfhSjrfGYKGe0qBvMUzHQcUwUa_U"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-6">
+<h3 class="text-white font-headline text-xl font-bold uppercase">Polaroids</h3>
+</div>
+</div>
+<div class="relative group overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Premium hardbound book with custom dust jacket sitting on a minimalist bookshelf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpsUoQ53xUlWIdWPVvozIhMveJIUFciO6onzDya3imv2x7dRlwOqCUQ0VuYWK7KMaq1nAsDOyK-_1tyHw7mk3suNgomNjy_n4D0Gnh_vLgmFGAG1VmO3qJOIznaE3Uka05ijr3m0oB9YLMcu12GOGyAR087M1bnnAjxs_NW531fOW7VTasG357iagjcE7iKBAavQAs4i6oB7DxYJGgMM2SHhp4b5Xq3_sN-J-2dujz37OJHYUIBqlMF2byiPO99gcbbXt_XxFiaRw"/>
+<div class="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 transition-all flex items-end p-6">
+<h3 class="text-white font-headline text-xl font-bold uppercase">Books</h3>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-24 px-8 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-20">
+<h2 class="font-headline text-5xl font-black uppercase tracking-tighter">The Process</h2>
+<p class="font-body text-on-surface-variant mt-4">Simple steps to professional excellence.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<!-- Step 1 -->
+<div class="relative flex flex-col items-center text-center">
+<div class="w-24 h-24 bg-primary-container flex items-center justify-center mb-8 rotate-3 hover:rotate-0 transition-transform">
+<span class="material-symbols-outlined text-4xl text-on-primary-fixed" data-icon="search">search</span>
+</div>
+<span class="absolute -top-4 right-1/4 font-headline text-8xl font-black text-on-surface/5">01</span>
+<h4 class="font-headline text-2xl font-bold uppercase mb-4">Choose</h4>
+<p class="font-body text-on-surface-variant">Select from our premium catalog of print formats and materials curated for digital-first brands.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative flex flex-col items-center text-center">
+<div class="w-24 h-24 bg-on-surface flex items-center justify-center mb-8 -rotate-3 hover:rotate-0 transition-transform">
+<span class="material-symbols-outlined text-4xl text-surface" data-icon="edit">edit</span>
+</div>
+<span class="absolute -top-4 right-1/4 font-headline text-8xl font-black text-on-surface/5">02</span>
+<h4 class="font-headline text-2xl font-bold uppercase mb-4">Design</h4>
+<p class="font-body text-on-surface-variant">Use our high-velocity online editor or upload your own high-fidelity artwork directly.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative flex flex-col items-center text-center">
+<div class="w-24 h-24 bg-primary-container flex items-center justify-center mb-8 rotate-6 hover:rotate-0 transition-transform">
+<span class="material-symbols-outlined text-4xl text-on-primary-fixed" data-icon="local_shipping">local_shipping</span>
+</div>
+<span class="absolute -top-4 right-1/4 font-headline text-8xl font-black text-on-surface/5">03</span>
+<h4 class="font-headline text-2xl font-bold uppercase mb-4">Order</h4>
+<p class="font-body text-on-surface-variant">Premium production and priority global delivery. Your vision, materialized with precision.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-[#2d2f2f] flex flex-col md:flex-row justify-between items-center px-12 py-16 gap-8 w-full mt-auto">
+<div class="flex flex-col gap-4">
+<div class="text-lg font-bold text-white font-headline uppercase tracking-tight">K.T Digital House</div>
+<p class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad]">© 2024 K.T Digital House. Kinetic Editorial Excellence.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Shipping Info</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Contact Support</a>
+</div>
+<div class="flex gap-4">
+<button class="w-10 h-10 flex items-center justify-center bg-white/10 rounded hover:bg-primary-container hover:text-on-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-white/10 rounded hover:bg-primary-container hover:text-on-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="public">public</span>
+</button>
+</div>
+</footer>
+</body></html>

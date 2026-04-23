@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  supabase-db:
+    image: supabase/postgres:15.1.0.117
+    ports: ['5432:5432']
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+
+  supabase-auth:
+    image: supabase/gotrue:v2.143.0
+    depends_on: [supabase-db]
+    environment:
+      GOTRUE_DB_DRIVER: postgres
+      DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres
+
+  supabase-rest:
+    image: postgrest/postgrest:v12.0.2
+    depends_on: [supabase-db]
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@supabase-db:5432/postgres
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+
+  supabase-storage:
+    image: supabase/storage-api:v0.46.4
+    depends_on: [supabase-db]
+
+  supabase-studio:
+    image: supabase/studio:20240101-ce42139
+    ports: ['54323:3000']
+    environment:
+      SUPABASE_URL: http://supabase-kong:8000
+      STUDIO_PG_META_URL: http://supabase-meta:8080
+
+  supabase-kong:
+    image: kong:2.8.1
+    ports: ['54321:8000']
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    ports: ['4010:4010']
+    depends_on: [supabase-db]
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://supabase-kong:8000}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-service-role-key}
+      WORKER_PORT: 4010
+      WORKER_ICC_PROFILE_PATH: /app/config/icc/eciCMYK_v2.icc

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>K.T DIGITAL HOUSE | User Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#3f3f3f",
+                        "surface-container-highest": "#dbdddd",
+                        "secondary-dim": "#4f4f4f",
+                        "tertiary": "#536200",
+                        "primary-dim": "#5e4e00",
+                        "tertiary-fixed-dim": "#d5ee68",
+                        "on-surface": "#2d2f2f",
+                        "secondary-fixed": "#e2e2e2",
+                        "tertiary-dim": "#485500",
+                        "on-primary-fixed-variant": "#665500",
+                        "on-primary-fixed": "#453900",
+                        "error": "#b02500",
+                        "background": "#f6f6f6",
+                        "on-error-container": "#520c00",
+                        "on-tertiary-container": "#516000",
+                        "surface-container-high": "#e1e3e3",
+                        "outline-variant": "#acadad",
+                        "on-tertiary-fixed": "#414d00",
+                        "outline": "#757777",
+                        "primary": "#6c5a00",
+                        "inverse-on-surface": "#9c9d9d",
+                        "secondary": "#5b5b5b",
+                        "on-tertiary": "#e5ff76",
+                        "secondary-fixed-dim": "#d4d4d4",
+                        "surface-variant": "#dbdddd",
+                        "on-primary-container": "#5b4b00",
+                        "on-secondary-container": "#525252",
+                        "surface": "#f6f6f6",
+                        "inverse-primary": "#ffd709",
+                        "tertiary-container": "#e3fd74",
+                        "surface-container-low": "#f0f1f1",
+                        "primary-fixed": "#ffd709",
+                        "surface-container": "#e7e8e8",
+                        "error-container": "#f95630",
+                        "on-secondary": "#f3f3f3",
+                        "tertiary-fixed": "#e3fd74",
+                        "primary-container": "#ffd709",
+                        "on-background": "#2d2f2f",
+                        "surface-bright": "#f6f6f6",
+                        "surface-tint": "#6c5a00",
+                        "on-surface-variant": "#5a5c5c",
+                        "primary-fixed-dim": "#efc900",
+                        "inverse-surface": "#0c0f0f",
+                        "on-tertiary-fixed-variant": "#5b6b00",
+                        "error-dim": "#b92902",
+                        "secondary-container": "#e2e2e2",
+                        "on-primary": "#fff2cd",
+                        "surface-dim": "#d2d5d5",
+                        "on-secondary-fixed-variant": "#5b5b5b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffefec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface flex min-h-screen">
+<!-- SideNavBar Shell -->
+<aside class="w-64 h-screen sticky top-0 flex flex-col p-4 bg-zinc-50 dark:bg-zinc-950 font-['Manrope'] text-sm font-medium">
+<div class="mb-8 px-4 py-2">
+<h1 class="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter">K.T DIGITAL</h1>
+</div>
+<div class="mb-8 px-4">
+<h2 class="text-zinc-900 dark:text-white font-bold text-lg leading-tight">Dashboard</h2>
+<p class="text-zinc-600 dark:text-zinc-400 text-xs">Manage your kinetic creations</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active State: Orders (Based on page content) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-yellow-400 text-zinc-950 font-bold rounded-lg hover:scale-[1.02] transition-transform active:scale-95" href="{{DATA:SCREEN:SCREEN_9}}">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span>Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:scale-[1.02] transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome_motion">auto_awesome_motion</span>
+<span>Saved Designs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:scale-[1.02] transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:scale-[1.02] transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-3 px-4 cursor-pointer" onclick="window.location.href='{{DATA:SCREEN:SCREEN_9}}'">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="Professional headshot of a creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSSDZH2UnCAAw8NWQs_xAON-3JiMHxaAa5HZ-dStFBRzK1r2_wxfg0hWv3-Db-Nn4LWxwB9HvHiucx9m-XUfIBge29nsP8JQkk9JUYEvLF64r6kHCAXXgHvCzgBw_KiguquwIQNYG5tEthF8RyITrabhB8Nv0YRrmvtnHwrjL89FYpKCFY6VwlZq_c8bff-wdPGEHuXlT9GhOYlQ1IiCjNQZZgmCifBy4tlK1cR4M4hsIIGHVcwGYIWmMsYFE-th76IH1Bf9OWnNU"/>
+</div>
+<div>
+<p class="text-xs font-bold text-zinc-900 dark:text-white">Alex Rivera</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-widest">Premium Member</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-8 lg:p-12 overflow-y-auto">
+<!-- Header / Greeting -->
+<header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<span class="text-primary font-bold uppercase tracking-[0.2em] text-xs mb-3 block">System Overview</span>
+<h2 class="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-none">
+                    Welcome back, <span class="text-outline-variant">Rivera.</span>
+</h2>
+</div>
+<div class="flex gap-4">
+<button class="bg-primary-container text-on-primary-fixed px-6 py-3 font-bold rounded hover:opacity-90 transition-opacity flex items-center gap-2" onclick="window.location.href='{{DATA:SCREEN:SCREEN_3}}'">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    NEW PROJECT
+                </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Recent Orders Section -->
+<section class="md:col-span-8 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline text-2xl font-bold tracking-tight">Recent Orders</h3>
+<a class="text-xs font-bold text-primary border-b-2 border-primary-container" href="#">VIEW ALL ACTIVITY</a>
+</div>
+<div class="space-y-1">
+<!-- Order Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-4 border-primary-container flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="architecture">architecture</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Order #KT-9921</p>
+<h4 class="font-bold text-lg">Kinetic Interface Package</h4>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-[10px] text-outline uppercase font-bold">Estimated Delivery</p>
+<p class="font-medium">Oct 24, 2024</p>
+</div>
+<div class="bg-primary-container/20 px-3 py-1 rounded-full border border-primary-container/30">
+<span class="text-[10px] font-bold text-primary uppercase">In Production</span>
+</div>
+</div>
+</div>
+<!-- Order Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="motion_photos_on">motion_photos_on</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-tighter">Order #KT-9854</p>
+<h4 class="font-bold text-lg">Dynamic Motion Assets</h4>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-[10px] text-outline uppercase font-bold">Completed On</p>
+<p class="font-medium">Sep 12, 2024</p>
+</div>
+<div class="bg-on-surface/5 px-3 py-1 rounded-full">
+<span class="text-[10px] font-bold text-on-surface uppercase">Delivered</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Status Tracking Module -->
+<div class="bg-on-surface text-surface p-8 rounded-lg relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="font-headline text-xl font-bold mb-6">Real-time Asset Rendering</h4>
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs uppercase tracking-widest font-bold">KT-9921 Progress</span>
+<span class="text-xs font-bold">78%</span>
+</div>
+<div class="w-full bg-white/10 h-1.5 rounded-full">
+<div class="bg-primary-container h-full rounded-full w-[78%]"></div>
+</div>
+<p class="mt-4 text-xs text-surface/60 max-w-sm">Synchronizing creative nodes with edge delivery servers. Expected completion in 4 hours.</p>
+</div>
+<!-- Aesthetic background elements -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 border-[20px] border-primary-container/10 rounded-full"></div>
+</div>
+</section>
+<!-- Saved Designs Sidebar / Gallery -->
+<section class="md:col-span-4 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline text-2xl font-bold tracking-tight">Saved Designs</h3>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-on-surface transition-colors" data-icon="grid_view">grid_view</span>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<!-- Design Card 1 -->
+<div class="group relative bg-surface-container-high rounded-lg aspect-square overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Abstract 3D rendered shapes with futuristic metallic texture and vibrant yellow light reflections in a clean void space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkn0P141lcGQafH0KbhE-TZ-hE5t2vp7qGO0Ivj0DBzftYQV9ONyPlI39OVfdsGFaDWqyPCBFUy8acYpdLuM6dcc34DO4s9ytFeZTnsP6_cTFTnjLgQhqTeuL5hm49Wa9Ikdv1iASxAhU3376w_jCNJfO86NktmOjTH5fK8d6dFETf2ryNaUNojQPV-fVfil6sBfOo0DULITxd27NsZTaPfsqW5cDAb1kiqY7pvqWG1g1aNLmz5RPJHqqX4GwBTKccnDGU8-nccKI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+<p class="text-primary-container font-bold text-sm">V01. Cybernetics</p>
+<p class="text-white text-[10px] uppercase tracking-widest">Edited 2h ago</p>
+</div>
+</div>
+<!-- Design Card 2 -->
+<div class="group relative bg-surface-container-high rounded-lg aspect-[4/3] overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Minimalist geometric abstraction with smooth curves and sharp planes in shades of grey and charcoal with a single yellow accent" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDva_km_7iop1jOfWFTjQjAwNaEnQms5hWn2tfMI8Kbe-Xzx2hhSzq2akvXkQV35ap1Q3iEoGmkbLKwFsyUe4R-jUajiC_xHPBXgFjpYA3Ulz57EddHPX7tjhZYZCi4PFPUE2s1dRgg03jMU21CWZEBAeQ5QtL7s_Zb5gYi1XKoL4_5UegXrtqkvsjp2j8_Skw2KGEpfltUClxJ8IO0EdTxAb7-U8ZLUZ6Skjoja_i3rpGDHY8E5vZ96GwPeI1JamOdjDhqrk0gl1k"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+<p class="text-primary-container font-bold text-sm">Editorial Layout B</p>
+<p class="text-white text-[10px] uppercase tracking-widest">Saved 1 day ago</p>
+</div>
+</div>
+<button class="w-full py-4 border-2 border-dashed border-outline-variant text-outline hover:border-primary hover:text-primary transition-colors font-bold text-xs uppercase tracking-widest rounded">
+                        Browse More Designs
+                    </button>
+</div>
+</section>
+</div>
+<!-- Footer Shell -->
+<footer class="flex flex-col md:flex-row justify-between items-center px-8 py-12 w-full mt-24 border-t border-zinc-200 dark:border-zinc-800 font-['Manrope'] text-xs uppercase tracking-widest">
+<div class="text-lg font-bold text-zinc-900 dark:text-white mb-4 md:mb-0">K.T DIGITAL HOUSE</div>
+<p class="text-zinc-500 mb-6 md:mb-0">© 2024 K.T DIGITAL HOUSE. KINETIC EDITORIAL EST.</p>
+<div class="flex gap-8">
+<a class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Privacy</a>
+<a class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Terms</a>
+<a class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Accessibility</a>
+<a class="text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Contact</a>
+</div>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>K.T Digital House | Kinetic Editorial Excellence</title>
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#f95630",
+                    "on-secondary-container": "#525252",
+                    "error-dim": "#b92902",
+                    "background": "#f6f6f6",
+                    "on-tertiary-container": "#516000",
+                    "on-error-container": "#520c00",
+                    "surface-dim": "#d2d5d5",
+                    "secondary-dim": "#4f4f4f",
+                    "primary-fixed": "#ffd709",
+                    "secondary-fixed-dim": "#d4d4d4",
+                    "on-primary-container": "#5b4b00",
+                    "on-secondary-fixed": "#3f3f3f",
+                    "primary-dim": "#5e4e00",
+                    "outline": "#757777",
+                    "on-primary-fixed": "#453900",
+                    "surface-container": "#e7e8e8",
+                    "primary-container": "#ffd709",
+                    "tertiary": "#536200",
+                    "surface-tint": "#6c5a00",
+                    "surface-container-high": "#e1e3e3",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-background": "#2d2f2f",
+                    "secondary": "#5b5b5b",
+                    "surface": "#f6f6f6",
+                    "primary": "#6c5a00",
+                    "on-tertiary-fixed-variant": "#5b6b00",
+                    "inverse-on-surface": "#9c9d9d",
+                    "on-primary": "#fff2cd",
+                    "on-tertiary": "#e5ff76",
+                    "secondary-container": "#e2e2e2",
+                    "surface-container-low": "#f0f1f1",
+                    "inverse-primary": "#ffd709",
+                    "on-error": "#ffefec",
+                    "tertiary-container": "#e3fd74",
+                    "on-secondary": "#f3f3f3",
+                    "surface-container-highest": "#dbdddd",
+                    "surface-variant": "#dbdddd",
+                    "on-surface": "#2d2f2f",
+                    "on-tertiary-fixed": "#414d00",
+                    "inverse-surface": "#0c0f0f",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#efc900",
+                    "on-primary-fixed-variant": "#665500",
+                    "on-secondary-fixed-variant": "#5b5b5b",
+                    "error": "#b02500",
+                    "surface-bright": "#f6f6f6",
+                    "tertiary-fixed": "#e3fd74",
+                    "outline-variant": "#acadad",
+                    "on-surface-variant": "#5a5c5c",
+                    "tertiary-fixed-dim": "#d5ee68",
+                    "tertiary-dim": "#485500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #f6f6f6; color: #2d2f2f; }
+        .headline-text { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .editorial-shadow { box-shadow: 0 10px 40px rgba(45, 47, 47, 0.08); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dbdddd; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Common Components ---
+
+        const TopNavBar = () => {
+            const navigate = useNavigate();
+            return (
+                <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl flex items-center justify-between px-8 py-4 max-w-full shadow-sm">
+                    <Link to="/" className="text-2xl font-black text-[#2d2f2f] uppercase font-headline tracking-tight">
+                        K.T Digital House
+                    </Link>
+                    <div className="hidden md:flex items-center gap-8">
+                        <Link className="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" to="/catalog">Catalog</Link>
+                        <Link className="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" to="/editor">Design Editor</Link>
+                        <Link className="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" to="/dashboard">Services</Link>
+                        <Link className="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" to="/dashboard">About</Link>
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <Link to="/checkout"><span className="material-symbols-outlined text-on-surface hover:text-primary transition-colors cursor-pointer">shopping_cart</span></Link>
+                        <Link to="/dashboard"><span className="material-symbols-outlined text-on-surface hover:text-primary transition-colors cursor-pointer">account_circle</span></Link>
+                        <button className="md:hidden material-symbols-outlined">menu</button>
+                    </div>
+                </nav>
+            );
+        };
+
+        const Footer = () => (
+            <footer className="bg-[#2d2f2f] flex flex-col md:flex-row justify-between items-center px-12 py-16 gap-8 w-full mt-auto">
+                <div className="flex flex-col gap-4">
+                    <div className="text-lg font-bold text-white font-headline uppercase tracking-tight">K.T Digital House</div>
+                    <p className="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad]">© 2024 K.T Digital House. Kinetic Editorial Excellence.</p>
+                </div>
+                <div className="flex flex-wrap justify-center gap-8">
+                    <a className="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Privacy Policy</a>
+                    <a className="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Terms of Service</a>
+                    <a className="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Shipping Info</a>
+                    <Link className="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" to="/dashboard">Contact Support</Link>
+                </div>
+                <div className="flex gap-4">
+                    <button className="w-10 h-10 flex items-center justify-center bg-white/10 rounded hover:bg-primary-container hover:text-on-primary-fixed transition-colors">
+                        <span className="material-symbols-outlined text-lg">share</span>
+                    </button>
+                    <button className="w-10 h-10 flex items-center justify-center bg-white/10 rounded hover:bg-primary-container hover:text-on-primary-fixed transition-colors">
+                        <span className="material-symbols-outlined text-lg">public</span>
+                    </button>
+                </div>
+            </footer>
+        );
+
+        // --- Screens ---
+
+        const HomePage = () => (
+            <div className="min-h-screen flex flex-col">
+                <TopNavBar />
+                <section className="relative min-h-screen flex items-center pt-20 px-8 overflow-hidden bg-surface">
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-4/5 z-0 opacity-20 md:opacity-100">
+                        <img className="w-full h-full object-cover rounded-l-[4rem]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7YX1AjHjDLPtIm_hA4kAHiHrzfmaG2CarphkV8U9a75f9TBwAV7lti4Yqm69t9XklWpYFDMomvqKybPgrc513Kj-xll6aqXxn5h40FesFf0WsIL0BrpAvOx5qIZ7V6ZcMklYta4VmU_T0JYnGLp97zFgIa2ek5cmb00MROUasByGQNvtHp2hcGsgOjEhRN9b4oT043cPXpAk_rH7kCSzsCjUyanoISl5Enqa7zY177TRUQuhEOBDRf6ulFt7NB6TcSE3BpgBfQ0M" alt="Hero Print Machine"/>
+                    </div>
+                    <div className="relative z-10 max-w-4xl">
+                        <p className="font-label text-sm uppercase tracking-widest text-primary mb-4 font-bold">Innovation in Print</p>
+                        <h1 className="font-headline text-7xl md:text-9xl font-black tracking-tighter text-on-surface leading-[0.9] mb-8">
+                            The Future of <br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">Custom Print</span>
+                        </h1>
+                        <p className="font-body text-xl text-on-surface-variant max-w-lg mb-10 leading-relaxed">
+                            Elevate your brand with precision-engineered tactile experiences. From high-energy editorial posters to artisanal wedding stationery.
+                        </p>
+                        <div className="flex flex-wrap gap-4">
+                            <Link className="inline-block bg-primary-container text-on-primary-fixed px-10 py-5 rounded font-headline font-bold text-lg uppercase tracking-wider hover:scale-105 active:scale-95 transition-all" to="/editor">Start Designing</Link>
+                            <Link className="inline-block bg-on-surface text-surface px-10 py-5 rounded font-headline font-bold text-lg uppercase tracking-wider hover:scale-105 active:scale-95 transition-all" to="/catalog">View Catalog</Link>
+                        </div>
+                    </div>
+                </section>
+                
+                <section className="py-24 px-8 bg-surface-container-low">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="flex justify-between items-end mb-16">
+                            <div>
+                                <h2 className="font-headline text-5xl font-black uppercase tracking-tighter">Explore Collections</h2>
+                                <div className="h-1.5 w-32 bg-primary-container mt-4"></div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[1000px] md:h-[800px]">
+                            <div className="md:col-span-2 md:row-span-2 relative group overflow-hidden bg-surface-container-highest">
+                                <img className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaVUnPkSUm-QFbTCTJSQMCWcFPL0ABFF89AZkMr-kMn04OMFYRbuwjGBU422ocNpR6g4lVnGv08wbGnbovJvHLhpuYQfZv35X8tU2w_NgTxP1g7gHQEiger6rxKxcy8I_K_ERYZ8C1XaAaXfbLN1FmBizucDnY6q9P7Rv6Sbq-ZjgfLYbPwjIhAMoDyE20ANemqPR11PGAgJyTFChc981n0gvJ5_1KUXmH0--n_-UQrQL7xJ2L8_-6pJnoQ3P1xL13T8L14y4vz9Y" alt="Posters"/>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+                                    <h3 className="text-white font-headline text-4xl font-bold uppercase">Posters</h3>
+                                </div>
+                            </div>
+                            <Link to="/catalog" className="relative group overflow-hidden bg-surface-container-highest">
+                                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAsHZpDaHr6wB5p2LjPCdh8MZPVWqhGi96C-d9Gy9ateUs2OK-LIZbNU_8k9RqaJmw6R1j5c9-WLPIyXv9N8unEGElw_FvUG9ZCo3l1nDMAbH9gS3U5g8Xpm8B9sYhi0zoqTv-JNyLkFEFl2kElBmKCdoEq3bYMxLrk3hfus9Id3BVFUIZQkbJae6pAz_lFtNQZpV6MSwUeRdkO3zlzuZDulYFyKirbFYWms0RugHgp6BDM-NJYxDpapJYmQs0WGjdEtT72rN6pJQ" alt="Business Cards"/>
+                                <div className="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 flex items-end p-6">
+                                    <h3 className="text-white font-headline text-xl font-bold uppercase">Business Cards</h3>
+                                </div>
+                            </Link>
+                            <div className="relative group overflow-hidden bg-surface-container-highest">
+                                <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQZUp70PUDQGr_FcYh3XFmY7J59IzxuI6W284oV8jOgSaNZlJKJwKFPBg0afvAlUwB6ihDXj9ZnVN5QCpMC-mO8RKhNrGyqaCXxJPVG7Offj_4VVJofUEsgq1bI9IoH4xeY3WNZeEvYbPqmnsjT5eeUb0lhEo2EGpK4iJaGLbjJ8pK6zVIXr93zOL_swNxCohdD3MZLl1gkTi-gJ0V7SBKqc5wqdHJWBSHRQSP521dK73XFMkt8czKjEHIZi2ep-Np0xnsB-gB614" alt="Wedding Cards"/>
+                                <div className="absolute inset-0 bg-on-surface/20 group-hover:bg-on-surface/40 flex items-end p-6">
+                                    <h3 className="text-white font-headline text-xl font-bold uppercase">Wedding Cards</h3>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 md:col-span-2">
+                                <div className="relative group overflow-hidden bg-surface-container-highest">
+                                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBXVriZ-XLdlPkdNAQ3mnPIaJVz_OGyjxiQ3qUZ3bvNO34jXWeUkjcNnY1JTURMOD0VH9dYbr2XeOjAPZ9TLEr8174aJXLi1mVf37tJlI7hLJ3Jcb7S-Rumk_aSZwC8d2gR76iehmyj5m0pyN3h_X7ucElJjJrvqLFLNzK79JT-WOvvtB3FJzMV7Zf9DPuzentCtjuCWe7-qg8wR4XsWgAfPlEQJDSDNoyAAdfVgwn9GK5R1eRf2xoX7X5tlHoQvrG3YaJdDgNrH8" alt="Mugs"/>
+                                </div>
+                                <div className="relative group overflow-hidden bg-surface-container-highest">
+                                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVNaDMfOkbTrfO1rSxLTiVgcbNQsu1qXRDSkuAWMh8CZdO8a4sk8Ezxhl6QF6WQz2sH8_iDWRv2RjLtZoXhNP6pHHHMxmhXvow3RIPFBWMwuuQxmEvLEnh1rLDGrC55PSyRHi5frvmSnt2NEp_PXO__O_XxB1SlgeyZ8hbubF1d3e50QTYJhD02p-STVu5YWQeHS13trTn3akqPQAOCYHtmA2mCQJXdEISvuFJ0BecndB4Jwaw4Qq_K_cuP8XHZV8znhx2GtaNm3g" alt="Stickers"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <Footer />
+            </div>
+        );
+
+        const CatalogPage = () => (
+            <div className="min-h-screen flex flex-col">
+                <TopNavBar />
+                <main className="pt-24 pb-16 px-8 flex-grow max-w-[1440px] mx-auto w-full">
+                    <header className="mb-12">
+                        <div className="flex flex-col gap-2">
+                            <span className="text-primary font-bold text-sm tracking-[0.2em] uppercase font-label">Print Essentials</span>
+                            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-on-surface leading-none">Business Cards</h1>
+                        </div>
+                    </header>
+                    <div className="flex flex-col lg:flex-row gap-12">
+                        <aside className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-8">
+                            <h3 className="text-xs font-black uppercase tracking-widest text-outline-variant mb-6">Categories</h3>
+                            <ul className="flex flex-col gap-3 font-bold">
+                                <li><a className="flex justify-between items-center px-4 py-2 bg-primary-container text-on-primary-container rounded" href="#">Business Cards <span className="material-symbols-outlined text-sm">arrow_right_alt</span></a></li>
+                                <li><a className="flex justify-between items-center px-4 py-2 hover:bg-surface-container rounded" href="#">Brochures</a></li>
+                            </ul>
+                        </aside>
+                        <section className="flex-grow">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                                <div className="group flex flex-col">
+                                    <div className="relative bg-surface-container-high aspect-[3/2] overflow-hidden">
+                                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEHPPVyMR3YIS-S9G8Tc02zegLJ3ZGwjPkSUVb5Sy5C7mEfCtD5T9nOwuqoEXiNDtqQ-s8IFZGyW03W6gDTN7cUt6_lxNr3kbs1wUNRCdLqVcBX6UwHnhY9OZMoz1DRjeFc6o5IzoQwMHxMMmZ9SzK9sner1K0wUjeN_5jXmpgSwCxkz8Rhs48I1doH-BXm8BIQKyfHgZxTXYE3sfmfJCThxMw7urIoPZLUbEta2-U4aNe3XzrDSfwzcLY4Z6Pv3vZfe4nKYnhdWI" alt="Standard" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                                        <div className="absolute top-4 left-4"><span className="bg-primary-container text-on-primary-fixed px-3 py-1 text-[10px] font-black uppercase">Bestseller</span></div>
+                                    </div>
+                                    <div className="pt-6 flex justify-between items-start">
+                                        <div>
+                                            <Link to="/product" className="text-lg font-bold cursor-pointer hover:text-primary transition-colors">Standard Professional</Link>
+                                            <p className="text-sm text-on-surface-variant">350gsm Silk Finish</p>
+                                        </div>
+                                        <span className="font-bold text-primary">$29.00+</span>
+                                    </div>
+                                </div>
+                                <div className="group flex flex-col">
+                                    <div className="relative bg-surface-container-high aspect-[3/2] overflow-hidden">
+                                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLHsNS55Hi7qraqkHcVzqKpMUzKqTEfJLO4R3_ZIq1MX0lUaeLNRsOUi08sfaGsim-ANNPFJSQ17nALvZQlHMrrGRFliqZdtryWJASrzei3yCFIkgtD5Ii52HGEG5qpkU0Bz8khprD5P3KJlujOzxY11EJNqVisKJYi_nDYNvUyRFXo_lRTUA71jiUsP602-F0QEbFIhPBWWAQscAemaAiTMMpuH_lh-_RR56Hw9I5TsoWHN5ZACamiz9ktS1uy0Zv3vSukBRHp7k" alt="Luxe" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+                                        <div className="absolute top-4 left-4"><span className="bg-on-surface text-surface px-3 py-1 text-[10px] font-black uppercase">Premium</span></div>
+                                    </div>
+                                    <div className="pt-6 flex justify-between items-start">
+                                        <h4 className="text-lg font-bold">Luxe Letterpress</h4>
+                                        <span className="font-bold text-primary">$85.00+</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+
+        const ProductPage = () => {
+            const [qty, setQty] = useState(500);
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <TopNavBar />
+                    <main className="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                            <div className="lg:col-span-7 sticky top-32">
+                                <div className="aspect-[4/3] bg-surface-container-low overflow-hidden rounded-lg">
+                                    <img className="w-full h-full object-cover mix-blend-multiply opacity-90 transition-transform duration-700 hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIz7Qtu1nGZ29k1PNp3MuYHcFeyv-RkxTkfMsgGkDeSChVS_PR9MosEF0fOrFUJlxQ2g6BThtLHrBxdqqxocM23SSdH4rMVahbQ30QBbyHf8oNMiW7VaZHEvLqDi9x7VfKj3RtqeVKE_vGc3v9OaACpZe5YZZHZSILvLA0OVXcgPKzih7E0hAzQTgY6NfX2iNgUGXiCbAsN2yEW906Rs72CldpHUuYo0QHm9Y2kHCqyZntskzmv-VVTUD6Hg-OF7p_blefRlGvSOo" alt="Mockup"/>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-5 flex flex-col gap-8">
+                                <div className="space-y-2">
+                                    <span className="text-xs font-black uppercase tracking-widest text-primary">Essentials Catalog</span>
+                                    <h1 className="text-5xl font-headline font-black tracking-tighter uppercase leading-none">Standard Business Card</h1>
+                                </div>
+                                <div className="bg-surface-container px-6 py-4 flex justify-between items-baseline">
+                                    <span className="text-sm font-bold uppercase tracking-wider">Estimated Total</span>
+                                    <span className="text-4xl font-headline font-black">$49.00</span>
+                                </div>
+                                <div className="space-y-4">
+                                    <label className="text-xs font-black uppercase tracking-widest">Quantity</label>
+                                    <div className="flex items-center gap-4 bg-surface-container-low p-2">
+                                        <button onClick={() => setQty(Math.max(100, qty - 100))} className="w-12 h-12 flex items-center justify-center hover:bg-surface-container-high transition-colors"><span className="material-symbols-outlined">remove</span></button>
+                                        <input className="bg-transparent border-none text-center font-bold font-headline text-xl focus:ring-0 grow" readOnly value={qty}/>
+                                        <button onClick={() => setQty(qty + 100)} className="w-12 h-12 flex items-center justify-center hover:bg-surface-container-high transition-colors"><span className="material-symbols-outlined">add</span></button>
+                                    </div>
+                                </div>
+                                <div className="pt-6 space-y-4">
+                                    <Link className="w-full bg-primary-container text-on-primary-fixed font-headline font-black text-xl py-6 uppercase tracking-tighter hover:bg-primary-fixed transition-all flex items-center justify-center gap-3" to="/editor">
+                                        Start Designing
+                                        <span className="material-symbols-outlined">arrow_forward</span>
+                                    </Link>
+                                    <Link to="/checkout" className="w-full text-center border-2 border-on-surface text-on-surface font-extrabold py-4 uppercase tracking-widest text-sm hover:bg-on-surface hover:text-white transition-colors">
+                                        Upload Your Own Artwork
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const DashboardPage = () => (
+            <div className="bg-surface font-body text-on-surface flex min-h-screen">
+                <aside className="w-64 h-screen sticky top-0 flex flex-col p-4 bg-zinc-50 font-['Manrope'] text-sm font-medium">
+                    <div className="mb-8 px-4 py-2">
+                        <h1 className="text-xl font-black text-zinc-900 uppercase tracking-tighter">K.T DIGITAL</h1>
+                    </div>
+                    <nav className="flex-1 space-y-2">
+                        <Link className="flex items-center gap-3 px-4 py-3 bg-yellow-400 text-zinc-950 font-bold rounded-lg" to="/dashboard">
+                            <span className="material-symbols-outlined">package_2</span>
+                            <span>Orders</span>
+                        </Link>
+                        <Link className="flex items-center gap-3 px-4 py-3 text-zinc-600 hover:bg-zinc-200 rounded-lg" to="/">
+                            <span className="material-symbols-outlined">home</span>
+                            <span>Back Home</span>
+                        </Link>
+                    </nav>
+                    <div className="mt-auto pt-6 border-t border-zinc-200 flex items-center gap-3 px-4">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+                            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSSDZH2UnCAAw8NWQs_xAON-3JiMHxaAa5HZ-dStFBRzK1r2_wxfg0hWv3-Db-Nn4LWxwB9HvHiucx9m-XUfIBge29nsP8JQkk9JUYEvLF64r6kHCAXXgHvCzgBw_KiguquwIQNYG5tEthF8RyITrabhB8Nv0YRrmvtnHwrjL89FYpKCFY6VwlZq_c8bff-wdPGEHuXlT9GhOYlQ1IiCjNQZZgmCifBy4tlK1cR4M4hsIIGHVcwGYIWmMsYFE-th76IH1Bf9OWnNU" alt="Avatar"/>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-zinc-900">Alex Rivera</p>
+                            <p className="text-[10px] text-zinc-500 uppercase">Premium Member</p>
+                        </div>
+                    </div>
+                </aside>
+                <main className="flex-1 p-8 lg:p-12 overflow-y-auto">
+                    <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div className="max-w-2xl">
+                            <span className="text-primary font-bold uppercase tracking-[0.2em] text-xs mb-3 block">System Overview</span>
+                            <h2 className="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-none">
+                                Welcome back, <span className="text-outline-variant">Rivera.</span>
+                            </h2>
+                        </div>
+                        <Link className="bg-primary-container text-on-primary-fixed px-6 py-3 font-bold rounded hover:opacity-90 transition-opacity flex items-center gap-2" to="/catalog">
+                            <span className="material-symbols-outlined">add</span>
+                            NEW PROJECT
+                        </Link>
+                    </header>
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <section className="md:col-span-8 space-y-6">
+                            <h3 className="font-headline text-2xl font-bold tracking-tight">Recent Orders</h3>
+                            <div className="bg-surface-container-lowest p-6 rounded-lg shadow-sm border-l-4 border-primary-container flex justify-between items-center">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-surface-container flex items-center justify-center rounded"><span className="material-symbols-outlined">architecture</span></div>
+                                    <div><p className="text-xs text-on-surface-variant font-bold uppercase">Order #KT-9921</p><h4 className="font-bold text-lg">Kinetic Interface Package</h4></div>
+                                </div>
+                                <div className="bg-primary-container/20 px-3 py-1 rounded-full"><span className="text-[10px] font-bold text-primary uppercase">In Production</span></div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+            </div>
+        );
+
+        const EditorPage = () => (
+            <div className="bg-background text-on-surface h-screen flex flex-col overflow-hidden">
+                <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm flex items-center justify-between px-8 py-4 max-w-full">
+                    <div className="flex items-center gap-8">
+                        <Link to="/" className="text-2xl font-black text-[#2d2f2f] uppercase">K.T Digital House</Link>
+                        <nav className="hidden md:flex gap-6">
+                            <Link className="font-headline font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00]" to="/catalog">Catalog</Link>
+                            <span className="font-headline font-bold tracking-tight text-[#6c5a00] border-b-2 border-[#ffd709] pb-1 cursor-default">Design Editor</span>
+                        </nav>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <button className="flex items-center px-4 py-2 bg-on-surface text-surface rounded hover:opacity-90 transition-opacity">
+                            <span className="material-symbols-outlined mr-2">save</span>
+                            <span className="font-headline text-sm font-bold uppercase">Save</span>
+                        </button>
+                        <Link className="flex items-center px-4 py-2 bg-primary-container text-on-primary-fixed rounded hover:brightness-95 transition-all" to="/checkout">
+                            <span className="material-symbols-outlined mr-2">shopping_cart</span>
+                            <span className="font-headline text-sm font-bold uppercase">Add to Cart</span>
+                        </Link>
+                    </div>
+                </header>
+                <main className="flex-1 pt-[72px] flex overflow-hidden">
+                    <aside className="w-20 bg-surface-container border-r border-outline-variant/10 flex flex-col items-center py-6 gap-8">
+                        <div className="flex flex-col items-center gap-1"><span className="material-symbols-outlined p-3 bg-primary-container rounded-lg">dashboard</span></div>
+                        <div className="flex flex-col items-center gap-1"><span className="material-symbols-outlined p-3">title</span></div>
+                        <div className="flex flex-col items-center gap-1"><span className="material-symbols-outlined p-3">category</span></div>
+                    </aside>
+                    <section className="flex-1 flex flex-col bg-surface overflow-hidden relative">
+                        <div className="h-14 bg-white/80 px-6 flex items-center border-b border-outline-variant/10">
+                            <div className="flex items-center gap-4">
+                                <span className="font-headline font-bold">Space Grotesk</span>
+                                <span className="text-xs font-bold">12 pt</span>
+                                <div className="flex gap-2">
+                                    <span className="material-symbols-outlined p-1 hover:bg-surface-container rounded">format_bold</span>
+                                    <div className="w-6 h-6 rounded-full bg-[#ffd709] border border-outline-variant/20"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex-1 p-12 flex flex-col items-center justify-center gap-16 overflow-y-auto">
+                            <div className="relative group">
+                                <span className="absolute -top-8 left-0 text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Front Face</span>
+                                <div className="w-[500px] h-[280px] bg-white shadow-xl rounded-sm relative overflow-hidden flex items-center justify-center border-2 border-primary-container">
+                                    <div className="absolute top-8 left-8">
+                                        <div className="text-2xl font-black uppercase tracking-tighter text-[#2d2f2f]">Alex Carter</div>
+                                        <div className="h-1 w-12 bg-[#ffd709] mt-1"></div>
+                                    </div>
+                                    <div className="absolute right-0 top-0 bottom-0 w-24 bg-primary-container flex items-center justify-center transform skew-x-[-6deg] translate-x-4">
+                                        <span className="text-xl font-black text-on-surface leading-none rotate-90 inline-block uppercase">KT HOUSE</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        );
+
+        const CheckoutPage = () => (
+            <div className="min-h-screen flex flex-col">
+                <TopNavBar />
+                <main className="pt-32 pb-24 px-4 md:px-12 max-w-7xl mx-auto">
+                    <header className="mb-16">
+                        <h1 className="font-headline text-5xl md:text-7xl font-black tracking-tighter leading-none text-on-surface">
+                            SHOPPING <span className="text-primary">CART</span>
+                        </h1>
+                    </header>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        <div className="lg:col-span-7 space-y-12">
+                            <div className="bg-surface-container-low flex gap-6 p-6">
+                                <div className="w-40 aspect-square overflow-hidden bg-surface-container-high">
+                                    <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDODho0u5682P4MUJ6q5r6zG3UrklhinWzMDsYQ_vCC1zBQSK5vGYy1LVk8DJWFyIvATCwx4SCD375-jpfrI_jncx7g3jc4NWcaT0blEdjB4KJ7nyd7V-MEkePyso34jaDUfKWP5qImn01v0IkHLdYv9xkBbXJGzO5XeDUkJYeTGRfVhWywHmqJLVV5q3yi93yNpasXLvgXM9X3NET3nn3WXX-RX_yWFDDkg-O3PDQ1wjLj-rkf_J9T9ZOUx1-sNZGwOJVzQGlMgqI" alt="Watch"/>
+                                </div>
+                                <div className="flex-grow flex flex-col justify-between">
+                                    <div className="flex justify-between">
+                                        <h3 className="font-headline text-xl font-bold uppercase">K.T Kinetic Series 01</h3>
+                                        <p className="font-headline text-xl font-black">$249.00</p>
+                                    </div>
+                                    <button className="flex items-center gap-2 text-error text-xs font-bold uppercase self-end">
+                                        <span className="material-symbols-outlined text-sm">delete</span> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="lg:col-span-5">
+                            <div className="editorial-shadow bg-surface-container-lowest p-8 rounded-lg border-t-8 border-primary-container">
+                                <h2 className="font-headline text-3xl font-black uppercase mb-8">Summary</h2>
+                                <div className="space-y-4 mb-8 font-label text-sm uppercase">
+                                    <div className="flex justify-between"><span>Subtotal</span><span className="font-bold">$249.00</span></div>
+                                    <div className="flex justify-between"><span>Shipping</span><span className="font-bold">FREE</span></div>
+                                    <div className="pt-4 border-t flex justify-between items-baseline">
+                                        <span className="font-headline font-black text-xl">Total</span>
+                                        <span className="font-headline font-black text-4xl text-primary">$249.00</span>
+                                    </div>
+                                </div>
+                                <Link className="w-full bg-primary-container text-on-primary-fixed py-6 font-headline font-black text-xl uppercase text-center block transition-all hover:bg-on-surface hover:text-white" to="/dashboard">
+                                    COMPLETE ORDER
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+
+        const App = () => {
+            const { pathname } = useLocation();
+            
+            useEffect(() => {
+                window.scrollTo(0, 0);
+            }, [pathname]);
+
+            return (
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/catalog" element={<CatalogPage />} />
+                    <Route path="/product" element={<ProductPage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/editor" element={<EditorPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                </Routes>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(
+            <MemoryRouter>
+                <App />
+            </MemoryRouter>
+        );
+    </script>
+</body>
+</html>

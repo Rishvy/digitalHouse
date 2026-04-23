@@ -1,0 +1,15 @@
+[Unit]
+Description=W2P Worker Process
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/w2p-platform
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up worker
+ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml stop worker
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Standard Business Card | K.T Digital House</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "error-container": "#f95630",
+                "on-secondary-container": "#525252",
+                "error-dim": "#b92902",
+                "background": "#f6f6f6",
+                "on-tertiary-container": "#516000",
+                "on-error-container": "#520c00",
+                "surface-dim": "#d2d5d5",
+                "secondary-dim": "#4f4f4f",
+                "primary-fixed": "#ffd709",
+                "secondary-fixed-dim": "#d4d4d4",
+                "on-primary-container": "#5b4b00",
+                "on-secondary-fixed": "#3f3f3f",
+                "primary-dim": "#5e4e00",
+                "outline": "#757777",
+                "on-primary-fixed": "#453900",
+                "surface-container": "#e7e8e8",
+                "primary-container": "#ffd709",
+                "tertiary": "#536200",
+                "surface-tint": "#6c5a00",
+                "surface-container-high": "#e1e3e3",
+                "secondary-fixed": "#e2e2e2",
+                "on-background": "#2d2f2f",
+                "secondary": "#5b5b5b",
+                "surface": "#f6f6f6",
+                "primary": "#6c5a00",
+                "on-tertiary-fixed-variant": "#5b6b00",
+                "inverse-on-surface": "#9c9d9d",
+                "on-primary": "#fff2cd",
+                "on-tertiary": "#e5ff76",
+                "secondary-container": "#e2e2e2",
+                "surface-container-low": "#f0f1f1",
+                "inverse-primary": "#ffd709",
+                "on-error": "#ffefec",
+                "tertiary-container": "#e3fd74",
+                "on-secondary": "#f3f3f3",
+                "surface-container-highest": "#dbdddd",
+                "surface-variant": "#dbdddd",
+                "on-surface": "#2d2f2f",
+                "on-tertiary-fixed": "#414d00",
+                "inverse-surface": "#0c0f0f",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed-dim": "#efc900",
+                "on-primary-fixed-variant": "#665500",
+                "on-secondary-fixed-variant": "#5b5b5b",
+                "error": "#b02500",
+                "surface-bright": "#f6f6f6",
+                "tertiary-fixed": "#e3fd74",
+                "outline-variant": "#acadad",
+                "on-surface-variant": "#5a5c5c",
+                "tertiary-fixed-dim": "#d5ee68",
+                "tertiary-dim": "#485500"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Space Grotesk"],
+                "body": ["Manrope"],
+                "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; background-color: #f6f6f6; color: #2d2f2f; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm flex items-center justify-between px-8 py-4 max-w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#2d2f2f] uppercase font-['Space_Grotesk'] tracking-tight">K.T Digital House</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-['Space_Grotesk'] font-bold tracking-tight text-[#6c5a00] border-b-2 border-[#ffd709] pb-1" href="{{DATA:SCREEN:SCREEN_3}}">Catalog</a>
+<a class="font-['Space_Grotesk'] font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_10}}">Design Editor</a>
+<a class="font-['Space_Grotesk'] font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">Services</a>
+<a class="font-['Space_Grotesk'] font-bold tracking-tight text-[#2d2f2f] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">About</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="p-2 hover:bg-surface-container rounded-lg transition-colors" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined text-on-surface">shopping_cart</span>
+</a>
+<a class="p-2 hover:bg-surface-container rounded-lg transition-colors" href="{{DATA:SCREEN:SCREEN_9}}">
+<span class="material-symbols-outlined text-on-surface">account_circle</span>
+</a>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Product Visual Side (The Kinetic Editorial) -->
+<div class="lg:col-span-7 sticky top-32">
+<div class="relative group">
+<div class="aspect-[4/3] bg-surface-container-low overflow-hidden rounded-lg">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-90 transition-transform duration-700 group-hover:scale-105" data-alt="Premium business card mockup on a textured grey background with sharp shadows and minimalist editorial aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIz7Qtu1nGZ29k1PNp3MuYHcFeyv-RkxTkfMsgGkDeSChVS_PR9MosEF0fOrFUJlxQ2g6BThtLHrBxdqqxocM23SSdH4rMVahbQ30QBbyHf8oNMiW7VaZHEvLqDi9x7VfKj3RtqeVKE_vGc3v9OaACpZe5YZZHZSILvLA0OVXcgPKzih7E0hAzQTgY6NfX2iNgUGXiCbAsN2yEW906Rs72CldpHUuYo0QHm9Y2kHCqyZntskzmv-VVTUD6Hg-OF7p_blefRlGvSOo"/>
+</div>
+<!-- Overhang Decorative Element -->
+<div class="absolute -bottom-8 -left-8 w-48 h-48 bg-primary-container z-[-1] opacity-50 blur-3xl"></div>
+</div>
+<div class="mt-12 grid grid-cols-3 gap-4">
+<div class="bg-surface-container-high aspect-square rounded-lg flex items-center justify-center p-4">
+<img class="w-full h-full object-cover rounded" data-alt="Close-up detail of matte business card paper texture showing high-quality fiber and smooth finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSaAA21rWCCixVPwSYt3rGoh1grP9d_hbRO2MjrTwGvm7CBnsYTb8dxM_vqluB-IwZ9FXGQ_QEC2QVjoafMxVVJUa7Z9U4fsp0IySnaoqB-lvqueZW0L9DD1jpsR-AkvSqegQ1Hc3yLY6S83f1jZLiYQpg2OnW2Iuo81Fwtm1ntBwUaqGji1EuRfVG_BpDF5Ybys1AhZRJ2O3hFZMaXgCG-VTMwg5DWNBcj0C0jUEwbiJc6FD5nwLa9lop544TWlzf29L1PzKjwqM"/>
+</div>
+<div class="bg-surface-container-high aspect-square rounded-lg flex items-center justify-center p-4">
+<img class="w-full h-full object-cover rounded" data-alt="Stack of finished business cards illustrating various paper weights and gsm thicknesses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlU2Q0vPLlaRFtCY0UOm9SBiJqO1ju45kE_4UgXqcoaOXcTaAr2vKQ8-m6m_f5hEXdmyfz4rIP5z6OB8hzw7-FW8WAIlFj9L19hQYtYN2lM8exBZafZIHaOLbL_sQB5ot_SG24N3RwXLBnD1Bb2k--AyyxtjYe01ETB0QrLUiF8dPBYVLkJ4rsPWLvR1J0Yboj0LMfEiHSmd3m2htJDjuZ-aboMrLzhpO3QLyOIb1d5JMrFHlpdZ1b8Ui4Z4jqxiX3nOFQIhjfyOo"/>
+</div>
+<div class="bg-surface-container-high aspect-square rounded-lg flex items-center justify-center p-4">
+<img class="w-full h-full object-cover rounded" data-alt="Macro shot of gloss finish business card reflecting light in a professional studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWl5z-musD5EuTmU4_Cm47k4iXrpFBg9bNNpH1Qp9gDKdBPiGfbldGgZei_TH0Uc8LI0WZ63SMobCycR7_hMcwjuuZrpIDFgmaJbLIwVZGkn4Bob-jH-NAp1wtwaOBWraIVvb077jHdqGSErboX18r7fvHT5f1EmcFC08CIbg43uGYnx_N8qlN570R9e9NtzLbLZ2apvnXcvgJGetHokCdVUvpvOg_e2Ejvkqc4uoWjkUG5E8OnTn5LvPltucXukebjdlVXmwg7mk"/>
+</div>
+</div>
+</div>
+<!-- Configuration Side -->
+<div class="lg:col-span-5 flex flex-col gap-8">
+<div class="space-y-2">
+<span class="text-xs font-['Manrope'] font-extrabold uppercase tracking-widest text-primary">Essentials Catalog</span>
+<h1 class="text-5xl font-['Space_Grotesk'] font-black tracking-tighter uppercase leading-none">Standard Business Card</h1>
+<p class="text-on-surface-variant font-['Manrope'] leading-relaxed max-w-md">The bedrock of professional identity. High-contrast printing on archival-grade stocks for a lasting first impression.</p>
+</div>
+<!-- Price Display (Dynamic Feel) -->
+<div class="bg-surface-container px-6 py-4 flex justify-between items-baseline">
+<span class="text-sm font-['Manrope'] uppercase tracking-wider font-bold">Estimated Total</span>
+<span class="text-4xl font-['Space_Grotesk'] font-black">$49.00</span>
+</div>
+<div class="space-y-10">
+<!-- GSM Selection -->
+<div class="space-y-4">
+<label class="text-xs font-['Manrope'] font-black uppercase tracking-widest flex items-center justify-between">
+                            Paper Weight (GSM)
+                            <span class="text-primary font-bold">350 Recommended</span>
+</label>
+<div class="grid grid-cols-4 gap-2">
+<button class="py-3 text-sm font-bold border-2 border-transparent bg-surface-container-low hover:bg-surface-container-highest transition-all">250</button>
+<button class="py-3 text-sm font-bold border-2 border-transparent bg-surface-container-low hover:bg-surface-container-highest transition-all">300</button>
+<button class="py-3 text-sm font-bold border-2 border-on-surface bg-surface-container-lowest transition-all">350</button>
+<button class="py-3 text-sm font-bold border-2 border-transparent bg-surface-container-low hover:bg-surface-container-highest transition-all">400</button>
+</div>
+</div>
+<!-- Finish Selection -->
+<div class="space-y-4">
+<label class="text-xs font-['Manrope'] font-black uppercase tracking-widest">Surface Finish</label>
+<div class="flex flex-wrap gap-3">
+<button class="px-6 py-2 rounded-full text-xs font-extrabold bg-on-surface text-surface uppercase tracking-wider">Matte</button>
+<button class="px-6 py-2 rounded-full text-xs font-extrabold bg-secondary-container text-on-secondary-fixed uppercase tracking-wider hover:bg-surface-container-highest transition-colors">Glossy</button>
+<button class="px-6 py-2 rounded-full text-xs font-extrabold bg-secondary-container text-on-secondary-fixed uppercase tracking-wider hover:bg-surface-container-highest transition-colors">Velvet</button>
+</div>
+</div>
+<!-- Quantity Selection -->
+<div class="space-y-4">
+<label class="text-xs font-['Manrope'] font-black uppercase tracking-widest">Quantity</label>
+<div class="flex items-center gap-4 bg-surface-container-low p-2">
+<button class="w-12 h-12 flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<input class="bg-transparent border-none text-center font-bold font-['Space_Grotesk'] text-xl focus:ring-0 grow" readonly="" type="text" value="500"/>
+<button class="w-12 h-12 flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="flex justify-between text-[10px] font-['Manrope'] uppercase tracking-widest text-on-surface-variant font-bold">
+<span>$0.098 Per Card</span>
+<span class="text-primary">Best Value</span>
+</div>
+</div>
+</div>
+<!-- CTA -->
+<div class="pt-6 space-y-4">
+<a class="w-full bg-primary-container text-on-primary-fixed font-['Space_Grotesk'] font-black text-xl py-6 uppercase tracking-tighter hover:bg-primary-fixed transition-all active:scale-[0.98] flex items-center justify-center gap-3" href="{{DATA:SCREEN:SCREEN_10}}">
+                        Start Designing
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</a>
+<button class="w-full border-2 border-on-surface text-on-surface font-['Manrope'] font-extrabold py-4 uppercase tracking-widest text-sm hover:bg-on-surface hover:text-white transition-colors">
+                        Upload Your Own Artwork
+                    </button>
+</div>
+<!-- Trust Badges -->
+<div class="grid grid-cols-3 gap-4 pt-8 text-center border-t border-surface-container">
+<div class="space-y-1">
+<span class="material-symbols-outlined text-primary">shutter_speed</span>
+<p class="text-[9px] font-bold uppercase tracking-tighter">24h Turnaround</p>
+</div>
+<div class="space-y-1">
+<span class="material-symbols-outlined text-primary">workspace_premium</span>
+<p class="text-[9px] font-bold uppercase tracking-tighter">Premium Grade</p>
+</div>
+<div class="space-y-1">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+<p class="text-[9px] font-bold uppercase tracking-tighter">Free Express</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Grid Specs Section -->
+<div class="mt-32 grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4">
+<div class="md:col-span-2 md:row-span-2 bg-on-surface text-white p-12 flex flex-col justify-end gap-6 min-h-[400px]">
+<h3 class="text-4xl font-['Space_Grotesk'] font-black uppercase leading-tight">Crafted for Clarity</h3>
+<p class="font-['Manrope'] text-sm text-outline-variant leading-relaxed">Our offset printing process ensures ultra-sharp text and deep blacks. Every card is precision-cut using industrial guillotine blades for perfectly perpendicular edges.</p>
+</div>
+<div class="bg-primary-container p-8 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl">ink_highlighter</span>
+<div>
+<h4 class="font-black uppercase tracking-tight text-xl leading-none">Vibrant CMYK</h4>
+<p class="text-xs font-bold mt-2 opacity-70">Rich black technology</p>
+</div>
+</div>
+<div class="bg-surface-container p-8 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl">eco</span>
+<div>
+<h4 class="font-black uppercase tracking-tight text-xl leading-none">Eco Stock</h4>
+<p class="text-xs font-bold mt-2 opacity-70">FSC certified papers</p>
+</div>
+</div>
+<div class="md:col-span-2 bg-surface-container-highest p-8 flex items-center justify-between">
+<div>
+<h4 class="font-black uppercase tracking-tight text-2xl leading-none">Bulk Discounts</h4>
+<p class="text-sm font-medium mt-1 opacity-70">Starting at 1,000+ units</p>
+</div>
+<button class="bg-on-surface text-white px-6 py-3 font-bold text-xs uppercase tracking-widest">Inquire</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#2d2f2f] flex flex-col md:flex-row justify-between items-center px-12 py-16 gap-8">
+<div class="flex flex-col gap-4 text-center md:text-left">
+<span class="text-lg font-bold text-white uppercase font-['Space_Grotesk'] tracking-tight">K.T Digital House</span>
+<p class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad]">© 2024 K.T Digital House. Kinetic Editorial Excellence.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="#">Shipping Info</a>
+<a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad] hover:text-white transition-colors" href="{{DATA:SCREEN:SCREEN_16}}">Contact Support</a>
+</div>
+</footer>
+</body></html>

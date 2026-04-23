@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout | K.T Digital House</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#f95630",
+                    "on-secondary-container": "#525252",
+                    "error-dim": "#b92902",
+                    "background": "#f6f6f6",
+                    "on-tertiary-container": "#516000",
+                    "on-error-container": "#520c00",
+                    "surface-dim": "#d2d5d5",
+                    "secondary-dim": "#4f4f4f",
+                    "primary-fixed": "#ffd709",
+                    "secondary-fixed-dim": "#d4d4d4",
+                    "on-primary-container": "#5b4b00",
+                    "on-secondary-fixed": "#3f3f3f",
+                    "primary-dim": "#5e4e00",
+                    "outline": "#757777",
+                    "on-primary-fixed": "#453900",
+                    "surface-container": "#e7e8e8",
+                    "primary-container": "#ffd709",
+                    "tertiary": "#536200",
+                    "surface-tint": "#6c5a00",
+                    "surface-container-high": "#e1e3e3",
+                    "secondary-fixed": "#e2e2e2",
+                    "on-background": "#2d2f2f",
+                    "secondary": "#5b5b5b",
+                    "surface": "#f6f6f6",
+                    "primary": "#6c5a00",
+                    "on-tertiary-fixed-variant": "#5b6b00",
+                    "inverse-on-surface": "#9c9d9d",
+                    "on-primary": "#fff2cd",
+                    "on-tertiary": "#e5ff76",
+                    "secondary-container": "#e2e2e2",
+                    "surface-container-low": "#f0f1f1",
+                    "inverse-primary": "#ffd709",
+                    "on-error": "#ffefec",
+                    "tertiary-container": "#e3fd74",
+                    "on-secondary": "#f3f3f3",
+                    "surface-container-highest": "#dbdddd",
+                    "surface-variant": "#dbdddd",
+                    "on-surface": "#2d2f2f",
+                    "on-tertiary-fixed": "#414d00",
+                    "inverse-surface": "#0c0f0f",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#efc900",
+                    "on-primary-fixed-variant": "#665500",
+                    "on-secondary-fixed-variant": "#5b5b5b",
+                    "error": "#b02500",
+                    "surface-bright": "#f6f6f6",
+                    "tertiary-fixed": "#e3fd74",
+                    "outline-variant": "#acadad",
+                    "on-surface-variant": "#5a5c5c",
+                    "tertiary-fixed-dim": "#d5ee68",
+                    "tertiary-dim": "#485500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0 10px 40px rgba(45, 47, 47, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 dark:bg-[#2d2f2f]/70 backdrop-blur-xl shadow-sm flex items-center justify-between px-8 py-4 max-w-full">
+<a class="text-2xl font-black text-[#2d2f2f] dark:text-white uppercase font-['Space_Grotesk'] tracking-tight" href="{{DATA:SCREEN:SCREEN_12}}">K.T Digital House</a>
+<div class="hidden md:flex items-center space-x-8 font-['Space_Grotesk'] font-bold tracking-tight">
+<a class="text-[#2d2f2f] dark:text-[#f6f6f6] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_3}}">Catalog</a>
+<a class="text-[#2d2f2f] dark:text-[#f6f6f6] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_10}}">Design Editor</a>
+<a class="text-[#2d2f2f] dark:text-[#f6f6f6] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">Services</a>
+<a class="text-[#2d2f2f] dark:text-[#f6f6f6] hover:text-[#6c5a00] transition-colors duration-200" href="{{DATA:SCREEN:SCREEN_17}}">About</a>
+</div>
+<div class="flex items-center space-x-6">
+<a class="relative scale-95 active:transition-transform" href="{{DATA:SCREEN:SCREEN_15}}">
+<span class="material-symbols-outlined text-[#2d2f2f] dark:text-[#f6f6f6]">shopping_cart</span>
+<span class="absolute -top-2 -right-2 bg-primary-container text-on-primary-container text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+</a>
+<a class="scale-95 active:transition-transform" href="{{DATA:SCREEN:SCREEN_9}}">
+<span class="material-symbols-outlined text-[#2d2f2f] dark:text-[#f6f6f6]">account_circle</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-24 px-4 md:px-12 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.2em] text-outline mb-2 block">Review Your Order</span>
+<h1 class="font-headline text-5xl md:text-7xl font-black tracking-tighter leading-none text-on-surface">
+                        SHOPPING <span class="text-primary">CART</span>
+</h1>
+</div>
+<div class="h-px bg-surface-container flex-grow mx-8 mb-4 hidden lg:block"></div>
+<div class="flex items-center gap-2 font-label text-sm font-bold">
+<span class="text-primary-container bg-on-surface px-3 py-1">SECURE</span>
+<span class="text-on-surface-variant">ENCRYPTED CHECKOUT</span>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Column: Cart Items & Shipping -->
+<div class="lg:col-span-7 space-y-12">
+<!-- Cart Items -->
+<section class="space-y-6">
+<!-- Item 1 -->
+<div class="bg-surface-container-low group flex flex-col sm:flex-row gap-6 p-6 transition-all duration-300 hover:bg-surface-container-highest">
+<div class="w-full sm:w-40 aspect-square overflow-hidden bg-surface-container-high relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Modern minimalist aesthetic product photography of a premium white watch on a clean gray concrete background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDODho0u5682P4MUJ6q5r6zG3UrklhinWzMDsYQ_vCC1zBQSK5vGYy1LVk8DJWFyIvATCwx4SCD375-jpfrI_jncx7g3jc4NWcaT0blEdjB4KJ7nyd7V-MEkePyso34jaDUfKWP5qImn01v0IkHLdYv9xkBbXJGzO5XeDUkJYeTGRfVhWywHmqJLVV5q3yi93yNpasXLvgXM9X3NET3nn3WXX-RX_yWFDDkg-O3PDQ1wjLj-rkf_J9T9ZOUx1-sNZGwOJVzQGlMgqI"/>
+<div class="absolute top-2 left-2 bg-primary-container text-[10px] font-bold px-2 py-1 uppercase tracking-tighter text-on-primary-container">
+                                Customized
+                            </div>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-xl font-bold uppercase tracking-tight">K.T Kinetic Series 01</h3>
+<p class="text-on-surface-variant text-sm mt-1">Edition: Editorial Black • Finish: Matte Titanium</p>
+</div>
+<p class="font-headline text-xl font-black">$249.00</p>
+</div>
+<div class="flex items-center justify-between mt-6 sm:mt-0">
+<div class="flex items-center border border-outline-variant rounded-lg overflow-hidden">
+<button class="px-3 py-1 hover:bg-surface-container-high text-on-surface transition-colors">-</button>
+<span class="px-4 py-1 font-bold border-x border-outline-variant">01</span>
+<button class="px-3 py-1 hover:bg-surface-container-high text-on-surface transition-colors">+</button>
+</div>
+<button class="flex items-center gap-2 text-error text-xs font-bold uppercase hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-sm">delete</span>
+                                    Remove
+                                </button>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface-container-low group flex flex-col sm:flex-row gap-6 p-6 transition-all duration-300 hover:bg-surface-container-highest">
+<div class="w-full sm:w-40 aspect-square overflow-hidden bg-surface-container-high relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="Close-up studio photography of a vibrant red sports shoe floating against a stark black background with sharp dramatic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa0W_WkODp5l67ZmuSoAjy52HQQh9SLaJDvEwO1JcD0VEFpGU3jHG97rXSgnmWkudXvQZEdit6t8A-EAfLDWBnvoohLThG9js5MheKXd4Wi0IRFpOJqLJPTKU2gtfOfRiBrniDBIhbT0o_6h9up4-hjgscz4PZC5hKZp9RTBrxF4Zq_cm32BUcwYLZbZDprsg54zuluQlilkLN4riyQAWY3dsGpNMggFKjeiobNQs29W5AUeHX-ia-0tgvI-iqeZPNNCWAv7aHcAk"/>
+<div class="absolute top-2 left-2 bg-primary-container text-[10px] font-bold px-2 py-1 uppercase tracking-tighter text-on-primary-container">
+                                Custom Print
+                            </div>
+</div>
+<div class="flex-grow flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-xl font-bold uppercase tracking-tight">Flux Runner Pro</h3>
+<p class="text-on-surface-variant text-sm mt-1">Pattern: Neo-Brutalist • Sole: High-Impact Yellow</p>
+</div>
+<p class="font-headline text-xl font-black">$185.00</p>
+</div>
+<div class="flex items-center justify-between mt-6 sm:mt-0">
+<div class="flex items-center border border-outline-variant rounded-lg overflow-hidden">
+<button class="px-3 py-1 hover:bg-surface-container-high text-on-surface transition-colors">-</button>
+<span class="px-4 py-1 font-bold border-x border-outline-variant">01</span>
+<button class="px-3 py-1 hover:bg-surface-container-high text-on-surface transition-colors">+</button>
+</div>
+<button class="flex items-center gap-2 text-error text-xs font-bold uppercase hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-sm">delete</span>
+                                    Remove
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Shipping Options -->
+<section>
+<div class="flex items-center gap-4 mb-6">
+<h2 class="font-headline text-2xl font-black uppercase tracking-tight">Shipping</h2>
+<div class="h-px bg-surface-container flex-grow"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="relative group cursor-pointer">
+<input checked="" class="peer sr-only" name="shipping" type="radio"/>
+<div class="p-5 border-2 border-surface-container peer-checked:border-primary-container peer-checked:bg-primary-container/5 transition-all">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline font-bold text-lg">Express Carrier</span>
+<span class="font-black">$25.00</span>
+</div>
+<p class="text-xs text-on-surface-variant uppercase tracking-wide">2-3 Business Days • Tracked Delivery</p>
+</div>
+</label>
+<label class="relative group cursor-pointer">
+<input class="peer sr-only" name="shipping" type="radio"/>
+<div class="p-5 border-2 border-surface-container peer-checked:border-primary-container peer-checked:bg-primary-container/5 transition-all">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline font-bold text-lg">Standard Ground</span>
+<span class="font-black">FREE</span>
+</div>
+<p class="text-xs text-on-surface-variant uppercase tracking-wide">5-7 Business Days • Basic Tracking</p>
+</div>
+</label>
+</div>
+</section>
+</div>
+<!-- Right Column: Summary & Checkout -->
+<div class="lg:col-span-5">
+<div class="sticky top-28 editorial-shadow bg-surface-container-lowest p-8 rounded-lg border-t-8 border-primary-container">
+<h2 class="font-headline text-3xl font-black uppercase tracking-tighter mb-8">Summary</h2>
+<!-- Breakdown -->
+<div class="space-y-4 mb-8">
+<div class="flex justify-between font-label text-sm uppercase text-on-surface-variant">
+<span>Subtotal (2 items)</span>
+<span class="font-bold text-on-surface">$434.00</span>
+</div>
+<div class="flex justify-between font-label text-sm uppercase text-on-surface-variant">
+<span>Shipping &amp; Handling</span>
+<span class="font-bold text-on-surface">$25.00</span>
+</div>
+<div class="flex justify-between font-label text-sm uppercase text-on-surface-variant">
+<span>Estimated Tax</span>
+<span class="font-bold text-on-surface">$34.72</span>
+</div>
+<div class="pt-4 border-t border-surface-container mt-4 flex justify-between items-baseline">
+<span class="font-headline font-black text-xl uppercase tracking-tight">Total</span>
+<span class="font-headline font-black text-4xl text-primary">$493.72</span>
+</div>
+</div>
+<!-- Payment Options -->
+<div class="space-y-6 mb-10">
+<div class="flex gap-4">
+<button class="flex-1 py-3 bg-surface border-2 border-primary-container flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest">Card</span>
+</button>
+<button class="flex-1 py-3 bg-surface-container-low border-2 border-transparent hover:border-surface-container-highest transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label text-xs font-bold uppercase tracking-widest">PayPal</span>
+</button>
+</div>
+<!-- Card Form -->
+<div class="space-y-4">
+<div class="space-y-1">
+<label class="font-label text-[10px] uppercase font-bold text-outline-variant tracking-widest">Card Number</label>
+<div class="bg-surface-container-low p-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">lock</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-headline tracking-widest" placeholder="XXXX XXXX XXXX XXXX" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="font-label text-[10px] uppercase font-bold text-outline-variant tracking-widest">Expiry Date</label>
+<input class="bg-surface-container-low p-3 border-none focus:ring-0 w-full font-headline text-center" placeholder="MM/YY" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="font-label text-[10px] uppercase font-bold text-outline-variant tracking-widest">CVV</label>
+<input class="bg-surface-container-low p-3 border-none focus:ring-0 w-full font-headline text-center" placeholder="***" type="password"/>
+</div>
+</div>
+</div>
+</div>
+<!-- CTA -->
+<a class="w-full bg-primary-container text-on-primary-fixed py-6 font-headline font-black text-xl uppercase tracking-tighter hover:bg-on-surface hover:text-white transition-all duration-300 scale-100 active:scale-95 group flex items-center justify-center gap-4" href="{{DATA:SCREEN:SCREEN_9}}">
+                        COMPLETE ORDER
+                        <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
+</a>
+<p class="text-[10px] text-center mt-6 text-on-surface-variant uppercase tracking-widest font-medium">
+                        By clicking "Complete Order", you agree to our Terms of Sale and Privacy Policy.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#2d2f2f] dark:bg-[#1a1c1c] w-full mt-auto flex flex-col md:flex-row justify-between items-center px-12 py-16 gap-8">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="text-lg font-bold text-white font-['Space_Grotesk']">K.T Digital House</div>
+<p class="font-['Manrope'] text-sm uppercase tracking-widest text-[#acadad]">© 2024 K.T Digital House. Kinetic Editorial Excellence.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8 font-['Manrope'] text-sm uppercase tracking-widest">
+<a class="text-[#acadad] hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="text-[#acadad] hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="text-[#acadad] hover:text-white transition-colors" href="#">Shipping Info</a>
+<a class="text-[#acadad] hover:text-white transition-colors" href="#">Contact Support</a>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 bg-[#3f3f3f] rounded-full flex items-center justify-center text-white opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined">share</span>
+</div>
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-fixed cursor-pointer">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+</div>
+</footer>
+</body></html>

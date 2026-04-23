@@ -1,0 +1,17 @@
+export interface PriceInput {
+  basePrice: number;
+  priceModifier: number;
+  quantityScaleFactor: number;
+}
+
+export function calculatePrice({ basePrice, priceModifier, quantityScaleFactor }: PriceInput) {
+  return (basePrice + priceModifier) * quantityScaleFactor;
+}
+
+export function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(value);
+}

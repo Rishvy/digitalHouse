@@ -1,0 +1,52 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build app
+        run: npm run build
+
+      - name: Build and push images
+        env:
+          REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          REGISTRY_USER: ${{ secrets.DOCKER_USERNAME }}
+          REGISTRY_PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$REGISTRY_PASS" | docker login "$REGISTRY" -u "$REGISTRY_USER" --password-stdin
+          docker build -t "$REGISTRY/w2p-web:${GITHUB_SHA}" .
+          docker build -t "$REGISTRY/w2p-worker:${GITHUB_SHA}" ./worker
+          docker push "$REGISTRY/w2p-web:${GITHUB_SHA}"
+          docker push "$REGISTRY/w2p-worker:${GITHUB_SHA}"
+
+      - name: Zero-downtime SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /opt/w2p-platform
+            git fetch --all
+            git reset --hard origin/main
+            docker compose -f docker-compose.prod.yml pull || true
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker image prune -f

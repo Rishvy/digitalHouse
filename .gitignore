@@ -1,0 +1,14 @@
+# Ignore ALL hidden files/folders
+.*
+
+# BUT keep Git essentials
+!.gitignore
+!.git/
+
+# (optional but recommended)
+!.github/
+
+# Common project ignores
+node_modules/
+.next/
+.env
