@@ -52,7 +52,33 @@ export async function getProductsByCategory(categoryId: string, page: number, pa
     .select("*", { count: "exact" })
     .eq("category_id", categoryId)
     .range(from, to);
-  return { products: (data ?? []) as Product[], count: count ?? 0 };
+  
+  const products = (data ?? []) as Product[];
+  
+  // Fetch images for these products
+  if (products.length > 0) {
+    const productIds = products.map(p => p.id);
+    const { data: images } = await sb
+      .from("product_images")
+      .select("product_id, image_url, display_order")
+      .in("product_id", productIds)
+      .order("display_order");
+    
+    // Map first image to each product
+    const imageMap = new Map<string, string>();
+    (images ?? []).forEach((img: any) => {
+      if (!imageMap.has(img.product_id)) {
+        imageMap.set(img.product_id, img.image_url);
+      }
+    });
+    
+    // Add main_image to products
+    products.forEach(p => {
+      (p as any).main_image = imageMap.get(p.id) ?? null;
+    });
+  }
+  
+  return { products, count: count ?? 0 };
 }
 
 export async function getVariationsByProductIds(productIds: string[]) {
@@ -80,4 +106,15 @@ export async function getVariationsByProductId(productId: string) {
   const sb = supabase as any;
   const { data } = await sb.from("product_variations").select("*").eq("product_id", productId);
   return (data ?? []) as ProductVariation[];
+}
+
+export async function getProductImages(productId: string) {
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const { data } = await sb
+    .from("product_images")
+    .select("*")
+    .eq("product_id", productId)
+    .order("display_order");
+  return (data ?? []) as Array<{ id: string; image_url: string; display_order: number }>;
 }

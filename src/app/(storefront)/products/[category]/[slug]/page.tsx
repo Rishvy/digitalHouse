@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductConfigurator } from "@/components/storefront/ProductConfigurator";
-import { getProductByCategoryAndSlug, getVariationsByProductId } from "@/lib/catalog";
+import { getProductByCategoryAndSlug, getVariationsByProductId, getProductImages } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
+import { ProductImageGallery } from "@/components/storefront/ProductImageGallery";
 
 export async function generateMetadata({
   params,
@@ -35,19 +36,11 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const variations = await getVariationsByProductId(product.id);
+  const images = await getProductImages(product.id);
 
   return (
     <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1.1fr_0.9fr] md:px-8">
-      <div className="space-y-4">
-        <div className="rounded-xl bg-surface-container-high p-3">
-          <div className="h-80 rounded-lg bg-surface-container-low" />
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-lg bg-surface-container" />
-          ))}
-        </div>
-      </div>
+      <ProductImageGallery images={images.map((img) => img.image_url)} productName={product.name} />
       <div className="space-y-4">
         <p className="inline-block bg-primary-container px-2 py-1 text-xs font-semibold uppercase text-on-primary-fixed">
           {category}

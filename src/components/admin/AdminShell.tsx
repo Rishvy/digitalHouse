@@ -8,6 +8,9 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 const navItems = [
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/homepage", label: "Homepage" },
+  { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/products", label: "Products" },
   { href: "/admin/templates/b0000000-0000-0000-0000-000000000001", label: "Templates" },
   { href: "/admin/uploads", label: "Uploads" },
   { href: "/admin/seed", label: "Seed Data" },

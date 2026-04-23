@@ -18,20 +18,50 @@ export function ProductConfigurator({
   basePrice: number;
   variations: ProductVariation[];
 }) {
-  const [variationId, setVariationId] = useState(variations[0]?.id ?? "");
-  const [quantity, setQuantity] = useState(Number(variations[0]?.attributes.quantity ?? 1));
-
-  const selectedVariation = useMemo(
-    () => variations.find((variation) => variation.id === variationId) ?? variations[0],
-    [variationId, variations],
-  );
-
-  const quantityBrackets = useMemo(() => {
-    const values = variations
-      .map((variation) => Number(variation.attributes.quantity ?? 1))
-      .filter((value) => Number.isFinite(value));
-    return Array.from(new Set(values)).sort((a, b) => a - b);
+  // Derive unique option lists from variations
+  const quantities = useMemo(() => {
+    const vals = variations
+      .map((v) => Number(v.attributes.quantity ?? 1))
+      .filter(Number.isFinite);
+    return Array.from(new Set(vals)).sort((a, b) => a - b);
   }, [variations]);
+
+  const laminations = useMemo(() => {
+    const vals = variations
+      .map((v) => String(v.attributes.lamination ?? ""))
+      .filter(Boolean);
+    return Array.from(new Set(vals));
+  }, [variations]);
+
+  const paperStocks = useMemo(() => {
+    const vals = variations
+      .map((v) => String(v.attributes.paper_stock ?? ""))
+      .filter(Boolean);
+    return Array.from(new Set(vals));
+  }, [variations]);
+
+  const [quantity, setQuantity] = useState<number>(quantities[0] ?? 1);
+  const [lamination, setLamination] = useState<string>(laminations[0] ?? "");
+  const [paperStock, setPaperStock] = useState<string>(paperStocks[0] ?? "");
+
+  // Find the best-matching variation for the current selections
+  const selectedVariation = useMemo(() => {
+    return (
+      variations.find(
+        (v) =>
+          Number(v.attributes.quantity) === quantity &&
+          String(v.attributes.lamination) === lamination &&
+          String(v.attributes.paper_stock) === paperStock,
+      ) ??
+      variations.find(
+        (v) =>
+          Number(v.attributes.quantity) === quantity &&
+          String(v.attributes.lamination) === lamination,
+      ) ??
+      variations.find((v) => Number(v.attributes.quantity) === quantity) ??
+      variations[0]
+    );
+  }, [variations, quantity, lamination, paperStock]);
 
   const price = calculatePrice({
     basePrice,
@@ -42,53 +72,103 @@ export function ProductConfigurator({
   return (
     <div className="space-y-4 rounded-xl bg-surface-container p-5">
       <h3 className="font-heading text-xl font-semibold">Configure Product</h3>
+
+      {/* Quantity — numeric input */}
       <div>
-        <label className="mb-2 block text-sm font-semibold">Variation</label>
-        <select
-          value={variationId}
-          onChange={(event) => setVariationId(event.target.value)}
-          className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-        >
-          {variations.map((variation) => (
-            <option key={variation.id} value={variation.id}>
-              {Object.entries(variation.attributes)
-                .map(([key, value]) => `${key}: ${String(value)}`)
-                .join(" | ")}
-            </option>
-          ))}
-        </select>
+        <label className="mb-2 block text-sm font-semibold" htmlFor="qty-input">
+          Quantity
+        </label>
+        {quantities.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {quantities.map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => setQuantity(q)}
+                className={`rounded px-3 py-1 text-sm ${
+                  quantity === q
+                    ? "bg-primary-container text-on-primary-fixed"
+                    : "bg-secondary-container text-on-secondary-fixed"
+                }`}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <input
+            id="qty-input"
+            type="number"
+            min={1}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+            className="w-32 rounded bg-surface-container-low px-3 py-2 text-sm"
+          />
+        )}
       </div>
-      <div>
-        <label className="mb-2 block text-sm font-semibold">Quantity</label>
-        <div className="flex flex-wrap gap-2">
-          {quantityBrackets.map((bracket) => (
-            <button
-              key={bracket}
-              type="button"
-              onClick={() => setQuantity(bracket)}
-              className={`rounded px-3 py-1 text-sm ${quantity === bracket ? "bg-primary-container text-on-primary-fixed" : "bg-secondary-container text-on-secondary-fixed"}`}
-            >
-              {bracket}
-            </button>
-          ))}
+
+      {/* Lamination — dropdown */}
+      {laminations.length > 0 && (
+        <div>
+          <label className="mb-2 block text-sm font-semibold" htmlFor="lamination-select">
+            Lamination
+          </label>
+          <select
+            id="lamination-select"
+            value={lamination}
+            onChange={(e) => setLamination(e.target.value)}
+            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
+          >
+            {laminations.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt.charAt(0).toUpperCase() + opt.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
+      )}
+
+      {/* Paper Stock — dropdown */}
+      {paperStocks.length > 0 && (
+        <div>
+          <label className="mb-2 block text-sm font-semibold" htmlFor="paper-stock-select">
+            Paper Stock
+          </label>
+          <select
+            id="paper-stock-select"
+            value={paperStock}
+            onChange={(e) => setPaperStock(e.target.value)}
+            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
+          >
+            {paperStocks.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <p className="text-lg font-semibold">{formatCurrency(price)}</p>
+
       <div className="flex flex-wrap gap-3">
         <Link
-          href={`/design/${productId}?variationId=${variationId}&qty=${quantity}`}
+          href={`/design/${productId}?variationId=${selectedVariation?.id ?? ""}&qty=${quantity}`}
           className="rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-fixed"
         >
           Start Designing
         </Link>
         <Link
-          href={`/checkout?product=${productSlug}&variationId=${variationId}&qty=${quantity}`}
+          href={`/checkout?product=${productSlug}&variationId=${selectedVariation?.id ?? ""}&qty=${quantity}`}
           className="rounded bg-on-surface px-4 py-2 text-sm font-semibold text-surface"
         >
           Upload Your Own Artwork
         </Link>
       </div>
-      <p className="text-xs text-on-surface/70">Live estimate based on base price, variation modifier, and quantity scaling.</p>
+
+      <p className="text-xs text-on-surface/70">
+        Live estimate based on base price, variation modifier, and quantity scaling.
+      </p>
       <p className="text-xs text-on-surface/60">{categorySlug.replaceAll("-", " ")}</p>
     </div>
   );
