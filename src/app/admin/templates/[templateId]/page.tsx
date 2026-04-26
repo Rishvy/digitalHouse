@@ -1,4 +1,7 @@
 import { TemplateBuilder } from "@/components/admin/TemplateBuilder";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Template Builder | Admin" };
 
 export default async function AdminTemplateBuilderPage({
   params,
@@ -6,10 +9,5 @@ export default async function AdminTemplateBuilderPage({
   params: Promise<{ templateId: string }>;
 }) {
   const { templateId } = await params;
-  return (
-    <section className="space-y-3">
-      <h1 className="text-3xl font-bold">Template Builder</h1>
-      <TemplateBuilder initialTemplateId={templateId} />
-    </section>
-  );
+  return <TemplateBuilder initialTemplateId={templateId} />;
 }

@@ -33,9 +33,9 @@ export function SearchBar() {
   var handleBlur = function() { setTimeout(function() { setIsOpen(false); }, 200); };
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full max-w-xs">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface/60" />
+        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/40" />
         <input
           type="search"
           placeholder="Search products..."
@@ -43,28 +43,33 @@ export function SearchBar() {
           onChange={function(e) { setQuery(e.target.value); }}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className="w-full rounded-full bg-surface-container-low pl-10 pr-4 py-2 text-sm"
+          className="w-full rounded-lg border border-foreground/10 bg-background py-1.5 pl-9 pr-3 text-sm placeholder:text-foreground/30 focus:border-foreground/20 focus:outline-none"
         />
+        {loading && (
+          <span className="absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2 animate-spin rounded-full border border-foreground/20 border-t-foreground/60" />
+        )}
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 z-50 max-h-80 overflow-auto rounded-xl bg-surface-container shadow-lg">
+        <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-80 overflow-auto rounded-lg border border-foreground/10 bg-background shadow-xl">
           {results.map(function(result) {
             return (
               <Link
                 key={result.id}
                 href={"/products/" + result.categorySlug + "/" + result.slug}
                 onClick={function() { setIsOpen(false); }}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-surface-container-high"
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/10"
               >
-                <div className="h-10 w-10 shrink-0 rounded bg-surface-container-low">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded bg-foreground/5">
                   {result.thumbnail ? (
                     <img src={result.thumbnail} alt="" className="h-full w-full object-cover" />
-                  ) : null}
+                  ) : (
+                    <span className="material-symbols-outlined text-lg text-foreground/20">image</span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{result.name}</p>
-                  <p className="text-xs text-on-surface/60">{result.categoryName}</p>
+                  <p className="truncate text-sm font-medium">{result.name}</p>
+                  <p className="text-xs text-foreground/50">{result.categoryName}</p>
                 </div>
                 <p className="text-sm font-semibold">${result.basePrice}</p>
               </Link>

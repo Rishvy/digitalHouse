@@ -59,7 +59,7 @@ export default async function CategoryPage({
 
   const [categories, categoryData] = await Promise.all([getCategories(), getCategoryBySlug(category)]);
   if (!categoryData) {
-    return <div className="mx-auto max-w-7xl px-4 py-16">Category not found.</div>;
+    return <div className="mx-auto max-w-7xl px-4 py-16 text-center">Category not found.</div>;
   }
 
   const { products: allProducts, count } = await getProductsByCategory(categoryData.id, 1, 100);
@@ -97,19 +97,26 @@ export default async function CategoryPage({
   var pagedProducts = filteredProducts.slice((pageNumber - 1) * PAGE_SIZE, pageNumber * PAGE_SIZE);
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[280px_1fr] md:px-8">
+    <section className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 md:grid-cols-[260px_1fr] md:px-8 md:py-14">
       <CatalogSidebar
         categories={categories}
         activeSlug={category}
         filters={filterOptions}
         selectedFilters={selectedFilters}
       />
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{categoryData.name}</h1>
-          <p className="text-sm text-on-surface/60">{totalItems} products</p>
+      <div className="space-y-6">
+        <div className="flex items-end justify-between border-b border-foreground/10 pb-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-foreground/40">
+              {categoryData.name}
+            </p>
+            <h1 className="mt-1 font-heading text-3xl font-bold md:text-4xl">
+              {categoryData.name}
+            </h1>
+          </div>
+          <p className="text-sm text-foreground/50">{totalItems} product{totalItems !== 1 ? "s" : ""}</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {pagedProducts.map(function(product) {
             var productVariations = variations.filter(function(variation) { return variation.product_id === product.id; });
             var lowestModifier = productVariations.length > 0
@@ -126,7 +133,7 @@ export default async function CategoryPage({
           })}
         </div>
         {totalPages > 1 && (
-          <div className="flex gap-2">
+          <div className="flex items-center justify-center gap-2 pt-4">
             {Array.from({ length: totalPages }).map(function(_, index) {
               var nextPage = index + 1;
               var href = "/products/" + category + "?page=" + nextPage + (sort !== "name" ? "&sort=" + sort : "") + (selectedFilters.length > 0 ? "&filter=" + selectedFilters.join(",") : "");
@@ -134,7 +141,7 @@ export default async function CategoryPage({
                 <a
                   key={href}
                   href={href}
-                  className={"rounded px-3 py-1 text-sm " + (nextPage === pageNumber ? "bg-primary-container text-on-primary-fixed" : "bg-surface-container-high")}
+                  className={"flex h-8 w-8 items-center justify-center rounded-md text-sm transition-all " + (nextPage === pageNumber ? "bg-foreground text-background font-semibold" : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10")}
                 >
                   {nextPage}
                 </a>

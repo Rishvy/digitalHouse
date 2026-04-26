@@ -1,10 +1,14 @@
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import type { Metadata } from "next";
 
-export default function AdminAnalyticsPage() {
+export const metadata: Metadata = { title: "Analytics | Admin" };
+
+export default function AnalyticsPage() {
   return (
-    <section className="space-y-3">
-      <h1 className="text-3xl font-bold">Analytics</h1>
+    <div>
+      <AdminPageHeader title="Analytics" subtitle="Revenue trends and product performance" />
       <AnalyticsDashboard />
-    </section>
+    </div>
   );
 }

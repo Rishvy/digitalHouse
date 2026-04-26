@@ -1,10 +1,14 @@
 import { SeedDemoDataPanel } from "@/components/admin/SeedDemoDataPanel";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import type { Metadata } from "next";
 
-export default function AdminSeedPage() {
+export const metadata: Metadata = { title: "Seed Data | Admin" };
+
+export default function SeedPage() {
   return (
-    <section className="space-y-3 pb-20 lg:pb-4">
-      <h1 className="text-3xl font-bold">Seed Demo Data</h1>
+    <div>
+      <AdminPageHeader title="Seed Data" subtitle="Populate the database with demo content" />
       <SeedDemoDataPanel />
-    </section>
+    </div>
   );
 }

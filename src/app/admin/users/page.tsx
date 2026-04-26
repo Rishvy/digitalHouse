@@ -1,10 +1,14 @@
 import { UsersTable } from "@/components/admin/UsersTable";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import type { Metadata } from "next";
 
-export default function AdminUsersPage() {
+export const metadata: Metadata = { title: "Users | Admin" };
+
+export default function UsersPage() {
   return (
-    <section className="space-y-3">
-      <h1 className="text-3xl font-bold">User Management</h1>
+    <div>
+      <AdminPageHeader title="Users" subtitle="Manage user accounts and roles" />
       <UsersTable />
-    </section>
+    </div>
   );
 }

@@ -34,52 +34,72 @@ export function AnalyticsDashboard() {
   }, []);
 
   const kpis = useMemo(() => {
-    if (!revenue || revenue.length === 0) return { totalRevenue: 0, totalOrders: 0 };
+    if (!revenue || revenue.length === 0) return { totalRevenue: 0, totalOrders: 0, avgOrderValue: 0 };
+    var totalRev = revenue.reduce((sum, row) => sum + Number(row.total_revenue), 0);
+    var totalOrd = revenue.reduce((sum, row) => sum + Number(row.total_orders), 0);
     return {
-      totalRevenue: revenue.reduce((sum, row) => sum + Number(row.total_revenue), 0),
-      totalOrders: revenue.reduce((sum, row) => sum + Number(row.total_orders), 0),
+      totalRevenue: totalRev,
+      totalOrders: totalOrd,
+      avgOrderValue: totalOrd > 0 ? totalRev / totalOrd : 0,
     };
   }, [revenue]);
 
   if (!revenue || !velocity) {
-    return <div className="rounded-xl bg-surface-container p-5">Loading analytics...</div>;
+    return <div className="text-sm text-foreground/50">Loading analytics...</div>;
   }
 
   return (
-    <div className="space-y-4 pb-20 lg:pb-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <article className="rounded bg-surface-container p-4">Revenue: {kpis.totalRevenue.toFixed(2)}</article>
-        <article className="rounded bg-surface-container p-4">Orders: {kpis.totalOrders}</article>
-        <article className="rounded bg-surface-container p-4">Top Product: {velocity[0]?.product_name ?? "-"}</article>
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-foreground/10 p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">Total Revenue</p>
+          <p className="mt-1 font-heading text-2xl font-bold">{"\u20B9"}{kpis.totalRevenue.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</p>
+          <p className="mt-1 text-xs text-foreground/40">Last 30 days</p>
+        </div>
+        <div className="rounded-lg border border-foreground/10 p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">Total Orders</p>
+          <p className="mt-1 font-heading text-2xl font-bold">{kpis.totalOrders}</p>
+          <p className="mt-1 text-xs text-foreground/40">Last 30 days</p>
+        </div>
+        <div className="rounded-lg border border-foreground/10 p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">Avg Order Value</p>
+          <p className="mt-1 font-heading text-2xl font-bold">{"\u20B9"}{kpis.avgOrderValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</p>
+          <p className="mt-1 text-xs text-foreground/40">
+            Top: {velocity[0]?.product_name ?? "-"}
+          </p>
+        </div>
       </div>
-      <article className="rounded-xl bg-surface-container p-4">
-        <h3 className="mb-3 font-semibold">30-Day Revenue</h3>
-        <div className="h-72">
+
+      <div className="rounded-lg border border-foreground/10 p-5">
+        <h3 className="font-heading text-base font-semibold">30-Day Revenue Trend</h3>
+        <div className="mt-4 h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={revenue}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="revenue_date" />
-              <YAxis />
-              <Tooltip />
-              <Line dataKey="total_revenue" stroke="#ffd709" strokeWidth={3} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+              <XAxis dataKey="revenue_date" tick={{ fontSize: 11 }} tickFormatter={function(v) { return v.slice(5); }} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={function(v) { return "₹" + (v / 1000).toFixed(0) + "k"; }} />
+              <Tooltip formatter={(v) => ["₹" + Number(v || 0).toLocaleString("en-IN"), "Revenue"]} />
+              <Line dataKey="total_revenue" stroke="#4a3f00" strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </article>
-      <article className="rounded-xl bg-surface-container p-4">
-        <h3 className="mb-3 font-semibold">Product Velocity</h3>
-        <div className="h-72">
+      </div>
+
+      <div className="rounded-lg border border-foreground/10 p-5">
+        <h3 className="font-heading text-base font-semibold">Product Velocity</h3>
+        <p className="text-xs text-foreground/40">Top products by quantity sold</p>
+        <div className="mt-4 h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={velocity}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="product_name" />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+              <XAxis dataKey="product_name" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
-              <Bar dataKey="total_quantity_sold" fill="#2d2f2f" />
+              <Bar dataKey="total_quantity_sold" fill="#ffd709" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </article>
+      </div>
     </div>
   );
 }

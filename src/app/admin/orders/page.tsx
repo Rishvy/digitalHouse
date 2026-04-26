@@ -1,11 +1,14 @@
 import { OmsBoard } from "@/components/admin/OmsBoard";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import type { Metadata } from "next";
 
-export default function AdminOrdersPage() {
+export const metadata: Metadata = { title: "Orders | Admin" };
+
+export default function OrdersPage() {
   return (
-    <section className="space-y-4 pb-20 lg:pb-4">
-      <h1 className="text-3xl font-bold">Order Management</h1>
-      <p className="text-sm text-on-surface/75">Realtime Kanban view of production statuses.</p>
+    <div>
+      <AdminPageHeader title="Orders" subtitle="Realtime Kanban view of production statuses" />
       <OmsBoard />
-    </section>
+    </div>
   );
 }

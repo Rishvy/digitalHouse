@@ -1,10 +1,14 @@
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminUploads } from "@/components/admin/AdminUploads";
+import type { Metadata } from "next";
 
-export default function AdminUploadsPage() {
+export const metadata: Metadata = { title: "Media | Admin" };
+
+export default function UploadsPage() {
   return (
-    <section className="space-y-3 pb-20 lg:pb-4">
-      <h1 className="text-3xl font-bold">Admin Uploads</h1>
+    <div>
+      <AdminPageHeader title="Media Library" subtitle="Upload and manage media assets" />
       <AdminUploads />
-    </section>
+    </div>
   );
 }
