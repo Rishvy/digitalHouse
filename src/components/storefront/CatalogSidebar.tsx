@@ -108,35 +108,6 @@ export function CatalogSidebar({
         )}
       </div>
 
-      {filters.length > 0 && (
-        <div>
-          <button
-            onClick={function() { setExpanded(function(prev) { return Object.assign({}, prev, { filters: !prev.filters }); }); }}
-            className="flex w-full items-center justify-between px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground/50"
-          >
-            Options
-            {expanded.filters ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </button>
-          {expanded.filters && (
-            <div className="flex flex-wrap gap-1.5 px-4 pb-3">
-              {filters.map(function(filter) {
-                var isActive = selectedFilters.includes(filter);
-                return (
-                  <button
-                    key={filter}
-                    onClick={function() { toggleFilter(filter); }}
-                    className={"flex items-center gap-1 rounded-md px-2.5 py-1 text-xs transition-colors " + (isActive ? "bg-foreground text-background" : "border border-foreground/10 text-foreground/60 hover:border-foreground/20")}
-                  >
-                    {isActive && <X className="h-2.5 w-2.5" />}
-                    {filter}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
       <div>
         <button
           onClick={function() { setExpanded(function(prev) { return Object.assign({}, prev, { price: !prev.price }); }); }}
@@ -208,6 +179,35 @@ export function CatalogSidebar({
           </div>
         )}
       </div>
+
+      {filters.length > 0 && (
+        <div>
+          <button
+            onClick={function() { setExpanded(function(prev) { return Object.assign({}, prev, { filters: !prev.filters }); }); }}
+            className="flex w-full items-center justify-between px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-foreground/50"
+          >
+            Options
+            {expanded.filters ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </button>
+          {expanded.filters && (
+            <div className="flex flex-wrap gap-1.5 px-4 pb-3">
+              {filters.map(function(filter) {
+                var isActive = selectedFilters.includes(filter);
+                return (
+                  <button
+                    key={filter}
+                    onClick={function() { toggleFilter(filter); }}
+                    className={"flex items-center gap-1 rounded-md px-2.5 py-1 text-xs transition-colors " + (isActive ? "bg-foreground text-background" : "border border-foreground/10 text-foreground/60 hover:border-foreground/20")}
+                  >
+                    {isActive && <X className="h-2.5 w-2.5" />}
+                    {filter}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 }

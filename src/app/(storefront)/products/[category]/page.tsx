@@ -97,15 +97,15 @@ export default async function CategoryPage({
   var pagedProducts = filteredProducts.slice((pageNumber - 1) * PAGE_SIZE, pageNumber * PAGE_SIZE);
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-10 md:grid-cols-[260px_1fr] md:px-8 md:py-14">
+    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:grid-cols-[260px_1fr] md:px-8 md:py-8">
       <CatalogSidebar
         categories={categories}
         activeSlug={category}
         filters={filterOptions}
         selectedFilters={selectedFilters}
       />
-      <div className="space-y-6">
-        <div className="flex items-end justify-between border-b border-foreground/10 pb-4">
+      <div className="space-y-4">
+        <div className="flex items-end justify-between border-b border-foreground/10 pb-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-foreground/40">
               {categoryData.name}
@@ -116,7 +116,7 @@ export default async function CategoryPage({
           </div>
           <p className="text-sm text-foreground/50">{totalItems} product{totalItems !== 1 ? "s" : ""}</p>
         </div>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pagedProducts.map(function(product) {
             var productVariations = variations.filter(function(variation) { return variation.product_id === product.id; });
             var lowestModifier = productVariations.length > 0

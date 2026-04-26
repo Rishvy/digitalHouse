@@ -47,6 +47,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  // Check for duplicate SKUs in the request
+  const skus = variations.map(v => v.sku);
+  const uniqueSkus = new Set(skus);
+  if (skus.length !== uniqueSkus.size) {
+    const duplicates = skus.filter((sku, index) => skus.indexOf(sku) !== index);
+    return NextResponse.json(
+      { error: `Duplicate SKUs in request: ${[...new Set(duplicates)].join(", ")}` },
+      { status: 400 }
+    );
+  }
+
+  // Check if any SKU is already in use
+  const { data: existing } = await service
+    .from("product_variations")
+    .select("sku")
+    .in("sku", skus);
+
+  if (existing?.length) {
+    return NextResponse.json(
+      { error: `SKU(s) already in use: ${existing.map(e => e.sku).join(", ")}` },
+      { status: 400 }
+    );
+  }
+
   // Insert product
   const { data: product, error: productError } = await service
     .from("products")

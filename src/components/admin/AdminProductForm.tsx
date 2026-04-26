@@ -129,12 +129,13 @@ export function AdminProductForm({
       for (const lam of laminationOpts) {
         for (const paper of paperOpts) {
           const slugBase = form.slug.toUpperCase().replace(/-/g, "").slice(0, 6);
+          const paperCode = paper.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
           rows.push({
             quantity: qty,
             lamination: lam,
             paper_stock: paper,
             price_modifier: 0,
-            sku: `${slugBase}-${lam.toUpperCase().slice(0, 3)}-${qty}`,
+            sku: `${slugBase}-${lam.toUpperCase().slice(0, 3)}-${paperCode}-${qty}`,
           });
         }
       }

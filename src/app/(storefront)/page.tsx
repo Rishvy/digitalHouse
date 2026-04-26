@@ -27,7 +27,7 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-foreground/5">
-        <div className="mx-auto max-w-7xl px-4 py-20 md:px-8 md:py-32">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-20">
           <div className="relative z-10 max-w-4xl">
             <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-accent-foreground/60" />

@@ -37,7 +37,7 @@ export function ProductCard({
         productId: product.id,
         productName: product.name,
         basePrice: startingPrice,
-        thumbnailUrl: product.thumbnail_url ?? product.main_image ?? null,
+        thumbnailUrl: product.main_image ?? product.thumbnail_url ?? null,
         categorySlug: categorySlug,
       });
       setIsWishlisted(true);
@@ -50,9 +50,9 @@ export function ProductCard({
       className="group relative block overflow-hidden rounded-lg border border-foreground/10 bg-background transition-all hover:border-foreground/20 hover:shadow-lg"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-foreground/5">
-        {product.thumbnail_url || product.main_image ? (
+        {product.main_image || product.thumbnail_url ? (
           <img
-            src={product.thumbnail_url ?? product.main_image ?? ""}
+            src={product.main_image ?? product.thumbnail_url ?? ""}
             alt={product.name}
             className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
           />
