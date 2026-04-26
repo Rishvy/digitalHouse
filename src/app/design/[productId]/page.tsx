@@ -1,5 +1,5 @@
-import { DesignEditor } from "@/components/design-tool/DesignEditor";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PrintEditor } from "@/components/design-tool/PrintEditor";
 
 export default async function DesignPage({
   params,
@@ -13,23 +13,18 @@ export default async function DesignPage({
   const supabase = await createSupabaseServerClient();
   const sb = supabase as any;
 
-  const { data: product } = await sb.from("products").select("template_id").eq("id", productId).maybeSingle();
-  const typedProduct = (product ?? null) as { template_id?: string } | null;
-  const { data: template } = await sb
-    .from("templates")
-    .select("konva_json")
-    .eq("id", typedProduct?.template_id ?? "")
+  const { data: product } = await sb
+    .from("products")
+    .select("*, templates(konva_json)")
+    .eq("id", productId)
     .maybeSingle();
 
-  const fallbackTemplate =
-    '{"attrs":{"width":1000,"height":600},"className":"Stage","children":[{"className":"Layer","children":[]}]}';
-
   return (
-    <DesignEditor
+    <PrintEditor
       productId={productId}
       variationId={variationId}
       qty={Number(qty) || 1}
-      templateJson={(template as { konva_json?: string } | null)?.konva_json ?? fallbackTemplate}
+      productName={`Product ${productId.slice(0, 8)}`}
     />
   );
 }

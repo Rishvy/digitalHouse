@@ -24,7 +24,10 @@ export type ActiveTool =
   | "font"
   | "opacity"
   | "filter"
-  | "settings";
+  | "settings"
+  | "templates"
+  | "background"
+  | "layers";
 
 export const FILL_COLOR = "rgba(0,0,0,1)";
 export const STROKE_COLOR = "rgba(0,0,0,1)";
@@ -125,6 +128,7 @@ export interface Editor {
   saveJpg: () => void;
   saveSvg: () => void;
   saveJson: () => void;
+  exportCanvas: () => string;
   loadJson: (json: string) => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -162,6 +166,42 @@ export interface Editor {
   changeOpacity: (value: number) => void;
   bringForward: () => void;
   sendBackwards: () => void;
+  sendToBack: () => void;
+  flipX: () => void;
+  flipY: () => void;
+  rotate90: () => void;
+  rotateAngle: (angle: number) => void;
+  lockObject: () => void;
+  unlockObject: () => void;
+  groupObjects: () => void;
+  ungroupObjects: () => void;
+  copyToClipboard: () => void;
+  pasteFromClipboard: () => void;
+  duplicate: () => void;
+
+  // Layer management
+  getActiveLayerIndex: () => number;
+  setActiveLayer: (index: number) => void;
+  getLayers: () => Array<{ id: string; name: string; type: string; visible: boolean; locked: boolean }>;
+
+  // Background
+  changeBackgroundImage: (url: string) => void;
+  changeBackgroundPattern: (url: string) => void;
+  clearBackground: () => void;
+
+  // Alignment
+  alignLeft: () => void;
+  alignCenter: () => void;
+  alignRight: () => void;
+  alignTop: () => void;
+  alignMiddle: () => void;
+  alignBottom: () => void;
+
+  // Grid (stub implementations)
+  toggleGrid: () => void;
+  setGridSize: (size: number) => void;
+  snapToGrid: () => void;
+
   changeStrokeWidth: (value: number) => void;
   changeFillColor: (value: string) => void;
   changeStrokeColor: (value: string) => void;
