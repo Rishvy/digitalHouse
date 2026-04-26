@@ -159,6 +159,12 @@ export function ProductConfigurator({
           Start Designing
         </Link>
         <Link
+          href={`/products/${categorySlug}/${productSlug}/templates`}
+          className="rounded border border-on-surface/30 px-4 py-2 text-sm font-semibold"
+        >
+          Browse Templates
+        </Link>
+        <Link
           href={`/checkout?product=${productSlug}&variationId=${selectedVariation?.id ?? ""}&qty=${quantity}`}
           className="rounded bg-on-surface px-4 py-2 text-sm font-semibold text-surface"
         >

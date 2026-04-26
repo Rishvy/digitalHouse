@@ -28,14 +28,27 @@ export interface ProductVariation {
   sku: string;
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories() {
   const supabase = await createSupabaseServerClient();
   const sb = supabase as any;
   const { data } = await sb.from("product_categories").select("*").order("name");
   return (data ?? []) as Category[];
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export async function getCategoriesWithCounts() {
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const { data } = await sb
+    .from("product_categories")
+    .select("*, products!inner(id)")
+    .order("name");
+  const mapped = (data ?? [] as any[]).map(function(cat: any) {
+    return Object.assign({}, cat, { product_count: cat.products?.length ?? 0 });
+  });
+  return mapped as (Category & { product_count: number })[];
+}
+
+export async function getCategoryBySlug(slug: string) {
   const supabase = await createSupabaseServerClient();
   const sb = supabase as any;
   const { data } = await sb.from("product_categories").select("*").eq("slug", slug).maybeSingle();
@@ -55,30 +68,27 @@ export async function getProductsByCategory(categoryId: string, page: number, pa
   
   const products = (data ?? []) as Product[];
   
-  // Fetch images for these products
   if (products.length > 0) {
-    const productIds = products.map(p => p.id);
+    const productIds = products.map(function(p: Product) { return p.id; });
     const { data: images } = await sb
       .from("product_images")
       .select("product_id, image_url, display_order")
       .in("product_id", productIds)
       .order("display_order");
     
-    // Map first image to each product
-    const imageMap = new Map<string, string>();
-    (images ?? []).forEach((img: any) => {
+    const imageMap = new Map();
+    (images ?? []).forEach(function(img: any) {
       if (!imageMap.has(img.product_id)) {
         imageMap.set(img.product_id, img.image_url);
       }
     });
     
-    // Add main_image to products
-    products.forEach(p => {
-      (p as any).main_image = imageMap.get(p.id) ?? null;
+    products.forEach(function(p: Product) {
+      (p as any).main_image = imageMap.get(p.id) ?? (p as any).thumbnail_url ?? null;
     });
   }
   
-  return { products, count: count ?? 0 };
+  return { products: products, count: count ?? 0 };
 }
 
 export async function getVariationsByProductIds(productIds: string[]) {
@@ -117,4 +127,101 @@ export async function getProductImages(productId: string) {
     .eq("product_id", productId)
     .order("display_order");
   return (data ?? []) as Array<{ id: string; image_url: string; display_order: number }>;
+}
+
+export interface PricingTier {
+  id: string;
+  product_id: string;
+  variation_id: string | null;
+  min_quantity: number;
+  max_quantity: number | null;
+  unit_price: number;
+}
+
+export async function getPricingTiersByProductId(productId: string) {
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const { data } = await sb
+    .from("pricing_tiers")
+    .select("*")
+    .eq("product_id", productId)
+    .is("variation_id", null)
+    .order("min_quantity", { ascending: true });
+  
+  // Deduplicate by min_quantity (take first occurrence of each quantity range)
+  const seen = new Set<number>();
+  const uniqueTiers = (data ?? []).filter((tier: PricingTier) => {
+    if (seen.has(tier.min_quantity)) return false;
+    seen.add(tier.min_quantity);
+    return true;
+  });
+  
+  return uniqueTiers as PricingTier[];
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  slug: string;
+  thumbnail_url: string | null;
+  category_id: string | null;
+  product_id: string | null;
+  color_options?: string | null;
+}
+
+export async function getTemplatesByProductId(_productId: string) {
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  // Return all available templates for all products
+  const { data } = await sb
+    .from("templates")
+    .select("id, name, slug, thumbnail_url, category_id, product_id, color_options")
+    .order("name");
+  return (data ?? []) as Template[];
+}
+
+export interface SearchResult {
+  id: string;
+  name: string;
+  slug: string;
+  categorySlug: string;
+  categoryName: string;
+  basePrice: number;
+  thumbnail: string | null;
+}
+
+export async function searchProducts(query: string, limit = 20) {
+  if (!query || query.length < 2) return [];
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const searchPattern = "%" + query + "%";
+  const { data } = await sb
+    .from("products")
+    .select("id, name, slug, base_price, thumbnail_url, product_categories!inner(slug, name)")
+    .ilike("name", searchPattern)
+    .limit(limit);
+  var results = (data ?? [] as any[]).map(function(p: any) {
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      categorySlug: p.product_categories?.slug,
+      categoryName: p.product_categories?.name,
+      basePrice: Number(p.base_price),
+      thumbnail: p.thumbnail_url,
+    };
+  });
+  return results as SearchResult[];
+}
+
+export async function getRelatedProducts(productId: string, categoryId: string) {
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const { data } = await sb
+    .from("products")
+    .select("id, name, slug, base_price, thumbnail_url")
+    .eq("category_id", categoryId)
+    .neq("id", productId)
+    .limit(4);
+  return (data ?? []) as Product[];
 }

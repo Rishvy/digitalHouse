@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductConfigurator } from "@/components/storefront/ProductConfigurator";
-import { getProductByCategoryAndSlug, getVariationsByProductId, getProductImages } from "@/lib/catalog";
+import { getProductByCategoryAndSlug, getVariationsByProductId, getProductImages, getPricingTiersByProductId, getRelatedProducts, getCategoryBySlug } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
 import { ProductImageGallery } from "@/components/storefront/ProductImageGallery";
+import { QuantityBracketDisplay } from "@/components/storefront/QuantityBracketDisplay";
+import { BuyMoreSaveMoreBanner } from "@/components/storefront/BuyMoreSaveMoreBanner";
+import { ProductCard } from "@/components/storefront/ProductCard";
 
 export async function generateMetadata({
   params,
@@ -13,7 +17,7 @@ export async function generateMetadata({
   const { category, slug } = await params;
   const product = await getProductByCategoryAndSlug(category, slug);
   if (!product) {
-    return { title: "Product Not Found | K.T Digital House" };
+    return { title: "Product Not Found" };
   }
   return {
     title: `${product.name} | K.T Digital House`,
@@ -35,12 +39,24 @@ export default async function ProductDetailPage({
   const product = await getProductByCategoryAndSlug(category, slug);
   if (!product) notFound();
 
-  const variations = await getVariationsByProductId(product.id);
-  const images = await getProductImages(product.id);
+  const [variations, images, pricingTiers, categoryData, related] = await Promise.all([
+    getVariationsByProductId(product.id),
+    getProductImages(product.id),
+    getPricingTiersByProductId(product.id),
+    getCategoryBySlug(category),
+    product.category_id ? getRelatedProducts(product.id, product.category_id) : [],
+  ]);
+
+  // Use product thumbnail as fallback if no product_images exist
+  const galleryImages = images.length > 0 
+    ? images.map(function(img) { return img.image_url; })
+    : product.thumbnail_url 
+      ? [product.thumbnail_url]
+      : [];
 
   return (
     <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1.1fr_0.9fr] md:px-8">
-      <ProductImageGallery images={images.map((img) => img.image_url)} productName={product.name} />
+      <ProductImageGallery images={galleryImages} productName={product.name} />
       <div className="space-y-4">
         <p className="inline-block bg-primary-container px-2 py-1 text-xs font-semibold uppercase text-on-primary-fixed">
           {category}
@@ -48,6 +64,8 @@ export default async function ProductDetailPage({
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-on-surface/80">{product.description}</p>
         <p className="text-sm text-on-surface/75">Starts at {formatCurrency(Number(product.base_price))}</p>
+        <BuyMoreSaveMoreBanner tierCount={pricingTiers.length} />
+        <QuantityBracketDisplay tiers={pricingTiers} />
         <ProductConfigurator
           productId={product.id}
           categorySlug={category}
@@ -56,6 +74,23 @@ export default async function ProductDetailPage({
           variations={variations}
         />
       </div>
+      {related.length > 0 && (
+        <section className="col-span-full mt-8">
+          <h2 className="text-xl font-bold">Related Products</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {related.map(function(relatedProduct) {
+              return (
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={relatedProduct}
+                  categorySlug={category}
+                  startingPrice={Number(relatedProduct.base_price)}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
     </section>
   );
 }

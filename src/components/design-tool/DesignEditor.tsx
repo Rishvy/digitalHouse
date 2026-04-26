@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-const VistaEditor = dynamic(() => import("./VistaEditor"), {
+const FabricEditor = dynamic(() => import("./FabricEditor"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-screen items-center justify-center bg-surface text-sm text-on-surface/60">
-      Loading design editor…
+    <div className="flex h-screen items-center justify-center bg-gray-950 text-sm text-gray-400">
+      Loading editor...
     </div>
   ),
 });
@@ -17,5 +17,5 @@ export function DesignEditor(props: {
   qty: number;
   templateJson: string;
 }) {
-  return <VistaEditor {...props} />;
+  return <FabricEditor {...props} />;
 }
