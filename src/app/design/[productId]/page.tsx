@@ -8,6 +8,14 @@ interface PageProps {
   params: Promise<{ productId: string }>;
 }
 
+// --- THE FIX: Define the local extended type ---
+type ExtendedTemplate = {
+  id: string;
+  name: string;
+  thumbnail_url?: string | null;
+  [key: string]: any;
+};
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { productId } = await params;
   const supabase = await createSupabaseServerClient();
@@ -33,7 +41,8 @@ export default async function DesignPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  const templates = await getTemplatesByProductId(productId);
+  // --- THE FIX: Cast the fetched data to our ExtendedTemplate array ---
+  const templates = (await getTemplatesByProductId(productId)) as ExtendedTemplate[];
 
   return (
     <CanvaEditorDesignPage
