@@ -77,19 +77,19 @@ export default function UserDashboard() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-[200px_1fr]">
-        <aside className="space-y-1">
+        <aside className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 md:mx-0 md:px-0 md:overflow-visible md:pb-0 md:block md:space-y-1">
           {menuItems.map(function(item) {
             var Icon = item.icon;
             return (
               <button
                 key={item.id}
                 onClick={function() { setActiveTab(item.id); }}
-                className={"flex w-full items-center gap-3 rounded px-3 py-2 text-sm text-left " + (activeTab === item.id ? "bg-primary-container font-semibold text-on-primary-fixed" : "hover:bg-surface-container-high")}
+                className={"flex shrink-0 md:w-full items-center gap-2 md:gap-3 rounded px-3 py-2 text-sm text-left whitespace-nowrap " + (activeTab === item.id ? "bg-primary-container font-semibold text-on-primary-fixed" : "hover:bg-surface-container-high")}
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
                 {item.id === "wishlist" && wishlistItems.length > 0 && (
-                  <span className="ml-auto rounded-full bg-red-500 px-2 text-xs text-white">
+                  <span className="ml-1 md:ml-auto rounded-full bg-red-500 px-2 text-xs text-white">
                     {wishlistItems.length}
                   </span>
                 )}

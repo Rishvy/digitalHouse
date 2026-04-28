@@ -21,6 +21,7 @@ export function CatalogSidebar({
   const searchParams = useSearchParams();
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [sortBy, setSortBy] = useState("name");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     categories: true,
     filters: true,

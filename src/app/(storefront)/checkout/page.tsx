@@ -156,8 +156,8 @@ export default function CheckoutPage() {
   };
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1fr_380px] md:px-8">
-      <div className="space-y-6">
+    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:grid-cols-[1fr_380px] md:px-8 md:py-8">
+      <div className="space-y-6 order-2 md:order-1">
         {/* Artwork Upload Section */}
         <div className="rounded-xl bg-surface-container p-5">
           <h2 className="text-lg font-bold mb-4">Upload Your Artwork</h2>
@@ -277,7 +277,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Order Summary */}
-      <aside className="h-fit space-y-4 rounded-xl bg-surface-container p-5">
+      <aside className="order-1 md:order-2 h-fit space-y-4 rounded-xl bg-surface-container p-5">
         <h2 className="font-heading text-lg font-semibold">Order Summary</h2>
         <div className="space-y-3">
           {items.map((item) => (

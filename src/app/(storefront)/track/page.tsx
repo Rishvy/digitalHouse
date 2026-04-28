@@ -99,17 +99,17 @@ export default function TrackOrderPage() {
 
         <div className="mt-6">
           <h3 className="font-semibold">Order Status</h3>
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-start justify-between gap-2">
             {(["paid", "in_production", "shipped", "delivered"] as OrderStatus[]).map(function(s, i) {
               var config = STATUS_CONFIG[s];
               var isComplete = statusStep > i;
               var Icon = isComplete ? CheckCircle : Box;
               return (
-                <div key={s} className="flex flex-col items-center">
+                <div key={s} className="flex flex-1 min-w-0 flex-col items-center">
                   <div className={"rounded-full p-2 " + (isComplete ? config.color : "bg-surface-container-low text-on-surface/40")}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <p className={"mt-2 text-xs " + (isComplete ? "font-medium" : "text-on-surface/40")}>
+                  <p className={"mt-2 text-center text-[10px] leading-tight sm:text-xs " + (isComplete ? "font-medium" : "text-on-surface/40")}>
                     {config.label}
                   </p>
                 </div>

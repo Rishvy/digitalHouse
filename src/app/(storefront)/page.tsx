@@ -30,14 +30,14 @@ export default async function HomePage() {
               <span className="h-1.5 w-1.5 rounded-full bg-accent-foreground/60" />
               Premium Print Solutions
             </p>
-            <h1 className="animate-fade-up stagger-1 font-heading text-5xl font-bold leading-[0.92] tracking-tighter md:text-7xl lg:text-8xl">
+            <h1 className="animate-fade-up stagger-1 font-heading text-4xl font-bold leading-[0.95] tracking-tighter sm:text-5xl md:text-7xl lg:text-8xl">
               Print That
               <br />
-              <span className="inline-block mt-2 bg-accent px-3 text-accent-foreground">Commands</span>
+              <span className="inline-block mt-2 bg-accent px-2 sm:px-3 text-accent-foreground">Commands</span>
               <br />
               Attention.
             </h1>
-            <p className="animate-fade-up stagger-2 mt-6 max-w-xl text-base leading-relaxed text-foreground/70 md:text-lg">
+            <p className="animate-fade-up stagger-2 mt-6 max-w-xl text-sm leading-relaxed text-foreground/70 sm:text-base md:text-lg">
               High-speed production. Precision color.
               <br className="hidden sm:block" />
               From photo prints to banners — your brand, in print.
