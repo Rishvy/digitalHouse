@@ -110,8 +110,11 @@ export function AdminProductForm({
   const [images, setImages] = useState<Array<{ id?: string; url: string; order: number }>>([]);
   const [uploadingTemplate, setUploadingTemplate] = useState(false);
 
+  const [uploadError, setUploadError] = useState("");
+
   async function uploadTemplateImage(file: File): Promise<string> {
     setUploadingTemplate(true);
+    setUploadError("");
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -122,9 +125,19 @@ export function AdminProductForm({
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      return data.url ?? "";
+      if (!res.ok) {
+        setUploadError(data.error ?? "Upload failed. Make sure you are logged in as admin.");
+        return "";
+      }
+      if (!data.url) {
+        setUploadError("Upload succeeded but no URL returned. Check Supabase Storage bucket.");
+        return "";
+      }
+      return data.url;
+    } catch (err: any) {
+      setUploadError(err?.message ?? "Upload failed");
+      return "";
     } finally {
       setUploadingTemplate(false);
     }
@@ -623,6 +636,7 @@ export function AdminProductForm({
               className="w-full rounded-md border border-foreground/10 bg-background px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-1 file:text-xs file:font-semibold file:text-background disabled:opacity-50"
             />
             {uploadingTemplate && <p className="text-xs text-foreground/60">Uploading...</p>}
+            {uploadError && <p className="text-xs text-red-500 font-medium">{uploadError}</p>}
             {form.preview_template_url && !isSvgTemplate(form.preview_template_url) && (
               <div className="relative inline-block">
                 <img 
