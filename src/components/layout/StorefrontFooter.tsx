@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function StorefrontFooter() {
   return (
-    <footer className="mt-16 border-t border-foreground/10 bg-foreground text-background">
+    <footer className="border-t border-foreground/10 bg-foreground text-background">
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-16">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10">
           <div className="col-span-2 md:col-span-2">

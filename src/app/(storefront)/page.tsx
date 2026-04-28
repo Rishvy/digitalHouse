@@ -54,7 +54,7 @@ export default async function HomePage() {
         <div className="mb-16 flex items-end justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
-              Our Work
+              Best Sellers
             </p>
             <h2 className="mt-3 font-[family:var(--font-headline)] text-4xl font-bold text-white md:text-5xl lg:text-6xl">
               Featured Products
@@ -209,19 +209,6 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
-
-      {/* Footer minimal */}
-      <footer className="bg-[#050505] px-6 py-12 md:px-12 md:py-16">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <p className="text-sm text-white/40">
-            © 2025 K.T Digital House. All rights reserved.
-          </p>
-          <div className="flex gap-8 text-sm text-white/40">
-            <Link href="/products/business-cards" className="hover:text-white">Catalog</Link>
-            <Link href="/track" className="hover:text-white">Track Order</Link>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

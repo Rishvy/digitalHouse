@@ -79,96 +79,12 @@ export function StorefrontNav() {
               {link.label}
             </Link>
           ))}
-          <div
-            className="relative"
-            onMouseEnter={() => setShowMegaMenu(true)}
-            onMouseLeave={() => {
-              setShowMegaMenu(false);
-              setHoveredCategory(null);
-            }}
+          <Link
+            href="/products/photo-prints"
+            className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
           >
-            <button
-              type="button"
-              className="flex items-center gap-1 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
-            >
-              Categories
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Mega Menu */}
-            {showMegaMenu && (
-              <div className="absolute left-0 top-full mt-2 w-[800px] rounded-lg border border-foreground/10 bg-background shadow-2xl">
-                <div className="grid grid-cols-[200px_1fr]">
-                  {/* Categories List */}
-                  <div className="border-r border-foreground/10 p-2">
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/products/${cat.slug}`}
-                        onMouseEnter={() => setHoveredCategory(cat.slug)}
-                        className={`block rounded-md px-3 py-2 text-sm transition-colors ${
-                          hoveredCategory === cat.slug
-                            ? "bg-accent text-accent-foreground"
-                            : "text-foreground/70 hover:bg-foreground/5"
-                        }`}
-                      >
-                        <div className="font-medium">{cat.name}</div>
-                        <div className="text-xs text-foreground/40">{cat.product_count} products</div>
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* Products Grid */}
-                  <div className="p-4">
-                    {hoveredCategory && productsByCategory[hoveredCategory] ? (
-                      <>
-                        <h3 className="mb-3 text-sm font-semibold text-foreground/60">
-                          Featured Products
-                        </h3>
-                        <div className="grid grid-cols-3 gap-3">
-                          {productsByCategory[hoveredCategory].slice(0, 6).map((product) => (
-                            <Link
-                              key={product.id}
-                              href={`/products/${hoveredCategory}/${product.slug}`}
-                              className="group rounded-lg border border-foreground/10 p-3 transition-all hover:border-accent hover:shadow-md"
-                            >
-                              {product.main_image && (
-                                <div className="mb-2 aspect-square overflow-hidden rounded bg-foreground/5">
-                                  <img
-                                    src={product.main_image}
-                                    alt={product.name}
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                                  />
-                                </div>
-                              )}
-                              <div className="text-xs font-medium text-foreground/80 group-hover:text-accent">
-                                {product.name}
-                              </div>
-                              <div className="mt-1 text-xs text-foreground/50">
-                                ₹{product.base_price}+
-                              </div>
-                            </Link>
-                          ))}
-                        </div>
-                        <Link
-                          href={`/products/${hoveredCategory}`}
-                          className="mt-4 inline-block text-xs font-semibold text-accent hover:underline"
-                        >
-                          View all products →
-                        </Link>
-                      </>
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-foreground/40">
-                        Hover over a category to see products
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            Categories
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">

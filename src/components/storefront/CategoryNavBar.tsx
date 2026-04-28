@@ -22,27 +22,67 @@ export function CategoryNavBar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [dropdownPosition, setDropdownPosition] = useState({ left: 0 });
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const categoryRefs = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
+  const productsCache = useRef<{ [key: string]: Product[] }>({});
 
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []))
+      .then((data) => {
+        const cats = data.categories || [];
+        setCategories(cats);
+        
+        // Prefetch products for all categories
+        cats.forEach((cat: Category) => {
+          fetch(`/api/categories/${cat.slug}/products?limit=8`)
+            .then((res) => res.json())
+            .then((data) => {
+              productsCache.current[cat.slug] = data.products || [];
+            })
+            .catch(console.error);
+        });
+      })
       .catch(console.error);
   }, []);
 
   useEffect(() => {
     if (hoveredCategory) {
-      fetch(`/api/categories/${hoveredCategory}/products?limit=8`)
-        .then((res) => res.json())
-        .then((data) => setProducts(data.products || []))
-        .catch(console.error);
+      // Check cache first
+      if (productsCache.current[hoveredCategory]) {
+        setProducts(productsCache.current[hoveredCategory]);
+      } else {
+        // Fetch and cache
+        fetch(`/api/categories/${hoveredCategory}/products?limit=8`)
+          .then((res) => res.json())
+          .then((data) => {
+            const fetchedProducts = data.products || [];
+            productsCache.current[hoveredCategory] = fetchedProducts;
+            setProducts(fetchedProducts);
+          })
+          .catch(console.error);
+      }
+      
+      // Calculate dropdown position
+      const element = categoryRefs.current[hoveredCategory];
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const parentRect = element.parentElement?.parentElement?.getBoundingClientRect();
+        if (parentRect) {
+          setDropdownPosition({ left: rect.left - parentRect.left });
+        }
+      }
     }
   }, [hoveredCategory]);
 
   const handleMouseEnter = (slug: string) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+    }
+    // Clear products immediately when switching categories
+    if (hoveredCategory !== slug) {
+      setProducts([]);
     }
     setHoveredCategory(slug);
   };
@@ -71,6 +111,7 @@ export function CategoryNavBar() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
+              ref={(el) => { categoryRefs.current[cat.slug] = el; }}
               href={`/products/${cat.slug}`}
               onMouseEnter={() => handleMouseEnter(cat.slug)}
               onMouseLeave={handleMouseLeave}
@@ -86,51 +127,32 @@ export function CategoryNavBar() {
         </div>
       </div>
 
-      {/* Products Dropdown - Hidden on mobile */}
+      {/* Products Dropdown - Compact Box */}
       {hoveredCategory && products.length > 0 && (
         <div
-          className="hidden md:block absolute left-0 right-0 top-full z-50 bg-[#1a1a1a] border-b border-white/10 shadow-2xl"
+          className="hidden md:block absolute top-full z-50 bg-[#1a1a1a] border border-white/10 shadow-2xl rounded-b-lg min-w-[280px] max-w-[320px]"
+          style={{
+            left: `${dropdownPosition.left}px`
+          }}
           onMouseEnter={handleDropdownEnter}
           onMouseLeave={handleDropdownLeave}
         >
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-4 px-4 py-4 min-w-max">
+          <div className="px-4 py-3">
+            <div className="flex flex-col gap-0.5">
               {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${hoveredCategory}/${product.slug}`}
-                  className="group flex-shrink-0 w-48 rounded-lg border border-white/10 bg-[#0d0d0d] p-3 transition-all hover:border-accent hover:shadow-lg"
+                  className="text-sm text-white/70 hover:text-accent hover:bg-white/5 transition-colors py-2 px-3 rounded"
                 >
-                  {product.main_image ? (
-                    <div className="mb-3 aspect-square overflow-hidden rounded bg-white/5">
-                      <img
-                        src={product.main_image}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      />
-                    </div>
-                  ) : (
-                    <div className="mb-3 aspect-square rounded bg-white/5 flex items-center justify-center">
-                      <span className="text-white/20 text-xs">No image</span>
-                    </div>
-                  )}
-                  <h3 className="text-sm font-medium text-white/90 group-hover:text-accent line-clamp-2">
-                    {product.name}
-                  </h3>
-                  <p className="mt-1 text-xs text-white/50">
-                    From ₹{product.base_price}
-                  </p>
+                  {product.name}
                 </Link>
               ))}
               <Link
                 href={`/products/${hoveredCategory}`}
-                className="flex-shrink-0 w-48 rounded-lg border border-dashed border-white/20 bg-[#0d0d0d] p-3 flex flex-col items-center justify-center text-center transition-all hover:border-accent hover:bg-white/5"
+                className="text-sm text-accent hover:text-accent/80 transition-colors py-2 px-3 font-medium border-t border-white/10 mt-2 pt-3"
               >
-                <svg className="h-8 w-8 text-white/40 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-                <span className="text-sm font-medium text-white/60">View All</span>
-                <span className="text-xs text-white/40 mt-1">See all products</span>
+                View All →
               </Link>
             </div>
           </div>
