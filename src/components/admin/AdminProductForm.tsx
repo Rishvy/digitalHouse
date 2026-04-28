@@ -116,15 +116,15 @@ export function AdminProductForm({
       const formData = new FormData();
       formData.append('file', file);
       formData.append('bucket', 'products');
-      
+
       const res = await fetch('/api/storage/upload', {
         method: 'POST',
         body: formData,
       });
-      
+
       if (!res.ok) throw new Error('Upload failed');
       const data = await res.json();
-      return data.url;
+      return data.url ?? "";
     } finally {
       setUploadingTemplate(false);
     }
@@ -611,9 +611,12 @@ export function AdminProductForm({
               accept="image/*"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) {
+                if (!file) return;
+                try {
                   const url = await uploadTemplateImage(file);
-                  setForm({ ...form, preview_template_url: url });
+                  if (url) setForm((prev) => ({ ...prev, preview_template_url: url }));
+                } catch {
+                  // uploadTemplateImage already sets uploadingTemplate = false
                 }
               }}
               disabled={uploadingTemplate}
@@ -638,7 +641,7 @@ export function AdminProductForm({
             )}
             <p className="text-xs text-on-surface/40">Or paste an image URL:</p>
             <input
-              value={isSvgTemplate(form.preview_template_url) ? '' : form.preview_template_url}
+              value={isSvgTemplate(form.preview_template_url) ? '' : (form.preview_template_url ?? '')}
               onChange={(e) => setForm({ ...form, preview_template_url: e.target.value })}
               className="w-full rounded bg-surface-container px-3 py-2 text-sm"
               placeholder="https://example.com/template-blank.png"
@@ -651,7 +654,7 @@ export function AdminProductForm({
               Add <code className="bg-surface-container px-1 rounded">id="user-image-placeholder"</code> to the element where the user's image should appear.
             </p>
             <textarea
-              value={isSvgTemplate(form.preview_template_url) ? form.preview_template_url : ''}
+              value={isSvgTemplate(form.preview_template_url) ? (form.preview_template_url ?? '') : ''}
               onChange={(e) => setForm({ ...form, preview_template_url: e.target.value })}
               className="w-full rounded bg-surface-container px-3 py-2 text-sm font-mono"
               placeholder='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 380">
