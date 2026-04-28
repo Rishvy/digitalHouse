@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "f1",
+      "name": "Arial",
+      "family": "Arial",
+      "styles": [
+        { "name": "Arial Regular", "style": "regular", "url": "" },
+        { "name": "Arial Bold", "style": "700", "url": "" }
+      ]
+    },
+    {
+      "id": "f2",
+      "name": "Helvetica",
+      "family": "Helvetica",
+      "styles": [
+        { "name": "Helvetica Regular", "style": "regular", "url": "" }
+      ]
+    },
+    {
+      "id": "f3",
+      "name": "Times New Roman",
+      "family": "Times New Roman",
+      "styles": [
+        { "name": "Times New Roman Regular", "style": "regular", "url": "" }
+      ]
+    }
+  ]
+}

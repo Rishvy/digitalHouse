@@ -1,0 +1,20 @@
+{
+  "data": [
+    {
+      "id": "tm1",
+      "name": "Business Card",
+      "desc": "Standard business card template",
+      "thumbnail_url": "",
+      "width": 1050,
+      "height": 600
+    },
+    {
+      "id": "tm2",
+      "name": "A4 Flyer",
+      "desc": "A4 promotional flyer",
+      "thumbnail_url": "",
+      "width": 2480,
+      "height": 3508
+    }
+  ]
+}

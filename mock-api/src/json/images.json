@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "img1",
+      "name": "Office Building",
+      "thumbnail_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200",
+      "url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab"
+    },
+    {
+      "id": "img2",
+      "name": "Team Meeting",
+      "thumbnail_url": "https://images.unsplash.com/photo-1522071820081-009f08297526?w=200",
+      "url": "https://images.unsplash.com/photo-1522071820081-009f08297526"
+    },
+    {
+      "id": "img3",
+      "name": "Business Card Mock",
+      "thumbnail_url": "https://images.unsplash.com/photo-1572502176664-3d1f1e4d0b2a?w=200",
+      "url": "https://images.unsplash.com/photo-1572502176664-3d1f1e4d0b2a"
+    }
+  ]
+}

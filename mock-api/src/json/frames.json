@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "id": "fr1", "name": "Business Card Frame", "width": 1050, "height": 600, "type": "frame" },
+    { "id": "fr2", "name": "A4 Frame", "width": 2480, "height": 3508, "type": "frame" },
+    { "id": "fr3", "name": "A5 Frame", "width": 1748, "height": 2480, "type": "frame" }
+  ]
+}

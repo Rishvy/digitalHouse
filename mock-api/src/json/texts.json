@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "id": "t1",
+      "name": "Simple Text",
+      "desc": "Basic text style",
+      "data": { "type": "text", "content": "Add your text here", "fontSize": 48, "fontFamily": "Arial", "fill": "#000000" }
+    },
+    {
+      "id": "t2",
+      "name": "Bold Heading",
+      "desc": "Bold heading style",
+      "data": { "type": "text", "content": "HEADING", "fontSize": 72, "fontFamily": "Arial", "fontWeight": "bold", "fill": "#000000" }
+    }
+  ]
+}

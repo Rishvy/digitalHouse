@@ -1,0 +1,10 @@
+{
+  "data": [
+    { "id": "s1", "name": "Circle", "type": "circle", "path": "" },
+    { "id": "s2", "name": "Rectangle", "type": "rect", "path": "" },
+    { "id": "s3", "name": "Triangle", "type": "polygon", "path": "" },
+    { "id": "s4", "name": "Star", "type": "star", "path": "" },
+    { "id": "s5", "name": "Heart", "type": "heart", "path": "" },
+    { "id": "s6", "name": "Arrow", "type": "arrow", "path": "" }
+  ]
+}
