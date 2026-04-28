@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductConfigurator } from "@/components/storefront/ProductConfigurator";
-import { getProductByCategoryAndSlug, getVariationsByProductId, getProductImages, getPricingTiersByProductId, getRelatedProducts, getCategoryBySlug } from "@/lib/catalog";
+import { getProductByCategoryAndSlug, getVariationsByProductId, getProductImages, getPricingTiersByProductId, getRelatedProducts, getCategoryBySlug, getTemplatesByProductId } from "@/lib/catalog";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
 import { ProductImageGallery } from "@/components/storefront/ProductImageGallery";
 import { QuantityBracketDisplay } from "@/components/storefront/QuantityBracketDisplay";
@@ -39,12 +39,13 @@ export default async function ProductDetailPage({
   const product = await getProductByCategoryAndSlug(category, slug);
   if (!product) notFound();
 
-  const [variations, images, pricingTiers, categoryData, related] = await Promise.all([
+  const [variations, images, pricingTiers, categoryData, related, templates] = await Promise.all([
     getVariationsByProductId(product.id),
     getProductImages(product.id),
     getPricingTiersByProductId(product.id),
     getCategoryBySlug(category),
     product.category_id ? getRelatedProducts(product.id, product.category_id) : [],
+    getTemplatesByProductId(product.id),
   ]);
 
   // Use product thumbnail as fallback if no product_images exist
@@ -74,13 +75,13 @@ export default async function ProductDetailPage({
           productSlug={product.name}
           basePrice={Number(product.base_price)}
           variations={variations}
+          templates={templates}
           useQuantityOptions={meta.use_quantity_options ?? true}
           useLaminationOptions={meta.use_lamination_options ?? true}
           usePaperStockOptions={meta.use_paper_stock_options ?? true}
           quantityType={meta.quantity_type ?? "preset"}
           quantityCustomMin={meta.quantity_custom_min ?? 1}
           quantityCustomMax={meta.quantity_custom_max ?? 10000}
-          previewTemplateUrl={product.preview_template_url}
           printWidthInches={product.print_width_inches}
           printHeightInches={product.print_height_inches}
         />

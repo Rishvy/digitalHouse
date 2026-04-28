@@ -170,20 +170,17 @@ export async function getPricingTiersByProductId(productId: string) {
 export interface Template {
   id: string;
   name: string;
-  slug: string;
-  thumbnail_url: string | null;
-  category_id: string | null;
-  product_id: string | null;
-  color_options?: string | null;
+  preview_url: string | null;  // transparent PNG overlay for the sandwich method
+  width_inches: number;
+  height_inches: number;
 }
 
 export async function getTemplatesByProductId(_productId: string) {
   const supabase = await createSupabaseServerClient();
   const sb = supabase as any;
-  // Return all available templates for all products
   const { data } = await sb
     .from("templates")
-    .select("id, name, slug, thumbnail_url, category_id, product_id, color_options")
+    .select("id, name, preview_url, width_inches, height_inches")
     .order("name");
   return (data ?? []) as Template[];
 }
