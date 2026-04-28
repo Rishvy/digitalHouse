@@ -52,7 +52,7 @@ function StatusCard({ status, rows, onMove }: { status: string; rows: Production
               )}
               {status === "on_press" && (
                 <div className="mt-2">
-                  {shippingAddress && <p className="text-[10px] text-foreground/60 truncate">{shippingAddress}</p>}
+                  {shippingAddress && typeof shippingAddress === 'object' && <p className="text-[10px] text-foreground/60 truncate">{String(Object.values(shippingAddress).filter(Boolean).join(', '))}</p>}
                   <button onClick={() => onMove(row.id, "dispatched")} className="mt-1 w-full rounded bg-green-500 px-2 py-1 text-xs text-white hover:bg-green-600">
                     Mark Dispatched
                   </button>
