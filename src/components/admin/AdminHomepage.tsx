@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ImageUploader } from "@/components/upload/ImageUploader";
 
 interface HomepageSection {
   id: string;
@@ -356,10 +355,6 @@ function HomepageSectionForm({
                 onChange={(e) => setForm({ ...form, background_value: e.target.value })}
                 className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
                 placeholder="Image URL"
-              />
-              <ImageUploader
-                bucket="products"
-                onUploadComplete={(url) => setForm({ ...form, background_value: url })}
               />
             </div>
           ) : (

@@ -54,6 +54,8 @@ export default async function ProductDetailPage({
       ? [product.thumbnail_url]
       : [];
 
+  const meta = (product as any).metadata ?? {};
+
   return (
     <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1.1fr_0.9fr] md:px-8">
       <ProductImageGallery images={galleryImages} productName={product.name} />
@@ -69,9 +71,18 @@ export default async function ProductDetailPage({
         <ProductConfigurator
           productId={product.id}
           categorySlug={category}
-          productSlug={slug}
+          productSlug={product.name}
           basePrice={Number(product.base_price)}
           variations={variations}
+          useQuantityOptions={meta.use_quantity_options ?? true}
+          useLaminationOptions={meta.use_lamination_options ?? true}
+          usePaperStockOptions={meta.use_paper_stock_options ?? true}
+          quantityType={meta.quantity_type ?? "preset"}
+          quantityCustomMin={meta.quantity_custom_min ?? 1}
+          quantityCustomMax={meta.quantity_custom_max ?? 10000}
+          previewTemplateUrl={product.preview_template_url}
+          printWidthInches={product.print_width_inches}
+          printHeightInches={product.print_height_inches}
         />
       </div>
       {related.length > 0 && (

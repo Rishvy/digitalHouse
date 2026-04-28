@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ImageUploader } from "@/components/upload/ImageUploader";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface MediaFile {
@@ -67,9 +66,10 @@ export function AdminUploads() {
         <h2 className="font-heading text-base font-semibold">Upload New File</h2>
         <p className="mt-1 text-sm text-foreground/50">PNG, JPG, TIFF, SVG, PDF, WEBP up to 100MB</p>
         <div className="mt-3">
-          <ImageUploader
-            bucket="templates"
-            onUploadComplete={function() { loadFiles(); }}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/tiff,image/svg+xml,application/pdf,image/webp"
+            className="w-full rounded-md border border-foreground/10 bg-background px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-1 file:text-xs file:font-semibold file:text-background"
           />
         </div>
       </div>

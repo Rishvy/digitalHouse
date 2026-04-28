@@ -51,7 +51,7 @@ export function AdminTemplatesList() {
                 {template.preview_url ? (
                   <img src={template.preview_url} alt={template.name} className="h-full w-full object-cover" />
                 ) : (
-                  <span className="material-symbols-outlined text-4xl text-foreground/15">design_services</span>
+                  <span className="material-symbols-outlined text-4xl text-foreground/15">grid_view</span>
                 )}
               </div>
               <div className="p-4 flex-1 flex flex-col">
@@ -67,12 +67,9 @@ export function AdminTemplatesList() {
                   </div>
                 )}
                 <div className="mt-auto pt-3">
-                  <Link
-                    href={"/admin/templates/" + template.id}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-foreground/60 transition-colors hover:text-foreground"
-                  >
-                    Edit in Builder →
-                  </Link>
+                  <p className="inline-flex items-center gap-1 text-xs font-semibold text-foreground/60">
+                    {template.width_inches}" × {template.height_inches}"
+                  </p>
                 </div>
               </div>
             </div>

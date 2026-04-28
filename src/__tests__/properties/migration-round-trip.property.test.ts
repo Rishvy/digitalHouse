@@ -36,7 +36,6 @@ const EXPECTED_MIGRATIONS = [
   '20240101000015_notification_triggers.sql',
   '20240101000016_refresh_analytics_rpc.sql',
   '20240101000017_fix_users_rls_recursion.sql',
-  '20240101000018_normalize_design_state_jsonb.sql',
 ]
 
 // Tables that must be created across the migration set

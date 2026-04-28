@@ -33,9 +33,7 @@ jobs:
         run: |
           echo "$REGISTRY_PASS" | docker login "$REGISTRY" -u "$REGISTRY_USER" --password-stdin
           docker build -t "$REGISTRY/w2p-web:${GITHUB_SHA}" .
-          docker build -t "$REGISTRY/w2p-worker:${GITHUB_SHA}" ./worker
           docker push "$REGISTRY/w2p-web:${GITHUB_SHA}"
-          docker push "$REGISTRY/w2p-worker:${GITHUB_SHA}"
 
       - name: Zero-downtime SSH deploy
         uses: appleboy/ssh-action@v1.0.3

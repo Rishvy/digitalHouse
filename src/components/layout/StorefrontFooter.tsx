@@ -10,26 +10,26 @@ export function StorefrontFooter() {
               K.T <span className="text-background/60">Digital House</span>
             </Link>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-background/55">
-              High-speed print production with a kinetic editorial storefront. Custom design tools, real-time tracking, and commercial-grade quality.
+              High-speed print production with a kinetic editorial storefront. Real-time tracking and commercial-grade quality.
             </p>
           </div>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-background/40">Products</p>
             <div className="mt-4 space-y-2.5 text-sm">
-              <Link href="/products/business-cards" className="block text-background/60 transition-colors hover:text-background">
-                Business Cards
+              <Link href="/products/photo-prints" className="block text-background/60 transition-colors hover:text-background">
+                Photo Prints & Memories
               </Link>
-              <Link href="/products/flyers" className="block text-background/60 transition-colors hover:text-background">
-                Flyers
+              <Link href="/products/wall-art" className="block text-background/60 transition-colors hover:text-background">
+                Wall Art & Decor
               </Link>
-              <Link href="/products/posters" className="block text-background/60 transition-colors hover:text-background">
-                Posters
+              <Link href="/products/signage" className="block text-background/60 transition-colors hover:text-background">
+                Signage & Large Format
               </Link>
-              <Link href="/products/banners" className="block text-background/60 transition-colors hover:text-background">
-                Banners
+              <Link href="/products/custom-merchandise" className="block text-background/60 transition-colors hover:text-background">
+                Custom Merchandise
               </Link>
-              <Link href="/products/promotional-items" className="block text-background/60 transition-colors hover:text-background">
-                Promotional Items
+              <Link href="/products/stationery-packaging" className="block text-background/60 transition-colors hover:text-background">
+                Stationery & Packaging
               </Link>
             </div>
           </div>

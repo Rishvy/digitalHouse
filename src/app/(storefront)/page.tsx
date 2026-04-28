@@ -2,22 +2,19 @@ import Link from "next/link";
 import { getCategoriesWithCounts } from "@/lib/catalog";
 
 const categoryIcons: Record<string, string> = {
-  "business-cards": "badge",
-  flyers: "description",
-  posters: "wallpaper",
-  banners: "flag",
-  "promotional-items": "cards",
-  stickers: "sell",
-  booklets: "menu_book",
-  packaging: "inventory_2",
+  "photo-prints": "photo_camera",
+  "wall-art": "wallpaper",
+  signage: "flag",
+  "custom-merchandise": "cards",
+  "stationery-packaging": "inventory_2",
 };
 
 const categoryDescriptions: Record<string, string> = {
-  "business-cards": "Premium stock, foil accents, spot UV — make a lasting impression.",
-  flyers: "Bold, full-color flyers for events, promotions, and campaigns.",
-  posters: "Large-format posters with vivid color reproduction.",
-  banners: "Indoor and outdoor banners in various sizes and materials.",
-  "promotional-items": "Branded merchandise to extend your reach.",
+  "photo-prints": "Polaroids, passport photos, albums, and standard prints for every memory.",
+  "wall-art": "Framed prints, posters, and large-format wall art to transform your space.",
+  signage: "Flex prints, banners, and roll-up standees for indoor and outdoor signage.",
+  "custom-merchandise": "Ceramic mugs and button pins — branded merchandise that stands out.",
+  "stationery-packaging": "Stickers, letterheads, paper bags, and business cards for your brand.",
 };
 
 export default async function HomePage() {
@@ -41,13 +38,13 @@ export default async function HomePage() {
               Attention.
             </h1>
             <p className="animate-fade-up stagger-2 mt-6 max-w-xl text-base leading-relaxed text-foreground/70 md:text-lg">
-              High-speed production. Precision color. End-to-end design tools.
+              High-speed production. Precision color.
               <br className="hidden sm:block" />
-              From business cards to banners — your brand, in print.
+              From photo prints to banners — your brand, in print.
             </p>
             <div className="animate-fade-up stagger-3 mt-8 flex flex-wrap gap-4">
               <Link
-                href="/products/business-cards"
+                href="/products/photo-prints"
                 className="group relative inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:bg-foreground/90"
               >
                 Explore Catalog
@@ -79,7 +76,7 @@ export default async function HomePage() {
             </h2>
           </div>
           <Link
-            href="/products/business-cards"
+            href="/products/photo-prints"
             className="animate-fade-up stagger-2 hidden text-sm font-semibold underline-offset-4 hover:underline md:block"
           >
             View All →
@@ -133,8 +130,7 @@ export default async function HomePage() {
             <div className="grid gap-8">
               {[
                 { step: "01", title: "Choose & Configure", desc: "Select your product, size, paper stock, and finishing options from our catalog." },
-                { step: "02", title: "Design Online", desc: "Use our browser-based canvas editor to upload artwork or build from templates." },
-                { step: "03", title: "We Produce & Ship", desc: "Commercial-grade printing with quality checks, packed and shipped on schedule." },
+                { step: "02", title: "We Produce & Ship", desc: "Commercial-grade printing with quality checks, packed and shipped on schedule." },
               ].map((item) => (
                 <div key={item.step} className="group flex gap-5 border-l border-background/20 pl-5 transition-colors hover:border-accent">
                   <p className="font-heading text-sm font-bold tracking-wider text-accent">{item.step}</p>
@@ -160,7 +156,7 @@ export default async function HomePage() {
               Start your order in minutes. No minimum quantities, no hidden fees — just exceptional print.
             </p>
             <Link
-              href="/products/business-cards"
+              href="/products/photo-prints"
               className="mt-6 inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:bg-foreground/90"
             >
               Start Your Order

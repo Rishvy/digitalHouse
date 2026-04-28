@@ -18,6 +18,10 @@ export interface Product {
   description: string | null;
   thumbnail_url: string | null;
   template_id: string | null;
+  preview_template_url: string | null;
+  print_width_inches: number | null;
+  print_height_inches: number | null;
+  metadata: JsonMap | null;
 }
 
 export interface ProductVariation {
@@ -108,6 +112,10 @@ export async function getProductByCategoryAndSlug(categorySlug: string, productS
     .eq("slug", productSlug)
     .eq("product_categories.slug", categorySlug)
     .maybeSingle();
+  if (!data) return null;
+  if (typeof data.preview_template_url === "string") {
+    data.preview_template_url = data.preview_template_url.trim() || null;
+  }
   return data as (Product & { product_categories: { slug: string } }) | null;
 }
 

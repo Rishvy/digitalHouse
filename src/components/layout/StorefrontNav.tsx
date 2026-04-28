@@ -9,17 +9,16 @@ import { SearchBar } from "@/components/storefront/SearchBar";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/products/business-cards", label: "Products" },
+  { href: "/products/photo-prints", label: "Products" },
   { href: "/track", label: "Track Order" },
 ];
 
 const categories = [
-  { href: "/products/business-cards", label: "Business Cards" },
-  { href: "/products/flyers", label: "Flyers" },
-  { href: "/products/posters", label: "Posters" },
-  { href: "/products/banners", label: "Banners" },
-  { href: "/products/promotional-items", label: "Promotional Items" },
-  { href: "/products/stickers", label: "Stickers" },
+  { href: "/products/photo-prints", label: "Photo Prints & Memories" },
+  { href: "/products/wall-art", label: "Wall Art & Decor" },
+  { href: "/products/signage", label: "Signage & Large Format" },
+  { href: "/products/custom-merchandise", label: "Custom Merchandise" },
+  { href: "/products/stationery-packaging", label: "Stationery & Packaging" },
 ];
 
 export function StorefrontNav() {
@@ -55,7 +54,7 @@ export function StorefrontNav() {
               </span>
             </button>
             {showCats && (
-              <div className="absolute left-0 top-full mt-3 w-52 rounded-lg border border-foreground/10 bg-background p-1.5 shadow-xl">
+              <div className="absolute left-0 top-full mt-3 w-60 rounded-lg border border-foreground/10 bg-background p-1.5 shadow-xl">
                 {categories.map(function(cat) {
                   return (
                     <Link

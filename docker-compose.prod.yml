@@ -10,28 +10,13 @@ services:
     environment:
       NODE_ENV: production
       INNGEST_BASE_URL: http://inngest:8288
-      WORKER_INTERNAL_URL: http://worker:4010
       REDIS_URL: redis://redis:6379
     restart: unless-stopped
     expose:
       - "3000"
     depends_on:
-      - worker
       - redis
       - inngest
-
-  worker:
-    build:
-      context: ./worker
-      dockerfile: Dockerfile
-    env_file:
-      - .env.production
-    environment:
-      WORKER_PORT: 4010
-      WORKER_ICC_PROFILE_PATH: /app/config/icc/eciCMYK_v2.icc
-    restart: unless-stopped
-    expose:
-      - "4010"
 
   inngest:
     image: inngest/inngest:latest

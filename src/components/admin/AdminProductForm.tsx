@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ImageUploader } from "@/components/upload/ImageUploader";
 
 interface VariationRow {
   quantity: number;
@@ -23,10 +22,40 @@ interface FormState {
   base_price: string;
   description: string;
   category_id: string;
-  // option pools — admin defines what choices are available
-  quantity_options: string; // comma-separated numbers e.g. "100,250,500"
-  lamination_options: string; // comma-separated e.g. "matte,gloss,none"
-  paper_stock_options: string; // comma-separated e.g. "350gsm Art Card,130gsm Gloss"
+  pricing_model: "fixed" | "dimensional" | "volume";
+  price_per_unit: string;
+  use_quantity_options: boolean;
+  use_lamination_options: boolean;
+  use_paper_stock_options: boolean;
+  quantity_type: "preset" | "custom";
+  quantity_options: string;
+  quantity_custom_min: string;
+  quantity_custom_max: string;
+  lamination_options: string;
+  paper_stock_options: string;
+  variant_toggles: string;
+  design_aspect_ratio: string;
+  design_min_dpi: string;
+  design_allowed_formats: string;
+  design_requires_transparency: boolean;
+  preview_template_url: string;
+  template_type: "url" | "svg";
+  template_mode: "required" | "none";
+  print_width_inches: string;
+  print_height_inches: string;
+}
+
+interface EditableProduct {
+  id: string;
+  name: string;
+  slug: string;
+  base_price: number;
+  description: string | null;
+  category_id: string | null;
+  preview_template_url?: string | null;
+  print_width_inches?: number | null;
+  print_height_inches?: number | null;
+  metadata?: any;
 }
 
 export function AdminProductForm({
@@ -34,26 +63,72 @@ export function AdminProductForm({
   onSuccess,
   onCancel,
 }: {
-  editingProduct?: { id: string; name: string; slug: string; base_price: number; description: string | null; category_id: string | null } | null;
+  editingProduct?: EditableProduct | null;
   onSuccess?: () => void;
   onCancel?: () => void;
 }) {
+  function isSvgTemplate(value?: string | null): boolean {
+    return (value ?? "").trimStart().startsWith("<svg");
+  }
+
   const [categories, setCategories] = useState<Category[]>([]);
-  const [form, setForm] = useState<FormState>({
-    name: editingProduct?.name ?? "",
-    slug: editingProduct?.slug ?? "",
-    base_price: editingProduct?.base_price?.toString() ?? "",
-    description: editingProduct?.description ?? "",
-    category_id: editingProduct?.category_id ?? "",
-    quantity_options: "100,250,500",
-    lamination_options: "matte,gloss",
-    paper_stock_options: "350gsm Art Card",
+  const [form, setForm] = useState<FormState>(() => {
+    const meta = editingProduct?.metadata ?? {};
+    return {
+      name: editingProduct?.name ?? "",
+      slug: editingProduct?.slug ?? "",
+      base_price: editingProduct?.base_price?.toString() ?? "",
+      description: editingProduct?.description ?? "",
+      category_id: editingProduct?.category_id ?? "",
+      pricing_model: meta.pricing_model ?? "fixed",
+      price_per_unit: meta.price_per_unit?.toString() ?? "",
+      use_quantity_options: meta.use_quantity_options ?? true,
+      use_lamination_options: meta.use_lamination_options ?? true,
+      use_paper_stock_options: meta.use_paper_stock_options ?? true,
+      quantity_type: meta.quantity_type ?? "preset",
+      quantity_options: meta.quantity_options ?? "100,250,500",
+      quantity_custom_min: meta.quantity_custom_min?.toString() ?? "1",
+      quantity_custom_max: meta.quantity_custom_max?.toString() ?? "10000",
+      lamination_options: meta.lamination_options ?? "matte,gloss",
+      paper_stock_options: meta.paper_stock_options ?? "350gsm Art Card",
+      variant_toggles: meta.variant_toggles ?? "",
+      design_aspect_ratio: meta.design_rules?.aspect_ratio ?? "",
+      design_min_dpi: meta.design_rules?.min_dpi?.toString() ?? "150",
+      design_allowed_formats: meta.design_rules?.allowed_formats ?? "PNG,PDF,JPG",
+      design_requires_transparency: meta.design_rules?.requires_transparency ?? false,
+      preview_template_url: editingProduct?.preview_template_url ?? "",
+      template_type: (isSvgTemplate(editingProduct?.preview_template_url) ? "svg" : "url") as "url" | "svg",
+      template_mode: (editingProduct?.preview_template_url === null || editingProduct?.preview_template_url === "") ? "none" : "required" as "required" | "none",
+      print_width_inches: editingProduct?.print_width_inches?.toString() ?? "",
+      print_height_inches: editingProduct?.print_height_inches?.toString() ?? "",
+    };
   });
 
   const [variations, setVariations] = useState<VariationRow[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [images, setImages] = useState<Array<{ id?: string; url: string; order: number }>>([]);
+  const [uploadingTemplate, setUploadingTemplate] = useState(false);
+
+  async function uploadTemplateImage(file: File): Promise<string> {
+    setUploadingTemplate(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('bucket', 'products');
+      
+      const res = await fetch('/api/storage/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+      return data.url;
+    } finally {
+      setUploadingTemplate(false);
+    }
+  }
 
   useEffect(() => {
     loadCategories();
@@ -118,24 +193,49 @@ export function AdminProductForm({
   }
 
   function generateVariations() {
-    const quantities = parseOptions(form.quantity_options)
-      .map(Number)
-      .filter((n) => n > 0);
-    const laminationOpts = parseOptions(form.lamination_options);
-    const paperOpts = parseOptions(form.paper_stock_options);
+    const quantities = form.use_quantity_options
+      ? form.quantity_type === "preset"
+        ? parseOptions(form.quantity_options).map(Number).filter((n) => n > 0)
+        : []
+      : [];
+    
+    const laminationOpts = form.use_lamination_options
+      ? parseOptions(form.lamination_options)
+      : [];
+    
+    const paperOpts = form.use_paper_stock_options
+      ? parseOptions(form.paper_stock_options)
+      : [];
 
     const rows: VariationRow[] = [];
-    for (const qty of quantities) {
-      for (const lam of laminationOpts) {
-        for (const paper of paperOpts) {
+
+    if (form.use_quantity_options && form.quantity_type === "preset" && quantities.length > 0) {
+      for (const qty of quantities) {
+        for (const lam of laminationOpts.length > 0 ? laminationOpts : [""]) {
+          for (const paper of paperOpts.length > 0 ? paperOpts : [""]) {
+            const slugBase = form.slug.toUpperCase().replace(/-/g, "").slice(0, 6);
+            const paperCode = paper ? paper.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4) : "STD";
+            rows.push({
+              quantity: qty,
+              lamination: lam,
+              paper_stock: paper,
+              price_modifier: 0,
+              sku: `${slugBase}-${lam ? lam.toUpperCase().slice(0, 3) : "NL"}-${paperCode}-${qty}`,
+            });
+          }
+        }
+      }
+    } else if (!form.use_quantity_options || form.quantity_type === "custom") {
+      for (const lam of laminationOpts.length > 0 ? laminationOpts : [""]) {
+        for (const paper of paperOpts.length > 0 ? paperOpts : [""]) {
           const slugBase = form.slug.toUpperCase().replace(/-/g, "").slice(0, 6);
-          const paperCode = paper.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
+          const paperCode = paper ? paper.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4) : "STD";
           rows.push({
-            quantity: qty,
+            quantity: 1,
             lamination: lam,
             paper_stock: paper,
             price_modifier: 0,
-            sku: `${slugBase}-${lam.toUpperCase().slice(0, 3)}-${paperCode}-${qty}`,
+            sku: `${slugBase}-${lam ? lam.toUpperCase().slice(0, 3) : "NL"}-${paperCode}`,
           });
         }
       }
@@ -155,11 +255,6 @@ export function AdminProductForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (variations.length === 0) {
-      setMessage("Generate at least one variation before saving.");
-      setStatus("error");
-      return;
-    }
     setStatus("loading");
     setMessage("");
     try {
@@ -177,6 +272,27 @@ export function AdminProductForm({
           base_price: parseFloat(form.base_price),
           description: form.description,
           category_id: form.category_id || null,
+          pricing_model: form.pricing_model,
+          price_per_unit: form.price_per_unit ? parseFloat(form.price_per_unit) : null,
+          use_quantity_options: form.use_quantity_options,
+          use_lamination_options: form.use_lamination_options,
+          use_paper_stock_options: form.use_paper_stock_options,
+          quantity_type: form.quantity_type,
+          quantity_custom_min: form.quantity_custom_min ? parseInt(form.quantity_custom_min) : null,
+          quantity_custom_max: form.quantity_custom_max ? parseInt(form.quantity_custom_max) : null,
+          quantity_options: form.quantity_options,
+          lamination_options: form.lamination_options,
+          paper_stock_options: form.paper_stock_options,
+          variant_toggles: form.variant_toggles,
+          preview_template_url: form.preview_template_url.trim() || null,
+          print_width_inches: form.print_width_inches ? parseFloat(form.print_width_inches) : null,
+          print_height_inches: form.print_height_inches ? parseFloat(form.print_height_inches) : null,
+          design_rules: {
+            aspect_ratio: form.design_aspect_ratio,
+            min_dpi: form.design_min_dpi ? parseInt(form.design_min_dpi) : null,
+            allowed_formats: form.design_allowed_formats,
+            requires_transparency: form.design_requires_transparency,
+          },
           images: images.map((img, idx) => ({ url: img.url, order: idx })),
           variations: variations.map((v) => ({
             sku: v.sku,
@@ -204,9 +320,27 @@ export function AdminProductForm({
           base_price: "",
           description: "",
           category_id: "",
+          pricing_model: "fixed",
+          price_per_unit: "",
+          use_quantity_options: true,
+          use_lamination_options: true,
+          use_paper_stock_options: true,
+          quantity_type: "preset",
           quantity_options: "100,250,500",
+          quantity_custom_min: "1",
+          quantity_custom_max: "10000",
           lamination_options: "matte,gloss",
           paper_stock_options: "350gsm Art Card",
+          variant_toggles: "",
+          design_aspect_ratio: "",
+          design_min_dpi: "150",
+          design_allowed_formats: "PNG,PDF,JPG",
+          design_requires_transparency: false,
+          preview_template_url: "",
+          template_type: "url",
+          template_mode: "required",
+          print_width_inches: "",
+          print_height_inches: "",
         });
         setVariations([]);
         setImages([]);
@@ -239,64 +373,131 @@ export function AdminProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Info */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-semibold">Product Name</label>
-          <input
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-            placeholder="Standard Business Card"
-          />
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Core Details</h4>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-semibold">Product Name</label>
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="Standard Business Card"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold">Slug</label>
+            <input
+              required
+              value={form.slug}
+              onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="standard-business-card"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold">Category</label>
+            <select
+              value={form.category_id}
+              onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+            >
+              <option value="">-- No Category --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold">Base Price (₹)</label>
+            <input
+              required
+              type="number"
+              min={0}
+              step={0.01}
+              value={form.base_price}
+              onChange={(e) => setForm({ ...form, base_price: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="299"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-sm font-semibold">Description</label>
+            <input
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="Optional description"
+            />
+          </div>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-semibold">Slug</label>
-          <input
-            required
-            value={form.slug}
-            onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-            placeholder="standard-business-card"
-          />
+      </div>
+
+      {/* Pricing Model */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Pricing Model</h4>
+        <p className="text-xs text-on-surface/60">Choose how this product is priced.</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className={`flex items-center gap-3 rounded border p-3 cursor-pointer transition-all ${form.pricing_model === "fixed" ? "border-primary-container bg-primary-container/10" : "border-foreground/10"}`}>
+            <input
+              type="radio"
+              name="pricing_model"
+              value="fixed"
+              checked={form.pricing_model === "fixed"}
+              onChange={(e) => setForm({ ...form, pricing_model: e.target.value as any })}
+              className="accent-primary-container"
+            />
+            <div>
+              <p className="text-sm font-semibold">Fixed Size / Fixed Price</p>
+              <p className="text-xs text-on-surface/60">Predefined sizes with price bumps</p>
+            </div>
+          </label>
+          <label className={`flex items-center gap-3 rounded border p-3 cursor-pointer transition-all ${form.pricing_model === "dimensional" ? "border-primary-container bg-primary-container/10" : "border-foreground/10"}`}>
+            <input
+              type="radio"
+              name="pricing_model"
+              value="dimensional"
+              checked={form.pricing_model === "dimensional"}
+              onChange={(e) => setForm({ ...form, pricing_model: e.target.value as any })}
+              className="accent-primary-container"
+            />
+            <div>
+              <p className="text-sm font-semibold">Dimensional Pricing</p>
+              <p className="text-xs text-on-surface/60">Per sq. ft / meter calculation</p>
+            </div>
+          </label>
+          <label className={`flex items-center gap-3 rounded border p-3 cursor-pointer transition-all ${form.pricing_model === "volume" ? "border-primary-container bg-primary-container/10" : "border-foreground/10"}`}>
+            <input
+              type="radio"
+              name="pricing_model"
+              value="volume"
+              checked={form.pricing_model === "volume"}
+              onChange={(e) => setForm({ ...form, pricing_model: e.target.value as any })}
+              className="accent-primary-container"
+            />
+            <div>
+              <p className="text-sm font-semibold">Volume Tier Pricing</p>
+              <p className="text-xs text-on-surface/60">Quantity-based unit pricing</p>
+            </div>
+          </label>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-semibold">Category</label>
-          <select
-            value={form.category_id}
-            onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-          >
-            <option value="">-- No Category --</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-semibold">Base Price (₹)</label>
-          <input
-            required
-            type="number"
-            min={0}
-            step={0.01}
-            value={form.base_price}
-            onChange={(e) => setForm({ ...form, base_price: e.target.value })}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-            placeholder="299"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-semibold">Description</label>
-          <input
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-            placeholder="Optional description"
-          />
-        </div>
+        {form.pricing_model === "dimensional" && (
+          <div className="max-w-xs">
+            <label className="mb-1 block text-sm font-semibold">Price Per Sq. Ft (₹)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={form.price_per_unit}
+              onChange={(e) => setForm({ ...form, price_per_unit: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="25"
+            />
+          </div>
+        )}
       </div>
 
       {/* Product Images */}
@@ -304,9 +505,10 @@ export function AdminProductForm({
         <h4 className="font-semibold text-sm">Product Images</h4>
         <p className="text-xs text-on-surface/60">Upload multiple images. First image will be the main thumbnail.</p>
         
-        <ImageUploader
-          bucket="products"
-          onUploadComplete={handleImageUpload}
+        <input
+          type="file"
+          accept="image/*"
+          className="w-full rounded-md border border-foreground/10 bg-background px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-1 file:text-xs file:font-semibold file:text-background"
         />
 
         {images.length > 0 && (
@@ -354,22 +556,264 @@ export function AdminProductForm({
         )}
       </div>
 
-      {/* Option Pools */}
+      {/* Preview Template & Dimensions */}
       <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
-        <h4 className="font-semibold text-sm">Define Available Options</h4>
-        <p className="text-xs text-on-surface/60">Comma-separated values. These become the dropdown choices customers see.</p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <label className="mb-1 block text-sm font-semibold">Quantity Options</label>
+        <h4 className="font-semibold text-sm">Preview Template & Print Dimensions</h4>
+        <p className="text-xs text-on-surface/60">Choose "No Template" for products where users upload their own images without a template. Or upload a template image/SVG code.</p>
+        
+        <div className="space-y-2">
+          <label className="mb-1 block text-sm font-semibold">Template Mode</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, template_mode: 'required' })}
+              className={`px-3 py-1.5 text-xs rounded ${form.template_mode === 'required' ? 'bg-accent text-accent-foreground' : 'bg-surface-container'}`}
+            >
+              Use Template
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, template_mode: 'none', preview_template_url: '' })}
+              className={`px-3 py-1.5 text-xs rounded ${form.template_mode === 'none' ? 'bg-accent text-accent-foreground' : 'bg-surface-container'}`}
+            >
+              No Template
+            </button>
+          </div>
+        </div>
+
+        {form.template_mode === 'required' && (
+          <>
+            <div className="space-y-2">
+              <label className="mb-1 block text-sm font-semibold">Template Type</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, template_type: 'url' })}
+                  className={`px-3 py-1.5 text-xs rounded ${form.template_type === 'url' ? 'bg-accent text-accent-foreground' : 'bg-surface-container'}`}
+                >
+                  Image URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, template_type: 'svg' })}
+                  className={`px-3 py-1.5 text-xs rounded ${form.template_type === 'svg' ? 'bg-accent text-accent-foreground' : 'bg-surface-container'}`}
+                >
+                  SVG Code
+                </button>
+              </div>
+            </div>
+
+        {form.template_type === 'url' ? (
+          <div className="space-y-2">
+            <label className="mb-1 block text-sm font-semibold">Upload Template Image</label>
             <input
-              value={form.quantity_options}
-              onChange={(e) => setForm({ ...form, quantity_options: e.target.value })}
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const url = await uploadTemplateImage(file);
+                  setForm({ ...form, preview_template_url: url });
+                }
+              }}
+              disabled={uploadingTemplate}
+              className="w-full rounded-md border border-foreground/10 bg-background px-3 py-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-1 file:text-xs file:font-semibold file:text-background disabled:opacity-50"
+            />
+            {uploadingTemplate && <p className="text-xs text-foreground/60">Uploading...</p>}
+            {form.preview_template_url && !isSvgTemplate(form.preview_template_url) && (
+              <div className="relative inline-block">
+                <img 
+                  src={form.preview_template_url} 
+                  alt="Template preview" 
+                  className="h-32 w-auto rounded border border-foreground/10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, preview_template_url: "" })}
+                  className="absolute -right-2 -top-2 rounded-full bg-error p-1 text-white shadow-md text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-on-surface/40">Or paste an image URL:</p>
+            <input
+              value={isSvgTemplate(form.preview_template_url) ? '' : form.preview_template_url}
+              onChange={(e) => setForm({ ...form, preview_template_url: e.target.value })}
               className="w-full rounded bg-surface-container px-3 py-2 text-sm"
-              placeholder="100,250,500"
+              placeholder="https://example.com/template-blank.png"
+            />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <label className="mb-1 block text-sm font-semibold">SVG Template Code</label>
+            <p className="text-xs text-on-surface/40">
+              Add <code className="bg-surface-container px-1 rounded">id="user-image-placeholder"</code> to the element where the user's image should appear.
+            </p>
+            <textarea
+              value={isSvgTemplate(form.preview_template_url) ? form.preview_template_url : ''}
+              onChange={(e) => setForm({ ...form, preview_template_url: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm font-mono"
+              placeholder='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 380">
+  <rect x="10" y="10" width="300" height="350" fill="#FFF"/>
+  <rect id="user-image-placeholder" x="25" y="25" width="270" height="270" fill="#DDD"/>
+</svg>'
+              rows={8}
+            />
+            {isSvgTemplate(form.preview_template_url) && (
+              <div className="rounded border border-foreground/10 p-3 bg-surface-container">
+                <p className="text-xs font-semibold mb-2">Preview:</p>
+                <div dangerouslySetInnerHTML={{ __html: form.preview_template_url }} className="max-w-xs" />
+              </div>
+            )}
+          </div>
+        )}
+        </>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-semibold">Print Width (inches)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.125}
+              value={form.print_width_inches}
+              onChange={(e) => setForm({ ...form, print_width_inches: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="11.7"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-semibold">Lamination Options</label>
+            <label className="mb-1 block text-sm font-semibold">Print Height (inches)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.125}
+              value={form.print_height_inches}
+              onChange={(e) => setForm({ ...form, print_height_inches: e.target.value })}
+              className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+              placeholder="16.5"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Variant Toggles */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Variant Toggles</h4>
+        <p className="text-xs text-on-surface/60">
+          Add customer-selectable choices. Format: <code className="bg-surface-container px-1 rounded">Label: Value1,Value2</code>.
+          <br />Example: <code className="bg-surface-container px-1 rounded">Frame Color: Black,White</code> or <code className="bg-surface-container px-1 rounded">Material: Glossy,Matte</code>
+        </p>
+        <input
+          value={form.variant_toggles}
+          onChange={(e) => setForm({ ...form, variant_toggles: e.target.value })}
+          className="w-full rounded bg-surface-container px-3 py-2 text-sm font-mono"
+          placeholder="Frame Color: Black,White | Material: Glossy,Matte"
+        />
+      </div>
+
+      {/* Optional Attributes */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Customer Selectable Attributes</h4>
+        <p className="text-xs text-on-surface/60">Toggle which attributes customers can select. Leave empty to disable.</p>
+        
+        {/* Quantity Options Toggle */}
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.use_quantity_options}
+              onChange={(e) => setForm({ ...form, use_quantity_options: e.target.checked })}
+              className="accent-primary-container"
+            />
+            <span className="text-sm font-semibold">Enable Quantity Selection</span>
+          </label>
+        </div>
+        
+        {form.use_quantity_options && (
+          <div className="pl-8 space-y-3">
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="quantity_type"
+                  value="preset"
+                  checked={form.quantity_type === "preset"}
+                  onChange={(e) => setForm({ ...form, quantity_type: e.target.value as any })}
+                  className="accent-primary-container"
+                />
+                <span className="text-sm">Preset Options</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="quantity_type"
+                  value="custom"
+                  checked={form.quantity_type === "custom"}
+                  onChange={(e) => setForm({ ...form, quantity_type: e.target.value as any })}
+                  className="accent-primary-container"
+                />
+                <span className="text-sm">Custom Input Field</span>
+              </label>
+            </div>
+            
+            {form.quantity_type === "preset" ? (
+              <div>
+                <label className="mb-1 block text-sm font-semibold">Quantity Options (comma-separated)</label>
+                <input
+                  value={form.quantity_options}
+                  onChange={(e) => setForm({ ...form, quantity_options: e.target.value })}
+                  className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+                  placeholder="100,250,500"
+                />
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">Minimum Quantity</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={form.quantity_custom_min}
+                    onChange={(e) => setForm({ ...form, quantity_custom_min: e.target.value })}
+                    className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+                    placeholder="1"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">Maximum Quantity</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={form.quantity_custom_max}
+                    onChange={(e) => setForm({ ...form, quantity_custom_max: e.target.value })}
+                    className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+                    placeholder="10000"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Lamination Options Toggle */}
+        <div className="flex items-center gap-3 pt-2 border-t border-foreground/10">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.use_lamination_options}
+              onChange={(e) => setForm({ ...form, use_lamination_options: e.target.checked })}
+              className="accent-primary-container"
+            />
+            <span className="text-sm font-semibold">Enable Lamination Selection</span>
+          </label>
+        </div>
+        
+        {form.use_lamination_options && (
+          <div className="pl-8">
+            <label className="mb-1 block text-sm font-semibold">Lamination Options (comma-separated)</label>
             <input
               value={form.lamination_options}
               onChange={(e) => setForm({ ...form, lamination_options: e.target.value })}
@@ -377,8 +821,24 @@ export function AdminProductForm({
               placeholder="matte,gloss,none"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-semibold">Paper Stock Options</label>
+        )}
+
+        {/* Paper Stock Options Toggle */}
+        <div className="flex items-center gap-3 pt-2 border-t border-foreground/10">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.use_paper_stock_options}
+              onChange={(e) => setForm({ ...form, use_paper_stock_options: e.target.checked })}
+              className="accent-primary-container"
+            />
+            <span className="text-sm font-semibold">Enable Paper Stock Selection</span>
+          </label>
+        </div>
+        
+        {form.use_paper_stock_options && (
+          <div className="pl-8">
+            <label className="mb-1 block text-sm font-semibold">Paper Stock Options (comma-separated)</label>
             <input
               value={form.paper_stock_options}
               onChange={(e) => setForm({ ...form, paper_stock_options: e.target.value })}
@@ -386,7 +846,8 @@ export function AdminProductForm({
               placeholder="350gsm Art Card,130gsm Gloss"
             />
           </div>
-        </div>
+        )}
+
         <button
           type="button"
           onClick={generateVariations}

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { DPI, mmToPx } from "@/lib/editor/print";
+
+const DPI = 300;
+
+function mmToPx(mm: number): number {
+  return Math.round(mm * (DPI / 25.4));
+}
 
 interface ExportRequestBody {
   canvasJson: string;

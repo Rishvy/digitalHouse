@@ -172,15 +172,6 @@ export function AdminDashboard() {
             <p className="text-xs text-foreground/50">Create a new print product</p>
           </div>
         </Link>
-        <Link href="/admin/templates" className="group flex items-center gap-3 rounded-lg border border-foreground/10 p-4 transition-all hover:border-foreground/20">
-          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
-            <span className="material-symbols-outlined text-xl">design_services</span>
-          </span>
-          <div>
-            <p className="text-sm font-semibold">Edit Templates</p>
-            <p className="text-xs text-foreground/50">Manage design templates</p>
-          </div>
-        </Link>
         <Link href="/admin/homepage" className="group flex items-center gap-3 rounded-lg border border-foreground/10 p-4 transition-all hover:border-foreground/20">
           <span className="flex h-10 w-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
             <span className="material-symbols-outlined text-xl">home</span>

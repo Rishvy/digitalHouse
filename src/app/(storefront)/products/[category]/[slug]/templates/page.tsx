@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProductByCategoryAndSlug, getTemplatesByProductId, type Template } from "@/lib/catalog";
+import { getProductByCategoryAndSlug, getTemplatesByProductId } from "@/lib/catalog";
 
 export async function generateMetadata({
   params,
@@ -14,8 +14,8 @@ export async function generateMetadata({
     return { title: "Templates Not Found" };
   }
   return {
-    title: `Choose a Template | ${product.name}`,
-    description: `Select a pre-designed template for your ${product.name}.`,
+    title: `Templates | ${product.name}`,
+    description: `Pre-designed templates and design tools for your ${product.name}.`,
   };
 }
 
@@ -35,7 +35,7 @@ export default async function TemplateGalleryPage({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-on-surface/70">Choose a design</p>
+            <p className="text-sm text-on-surface/70">Templates & Design</p>
             <h1 className="text-2xl font-bold">Templates for {product.name}</h1>
           </div>
           <Link
@@ -50,13 +50,13 @@ export default async function TemplateGalleryPage({
           <div className="rounded-xl bg-surface-container p-8 text-center">
             <p className="text-on-surface/70">No templates available yet.</p>
             <p className="mt-2 text-sm text-on-surface/50">
-              Start designing from scratch instead.
+              Create your design from scratch.
             </p>
             <Link
-              href={`/products/${category}/${slug}`}
+              href={`/design/${product.id}`}
               className="mt-4 inline-block rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-fixed"
             >
-              Start Designing
+              Design Your Own
             </Link>
           </div>
         ) : (
@@ -67,16 +67,15 @@ export default async function TemplateGalleryPage({
               className="group flex flex-col rounded-xl border-2 border-dashed border-on-surface/30 p-4 transition-colors hover:border-primary"
             >
               <div className="flex aspect-[4/3] items-center justify-center rounded-lg bg-surface-container-low">
-                <span className="text-4xl text-on-surface/50">+</span>
+                <span className="text-4xl text-on-surface/50">✏️</span>
               </div>
-              <p className="mt-3 text-sm font-medium">Blank Canvas</p>
-              <p className="text-xs text-on-surface/60">Start from scratch</p>
+              <p className="mt-3 text-sm font-medium">Design Your Own</p>
+              <p className="text-xs text-on-surface/60">Built-in editor</p>
             </Link>
 
             {templates.map((template) => (
-              <Link
+              <div
                 key={template.id}
-                href={`/design/${product.id}?templateId=${template.id}`}
                 className="group flex flex-col rounded-xl bg-surface-container transition-shadow hover:shadow-lg"
               >
                 <div className="overflow-hidden rounded-t-xl">
@@ -92,11 +91,11 @@ export default async function TemplateGalleryPage({
                   )}
                 </div>
                 <div className="p-3">
-                  <p className="truncate text-sm font-medium group-hover:text-primary">
+                  <p className="truncate text-sm font-medium">
                     {template.name}
                   </p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

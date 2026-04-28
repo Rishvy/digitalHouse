@@ -16,7 +16,7 @@ const bodyFont = DM_Sans({
 
 export const metadata: Metadata = {
   title: "K.T Digital House",
-  description: "Custom print storefront, design tool, and production dashboard.",
+  description: "Custom print storefront and production dashboard.",
 };
 
 export default function RootLayout({

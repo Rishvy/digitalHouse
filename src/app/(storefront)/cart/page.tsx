@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { KonvaCanvas } from "@/components/canvas/KonvaCanvas";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
 import { useCartStore } from "@/stores/cartStore";
 
@@ -18,8 +17,7 @@ export default function CartPage() {
         <h1 className="text-3xl font-bold">Your Cart</h1>
         {items.length === 0 && <p className="rounded bg-surface-container p-4 text-sm">Your cart is empty.</p>}
         {items.map((item) => (
-          <article key={item.id} className="grid gap-4 rounded-xl bg-surface-container p-4 sm:grid-cols-[140px_1fr_auto]">
-            <KonvaCanvas designState={item.designState} width={140} height={90} />
+          <article key={item.id} className="grid gap-4 rounded-xl bg-surface-container p-4 sm:grid-cols-[1fr_auto]">
             <div>
               <h3 className="font-semibold">{item.productName ?? "Custom Product"}</h3>
               <p className="text-sm text-on-surface/70">Qty: {item.quantity}</p>

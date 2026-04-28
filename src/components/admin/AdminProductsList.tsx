@@ -13,6 +13,10 @@ interface Product {
   category_name?: string;
   variations_count?: number;
   main_image?: string;
+  preview_template_url?: string | null;
+  print_width_inches?: number | null;
+  print_height_inches?: number | null;
+  metadata?: any;
 }
 
 export function AdminProductsList() {

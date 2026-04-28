@@ -37,15 +37,3 @@ services:
   supabase-kong:
     image: kong:2.8.1
     ports: ['54321:8000']
-
-  worker:
-    build:
-      context: ./worker
-      dockerfile: Dockerfile
-    ports: ['4010:4010']
-    depends_on: [supabase-db]
-    environment:
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-http://supabase-kong:8000}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-service-role-key}
-      WORKER_PORT: 4010
-      WORKER_ICC_PROFILE_PATH: /app/config/icc/eciCMYK_v2.icc

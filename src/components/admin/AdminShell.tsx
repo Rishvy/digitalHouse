@@ -19,7 +19,6 @@ const navSections = [
     items: [
       { href: "/admin/products", label: "Products", icon: "inventory_2" },
       { href: "/admin/categories", label: "Categories", icon: "category" },
-      { href: "/admin/templates", label: "Templates", icon: "design_services" },
     ],
   },
   {
@@ -44,7 +43,6 @@ const breadcrumbMap: Record<string, string> = {
   "/admin/analytics": "Analytics",
   "/admin/products": "Products",
   "/admin/categories": "Categories",
-  "/admin/templates": "Templates",
   "/admin/homepage": "Homepage",
   "/admin/uploads": "Media",
   "/admin/users": "Users",

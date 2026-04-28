@@ -9,7 +9,6 @@ export interface CartItem {
   variationId: string;
   quantity: number;
   unitPrice: number;
-  designState: string | null;
   thumbnailDataUrl: string | null;
   productName?: string;
 }

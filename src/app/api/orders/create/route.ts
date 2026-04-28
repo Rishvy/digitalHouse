@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { assertRateLimit } from "@/lib/security/rateLimit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { designStateSchema } from "@/lib/validation/schemas";
 
 interface CreateOrderBody {
   shippingAddress: {
@@ -22,7 +21,6 @@ interface CreateOrderBody {
     variationId: string;
     quantity: number;
     unitPrice: number;
-    designState: string | null;
   }>;
 }
 
@@ -42,12 +40,6 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as CreateOrderBody;
-  for (const item of body.items) {
-    if (item.designState) {
-      const parsed = JSON.parse(item.designState);
-      designStateSchema.parse(parsed);
-    }
-  }
   const { data: order, error: orderError } = await sb
     .from("orders")
     .insert({
@@ -72,7 +64,6 @@ export async function POST(request: Request) {
       variation_id: item.variationId,
       quantity: item.quantity,
       unit_price: item.unitPrice,
-      design_state: item.designState ? JSON.parse(item.designState) : null,
     })),
   );
 

@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Templates | Admin" };
 export default function TemplatesPage() {
   return (
     <div>
-      <AdminPageHeader title="Templates" subtitle="Manage design templates for products" />
+      <AdminPageHeader title="Templates" subtitle="Pre-designed templates for products" />
       <AdminTemplatesList />
     </div>
   );

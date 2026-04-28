@@ -16,7 +16,7 @@ export default function WishlistPage() {
         <div className="mt-6 rounded-xl bg-surface-container p-8 text-center">
           <Heart className="mx-auto h-12 w-12 text-on-surface/40" />
           <p className="mt-4 text-on-surface/70">Your wishlist is empty.</p>
-          <Link href="/products/business-cards" className="mt-4 inline-block rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-fixed">
+          <Link href="/products/photo-prints" className="mt-4 inline-block rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-fixed">
             Browse Products
           </Link>
         </div>

@@ -1,4 +1,3 @@
-import { KonvaCanvas } from "@/components/canvas/KonvaCanvas";
 import { ProductionStatusControl } from "@/components/admin/ProductionStatusControl";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AdminBackLink } from "@/components/admin/AdminPageHeader";
@@ -47,7 +46,6 @@ export default async function AdminOrderDetailPage({
     id: string;
     quantity: number;
     unit_price?: number;
-    design_state: unknown;
     preflight_status: string;
     preflight_errors: unknown;
     print_file_url: string | null;
@@ -122,18 +120,9 @@ export default async function AdminOrderDetailPage({
             typedItems.map((item) => {
               const itemTracking = typedTracking.find((t) => t.order_item_id === item.id);
               const preflight = item.preflight_status as string;
-              const normalizedDesignState =
-                typeof item.design_state === "string"
-                  ? item.design_state
-                  : item.design_state
-                    ? JSON.stringify(item.design_state)
-                    : null;
               return (
                 <article key={item.id} className="rounded-lg border border-foreground/10 p-4">
-                  <div className="grid gap-4 md:grid-cols-[200px_1fr]">
-                    <div className="rounded-md bg-foreground/5 p-2">
-                      <KonvaCanvas designState={normalizedDesignState} width={200} height={130} />
-                    </div>
+                  <div className="grid gap-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
