@@ -8,11 +8,11 @@ interface PageProps {
   params: Promise<{ productId: string }>;
 }
 
-// --- THE FIX: Define the local extended type ---
+// --- THE FIX: Removed the '?' from thumbnail_url so it strictly matches string | null ---
 type ExtendedTemplate = {
   id: string;
   name: string;
-  thumbnail_url?: string | null;
+  thumbnail_url: string | null; 
   [key: string]: any;
 };
 
@@ -41,7 +41,7 @@ export default async function DesignPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  // --- THE FIX: Cast the fetched data to our ExtendedTemplate array ---
+  // Cast the fetched data to our strict ExtendedTemplate array
   const templates = (await getTemplatesByProductId(productId)) as ExtendedTemplate[];
 
   return (
