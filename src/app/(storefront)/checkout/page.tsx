@@ -4,16 +4,13 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
-import { isValidGstNumber } from "@/lib/validation/gst";
 import { useCartStore } from "@/stores/cartStore";
-import { Upload, X, Image, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, X, Image, AlertCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clear, updateItem } = useCartStore();
-  const [gstError, setGstError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [gateway, setGateway] = useState<"cashfree" | "razorpay">("cashfree");
   const [ready, setReady] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingForItem, setUploadingForItem] = useState<string | null>(null);
@@ -26,7 +23,6 @@ export default function CheckoutPage() {
     state: "",
     pinCode: "",
     phone: "",
-    gstNumber: "",
   });
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
@@ -87,11 +83,6 @@ export default function CheckoutPage() {
   };
 
   const submit = async () => {
-    if (form.gstNumber && !isValidGstNumber(form.gstNumber)) {
-      setGstError("Invalid GST format");
-      return;
-    }
-
     // Check if all items have artwork
     const itemsWithoutArtwork = items.filter(item => !item.thumbnailDataUrl);
     if (itemsWithoutArtwork.length > 0) {
@@ -99,7 +90,6 @@ export default function CheckoutPage() {
       return;
     }
 
-    setGstError(null);
     setUploadError(null);
     setLoading(true);
 
@@ -116,7 +106,6 @@ export default function CheckoutPage() {
           pinCode: form.pinCode,
           phone: form.phone,
         },
-        gstNumber: form.gstNumber || undefined,
         subtotal,
         taxAmount: gst,
         totalAmount: total,
@@ -134,20 +123,6 @@ export default function CheckoutPage() {
     setLoading(false);
     if (!response.ok) {
       setUploadError(body.error || "Failed to create order");
-      return;
-    }
-
-    const paymentResponse = await fetch("/api/payments/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderId: body.orderId,
-        preferredGateway: gateway,
-      }),
-    });
-    const paymentBody = await paymentResponse.json();
-    if (!paymentResponse.ok) {
-      setLoading(false);
       return;
     }
 
@@ -233,7 +208,7 @@ export default function CheckoutPage() {
         <div className="rounded-xl bg-surface-container p-5">
           <h2 className="text-lg font-bold mb-4">Shipping Address</h2>
           <div className="grid gap-3">
-            {["fullName", "addressLine1", "addressLine2", "city", "state", "pinCode", "phone", "gstNumber"].map((field) => (
+            {["fullName", "addressLine1", "addressLine2", "city", "state", "pinCode", "phone"].map((field) => (
               <input
                 key={field}
                 placeholder={field.replace(/([A-Z])/g, ' $1').trim()}
@@ -243,35 +218,18 @@ export default function CheckoutPage() {
               />
             ))}
           </div>
-          {gstError && <p className="text-sm text-red-600 mt-2">{gstError}</p>}
         </div>
 
-        {/* Payment */}
+        {/* Place order */}
         <div className="rounded-xl bg-surface-container p-5">
-          <h2 className="text-lg font-bold mb-4">Payment</h2>
-          <div className="flex gap-2 mb-4">
-            <button
-              type="button"
-              onClick={() => setGateway("cashfree")}
-              className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${gateway === "cashfree" ? "bg-accent text-accent-foreground" : "bg-surface-container-low hover:bg-foreground/5"}`}
-            >
-              Cashfree
-            </button>
-            <button
-              type="button"
-              onClick={() => setGateway("razorpay")}
-              className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${gateway === "razorpay" ? "bg-accent text-accent-foreground" : "bg-surface-container-low hover:bg-foreground/5"}`}
-            >
-              Razorpay
-            </button>
-          </div>
+          <h2 className="text-lg font-bold mb-4">Place Order</h2>
           <button
             type="button"
             disabled={loading || items.length === 0}
             onClick={submit}
             className="w-full rounded-lg bg-foreground py-3.5 font-semibold text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
           >
-            {loading ? "Processing..." : `Pay ${formatCurrency(total)}`}
+            {loading ? "Placing order..." : `Place Order ${formatCurrency(total)}`}
           </button>
         </div>
       </div>
