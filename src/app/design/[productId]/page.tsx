@@ -8,7 +8,6 @@ interface PageProps {
   params: Promise<{ productId: string }>;
 }
 
-// --- THE FIX: Removed the '?' from thumbnail_url so it strictly matches string | null ---
 type ExtendedTemplate = {
   id: string;
   name: string;
@@ -41,8 +40,8 @@ export default async function DesignPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  // Cast the fetched data to our strict ExtendedTemplate array
-  const templates = (await getTemplatesByProductId(productId)) as ExtendedTemplate[];
+  // --- THE FIX: Added 'as unknown' to force the cast ---
+  const templates = (await getTemplatesByProductId(productId)) as unknown as ExtendedTemplate[];
 
   return (
     <CanvaEditorDesignPage
