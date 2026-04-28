@@ -3,6 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductByCategoryAndSlug, getTemplatesByProductId } from "@/lib/catalog";
 
+// --- THE FIX: We define a local type that includes thumbnail_url ---
+type ExtendedTemplate = {
+  id: string;
+  name: string;
+  thumbnail_url?: string | null;
+  [key: string]: any; // This allows any other existing properties from your DB
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -28,7 +36,8 @@ export default async function TemplateGalleryPage({
   const product = await getProductByCategoryAndSlug(category, slug);
   if (!product) notFound();
 
-  const templates = await getTemplatesByProductId(product.id);
+  // --- THE FIX: We cast the fetched data as an array of our ExtendedTemplate ---
+  const templates = (await getTemplatesByProductId(product.id)) as ExtendedTemplate[];
 
   return (
     <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:px-8">
