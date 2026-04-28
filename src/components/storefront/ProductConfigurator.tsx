@@ -233,8 +233,10 @@ export function ProductConfigurator({
     });
 
     setCartAdded(true);
-    setTimeout(() => setCartAdded(false), 2500);
-    if (showPreview) closePreview();
+    setTimeout(() => {
+      setCartAdded(false);
+      setShowPreview(false);
+    }, 1400);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────

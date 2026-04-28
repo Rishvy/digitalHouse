@@ -82,16 +82,20 @@ Get the webapp from GitHub repo https://github.com/Rishvy/digitalHouse up and ru
 - [2026-04-28] Created `/app/backend/server.py` FastAPI proxy (port 8001 → 3000)
 - [2026-04-28] Updated `next.config.ts` with Emergent preview domain
 
-## Sandwich-Method Preview System (2026-04-28)
-- Rewrote `ProductConfigurator.tsx` with 3-step flow:
-  - Step 1: Template selection gallery (No Frame + DB templates)
-  - Step 2: Photo upload (multiple photos supported)
-  - Step 3: Live sandwich preview (photo layer + transparent PNG template overlay)
-- Drag to reposition photo, zoom in/out, reset controls
-- Green success state on Add to Cart (replaced alert())
-- Fixed `catalog.ts` Template interface to use `preview_url` (correct DB column)
-- Fixed `AdminTemplatesList.tsx` to use correct fields + checkerboard background for template previews
-- Updated product detail page to fetch & pass templates to ProductConfigurator
+## What's Been Implemented
+- [2026-04-28] Setup: env, supervisor shim, FastAPI proxy, allowedDevOrigins
+- [2026-04-28] Sandwich-method configurator v1 (with template selection gallery)
+- [2026-04-28] Sandwich-method configurator v2 (correct flow per spec):
+  - Admin sets 0 or 1 template per product (product.template_id → templates.preview_url)
+  - User selects quantity → must upload exactly that many photos
+  - Upload progress bar + counter (N/required)
+  - Preview button gated: disabled until all images uploaded
+  - Preview modal: sandwich canvas (photo + template overlay), or plain photo if no template
+  - Prev/Next navigation across all uploaded images, each with independent posX/posY/scale
+  - Zoom in/out/reset controls (only shown when template overlay exists)
+  - Per-image transforms saved on navigation and Add to Cart
+  - Cart item includes printTransforms[] with imageUrl + coordinates for print backend
+  - "Added to Cart!" success flash for 1.4s before modal auto-closes
 
 ## Prioritized Backlog
 ### P0 (Critical for full functionality)
