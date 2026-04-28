@@ -284,7 +284,7 @@ export function AdminProductForm({
           lamination_options: form.lamination_options,
           paper_stock_options: form.paper_stock_options,
           variant_toggles: form.variant_toggles,
-          preview_template_url: form.preview_template_url.trim() || null,
+          preview_template_url: (form.preview_template_url ?? "").trim() || null,
           print_width_inches: form.print_width_inches ? parseFloat(form.print_width_inches) : null,
           print_height_inches: form.print_height_inches ? parseFloat(form.print_height_inches) : null,
           design_rules: {
