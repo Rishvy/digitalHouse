@@ -72,16 +72,26 @@ export function CatalogSidebar({
   return (
     <aside className="h-fit space-y-0 divide-y divide-foreground/10 rounded-lg border border-foreground/10 bg-background">
       <div className="flex items-center justify-between px-4 py-3">
-        <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+        <button
+          type="button"
+          onClick={function() { setMobileOpen(function(v) { return !v; }); }}
+          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground/60 md:pointer-events-none"
+          aria-expanded={mobileOpen}
+        >
           <Filter className="h-3 w-3" />
           Filters
-        </h3>
+          <span className="md:hidden">
+            {mobileOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </span>
+        </button>
         {activeCount > 0 && (
           <button onClick={clearFilters} className="text-xs text-foreground/50 underline-offset-2 hover:underline">
             Clear ({activeCount})
           </button>
         )}
       </div>
+
+      <div className={(mobileOpen ? "block" : "hidden") + " md:block divide-y divide-foreground/10"}>
 
       <div>
         <button
@@ -209,6 +219,7 @@ export function CatalogSidebar({
           )}
         </div>
       )}
+      </div>
     </aside>
   );
 }

@@ -96,6 +96,13 @@ Get the webapp from GitHub repo https://github.com/Rishvy/digitalHouse up and ru
   - Per-image transforms saved on navigation and Add to Cart
   - Cart item includes printTransforms[] with imageUrl + coordinates for print backend
   - "Added to Cart!" success flash for 1.4s before modal auto-closes
+- [2026-04-28] Mobile responsiveness (verified by testing agent iteration_3):
+  - CatalogSidebar: collapsible with "Filters" toggle on mobile (<768px), always open on desktop
+  - Homepage hero: text-4xl scaling up through sm/md/lg breakpoints, prevents overflow
+  - Footer: grid-cols-2 on mobile (brand spans 2 cols), md:grid-cols-4 on desktop
+  - Checkout: Order Summary appears first on mobile (order-1), 2-col layout preserved on desktop
+  - My Account: horizontal scrollable tabs on mobile, vertical sidebar on desktop
+  - Track Order stepper: text-[10px] sm:text-xs + flex-1 min-w-0 prevents label overflow
 
 ## Prioritized Backlog
 ### P0 (Critical for full functionality)
