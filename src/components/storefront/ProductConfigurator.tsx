@@ -370,24 +370,13 @@ export function ProductConfigurator({
           />
         </div>
 
-        {/* Upload area — hidden when all slots filled */}
+        {/* Upload area - hidden when all slots filled */}
         {uploadedImages.length < requiredImages && (
-          <label
-            data-testid="photo-upload-area"
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5"
-          >
+          <label data-testid="photo-upload-area" className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5">
             <Upload className="h-6 w-6 text-foreground/40" />
-            <span className="text-sm font-medium text-foreground/60">
-              Click to upload ({requiredImages - uploadedImages.length} more needed)
-            </span>
+            <span className="text-sm font-medium text-foreground/60">Click to upload ({requiredImages - uploadedImages.length} more needed)</span>
             <span className="text-xs text-foreground/30">JPG, PNG, WEBP</span>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageUpload}
-              className="hidden"
-            />
+            <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
           </label>
         )}
 

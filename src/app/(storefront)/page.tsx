@@ -50,12 +50,6 @@ export default async function HomePage() {
                 Explore Catalog
                 <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
               </Link>
-              <Link
-                href="/track"
-                className="group inline-flex items-center gap-2 border border-foreground/20 px-6 py-3 text-sm font-semibold transition-all hover:border-foreground/40"
-              >
-                Track an Order
-              </Link>
             </div>
           </div>
         </div>

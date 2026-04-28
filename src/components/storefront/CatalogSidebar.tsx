@@ -21,7 +21,7 @@ export function CatalogSidebar({
   const searchParams = useSearchParams();
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [sortBy, setSortBy] = useState("name");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     categories: true,
     filters: true,
@@ -79,7 +79,7 @@ export function CatalogSidebar({
           aria-expanded={mobileOpen}
         >
           <Filter className="h-3 w-3" />
-          Filters
+          Category
           <span className="md:hidden">
             {mobileOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </span>
