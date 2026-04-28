@@ -82,6 +82,17 @@ Get the webapp from GitHub repo https://github.com/Rishvy/digitalHouse up and ru
 - [2026-04-28] Created `/app/backend/server.py` FastAPI proxy (port 8001 → 3000)
 - [2026-04-28] Updated `next.config.ts` with Emergent preview domain
 
+## Sandwich-Method Preview System (2026-04-28)
+- Rewrote `ProductConfigurator.tsx` with 3-step flow:
+  - Step 1: Template selection gallery (No Frame + DB templates)
+  - Step 2: Photo upload (multiple photos supported)
+  - Step 3: Live sandwich preview (photo layer + transparent PNG template overlay)
+- Drag to reposition photo, zoom in/out, reset controls
+- Green success state on Add to Cart (replaced alert())
+- Fixed `catalog.ts` Template interface to use `preview_url` (correct DB column)
+- Fixed `AdminTemplatesList.tsx` to use correct fields + checkerboard background for template previews
+- Updated product detail page to fetch & pass templates to ProductConfigurator
+
 ## Prioritized Backlog
 ### P0 (Critical for full functionality)
 - [ ] Run Supabase migrations if not already applied

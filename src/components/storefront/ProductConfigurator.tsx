@@ -176,6 +176,8 @@ export function ProductConfigurator({
   const handleTouchEnd = useCallback(() => { isDragging.current = false; }, []);
 
   // ── Cart ─────────────────────────────────────────────────────────────────
+  const [cartSuccess, setCartSuccess] = useState(false);
+
   const handleAddToCart = () => {
     const { addItem } = useCartStore.getState();
     uploadedImages.forEach((img, idx) => {
@@ -189,7 +191,8 @@ export function ProductConfigurator({
         productName: `${productSlug}${uploadedImages.length > 1 ? ` — Photo ${idx + 1}` : ""}`,
       });
     });
-    alert(`${uploadedImages.length} design(s) added to cart!`);
+    setCartSuccess(true);
+    setTimeout(() => setCartSuccess(false), 2500);
   };
 
   return (
@@ -541,11 +544,24 @@ export function ProductConfigurator({
             data-testid="add-to-cart-btn"
             disabled={!canAddToCart}
             onClick={handleAddToCart}
-            className="w-full flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3.5 text-sm font-bold text-accent-foreground transition-all hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${
+              cartSuccess
+                ? "bg-green-600 text-white"
+                : "bg-accent text-accent-foreground hover:bg-accent/90"
+            }`}
           >
-            <ShoppingCart className="h-4 w-4" />
-            Add {uploadedImages.length > 1 ? `${uploadedImages.length} Designs` : "to Cart"}
-            <span className="ml-1 opacity-70">· {formatCurrency(price)}</span>
+            {cartSuccess ? (
+              <>
+                <Check className="h-4 w-4" />
+                Added to Cart!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4" />
+                Add {uploadedImages.length > 1 ? `${uploadedImages.length} Designs` : "to Cart"}
+                <span className="ml-1 opacity-70">· {formatCurrency(price)}</span>
+              </>
+            )}
           </button>
         </div>
       ) : (
