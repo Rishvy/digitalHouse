@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Category, SearchResult } from "@/lib/catalog";
+import type { Category } from "@/lib/catalog";
 import { X, ChevronDown, ChevronUp, Filter } from "lucide-react";
 
 export function CatalogSidebar({
@@ -23,7 +23,6 @@ export function CatalogSidebar({
   const [sortBy, setSortBy] = useState("name");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    categories: false,
     filters: false,
     price: false,
     sort: false,

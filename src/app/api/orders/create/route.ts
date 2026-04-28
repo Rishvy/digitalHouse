@@ -12,7 +12,6 @@ interface CreateOrderBody {
     pinCode: string;
     phone: string;
   };
-  gstNumber?: string;
   subtotal: number;
   taxAmount: number;
   totalAmount: number;
@@ -21,6 +20,7 @@ interface CreateOrderBody {
     variationId: string;
     quantity: number;
     unitPrice: number;
+    artworkUrl?: string;
   }>;
 }
 
@@ -44,10 +44,10 @@ export async function POST(request: Request) {
     .from("orders")
     .insert({
       user_id: data.user.id,
-      status: "pending_payment",
+      status: "paid",
       total_amount: body.totalAmount,
       tax_amount: body.taxAmount,
-      gst_number: body.gstNumber || null,
+      gst_number: null,
       shipping_address: body.shippingAddress,
     })
     .select("id")
@@ -64,11 +64,35 @@ export async function POST(request: Request) {
       variation_id: item.variationId,
       quantity: item.quantity,
       unit_price: item.unitPrice,
+      print_file_url: item.artworkUrl ?? null,
+      preflight_status: "pending",
     })),
   );
 
   if (itemError) {
     return NextResponse.json({ error: itemError.message }, { status: 400 });
+  }
+
+  const { data: createdItems, error: createdItemsError } = await sb
+    .from("order_items")
+    .select("id")
+    .eq("order_id", order.id);
+
+  if (createdItemsError) {
+    return NextResponse.json({ error: createdItemsError.message }, { status: 400 });
+  }
+
+  if ((createdItems ?? []).length > 0) {
+    const { error: trackingError } = await sb.from("production_tracking").insert(
+      (createdItems ?? []).map((item: { id: string }) => ({
+        order_item_id: item.id,
+        status: "awaiting_preflight",
+      })),
+    );
+
+    if (trackingError) {
+      return NextResponse.json({ error: trackingError.message }, { status: 400 });
+    }
   }
 
   return NextResponse.json({ orderId: order.id });

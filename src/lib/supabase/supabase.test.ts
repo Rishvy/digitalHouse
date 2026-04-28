@@ -105,7 +105,7 @@ describe('createSupabaseBrowserClient', () => {
   })
 })
 
-describe('middleware', () => {
+describe('proxy', () => {
   beforeEach(() => {
     setEnvVars()
     vi.clearAllMocks()
@@ -117,7 +117,7 @@ describe('middleware', () => {
     vi.resetModules()
     mockCreateServerClient.mockReturnValue(mockClient)
 
-    const { middleware } = await import('../../../src/middleware')
+    const { proxy } = await import('../../../src/proxy')
     const mockRequest = {
       cookies: {
         getAll: vi.fn().mockReturnValue([]),
@@ -125,7 +125,7 @@ describe('middleware', () => {
       },
     } as unknown as import('next/server').NextRequest
 
-    await middleware(mockRequest)
+    await proxy(mockRequest)
     expect(mockGetUser).toHaveBeenCalledOnce()
   })
 
@@ -139,7 +139,7 @@ describe('middleware', () => {
       return mockClient
     })
 
-    const { middleware } = await import('../../../src/middleware')
+    const { proxy } = await import('../../../src/proxy')
     const mockCookies = {
       getAll: vi.fn().mockReturnValue([]),
       set: vi.fn(),
@@ -148,7 +148,7 @@ describe('middleware', () => {
       cookies: mockCookies,
     } as unknown as import('next/server').NextRequest
 
-    const response = await middleware(mockRequest)
+    const response = await proxy(mockRequest)
     // The request cookie should have been set
     expect(mockCookies.set).toHaveBeenCalledWith('sb-token', 'abc')
     // Response is returned
