@@ -63,7 +63,7 @@ export function StorefrontNav() {
   }, [hoveredCategory, productsByCategory]);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-foreground/10">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200">
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2.5 md:px-8">
         <Link href="/" className="font-heading text-lg font-bold tracking-tight">
           K.T <span className="text-foreground/60">Digital House</span>

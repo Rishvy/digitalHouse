@@ -97,10 +97,10 @@ export function HeroSlideshow() {
               </p>
               <Link
                 href={slide.link}
-                className="inline-flex items-center gap-2 bg-accent px-6 md:px-8 py-3 md:py-4 text-xs md:text-sm font-semibold text-accent-foreground transition-all hover:bg-accent/90 hover:shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-accent px-6 md:px-8 py-3 md:py-4 text-xs md:text-sm font-semibold text-accent-foreground transition-all hover:bg-accent/90 hover:shadow-lg min-w-[160px] md:min-w-[200px]"
               >
-                {slide.cta}
-                <span>→</span>
+                <span className="truncate">{slide.cta}</span>
+                <span className="flex-shrink-0">→</span>
               </Link>
             </div>
           </div>
