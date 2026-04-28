@@ -3,6 +3,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface PrintTransform {
+  posX: number;
+  posY: number;
+  scale: number;
+}
+
 export interface CartItem {
   id: string;
   productId: string;
@@ -11,6 +17,7 @@ export interface CartItem {
   unitPrice: number;
   thumbnailDataUrl: string | null;
   productName?: string;
+  printTransforms?: (PrintTransform & { imageUrl: string })[];
 }
 
 interface CartStore {

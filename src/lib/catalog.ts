@@ -175,6 +175,18 @@ export interface Template {
   height_inches: number;
 }
 
+export async function getTemplateByProductTemplateId(templateId: string | null) {
+  if (!templateId) return null;
+  const supabase = await createSupabaseServerClient();
+  const sb = supabase as any;
+  const { data } = await sb
+    .from("templates")
+    .select("id, preview_url, width_inches, height_inches")
+    .eq("id", templateId)
+    .maybeSingle();
+  return data as Template | null;
+}
+
 export async function getTemplatesByProductId(_productId: string) {
   const supabase = await createSupabaseServerClient();
   const sb = supabase as any;

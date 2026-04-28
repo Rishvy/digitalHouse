@@ -3,12 +3,14 @@
 import { useState, useRef, useCallback } from "react";
 import {
   Upload, X, ZoomIn, ZoomOut, RotateCcw,
-  ShoppingCart, ChevronLeft, ChevronRight, Check,
+  ShoppingCart, ChevronLeft, ChevronRight, Eye,
 } from "lucide-react";
-import type { ProductVariation, Template } from "@/lib/catalog";
+import type { ProductVariation } from "@/lib/catalog";
+import type { PrintTransform } from "@/stores/cartStore";
 import { calculatePrice, formatCurrency } from "@/lib/pricing/calculatePrice";
 import { useCartStore } from "@/stores/cartStore";
 
+// ── Types ────────────────────────────────────────────────────────────────────
 interface UploadedImage { id: number; url: string; }
 
 interface ProductConfiguratorProps {
@@ -17,34 +19,33 @@ interface ProductConfiguratorProps {
   productSlug: string;
   basePrice: number;
   variations: ProductVariation[];
-  templates: Template[];
+  /** Transparent PNG overlay URL set by admin on this product — null means no template */
+  templateOverlayUrl: string | null;
+  /** w/h ratio of the template (for preview canvas aspect ratio) */
+  templateAspectRatio?: number | null;
   useQuantityOptions?: boolean;
   useLaminationOptions?: boolean;
   usePaperStockOptions?: boolean;
   quantityType?: "preset" | "custom";
   quantityCustomMin?: number;
   quantityCustomMax?: number;
-  printWidthInches?: number | null;
-  printHeightInches?: number | null;
 }
 
 export function ProductConfigurator({
   productId,
-  categorySlug,
   productSlug,
   basePrice,
   variations,
-  templates,
+  templateOverlayUrl,
+  templateAspectRatio,
   useQuantityOptions = true,
   useLaminationOptions = true,
   usePaperStockOptions = true,
   quantityType = "preset",
   quantityCustomMin = 1,
   quantityCustomMax = 10000,
-  printWidthInches,
-  printHeightInches,
 }: ProductConfiguratorProps) {
-  // ── Config state ─────────────────────────────────────────────────────────
+  // ── Config options ────────────────────────────────────────────────────────
   const quantities = variations
     .map((v) => Number(v.attributes.quantity ?? 1))
     .filter(Number.isFinite);
@@ -57,25 +58,30 @@ export function ProductConfigurator({
   const [lamination, setLamination] = useState<string>(laminations[0] ?? "");
   const [paperStock, setPaperStock] = useState<string>(paperStocks[0] ?? "");
 
-  // ── Template selection: null = No Template ───────────────────────────────
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-
-  // ── Photos ───────────────────────────────────────────────────────────────
+  // ── Uploaded images + per-image transforms ────────────────────────────────
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // One transform entry per uploaded image (parallel array)
+  const [imageTransforms, setImageTransforms] = useState<PrintTransform[]>([]);
 
-  // ── Preview drag / zoom ──────────────────────────────────────────────────
-  const [photoPos, setPhotoPos] = useState({ x: 0, y: 0 });
-  const [photoScale, setPhotoScale] = useState(1);
+  // ── Preview modal state ───────────────────────────────────────────────────
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
+  // Live transform for the image currently displayed in the preview
+  const [liveTransform, setLiveTransform] = useState<PrintTransform>({ posX: 0, posY: 0, scale: 1 });
+
+  // ── Drag refs ─────────────────────────────────────────────────────────────
   const isDragging = useRef(false);
   const dragOrigin = useRef({ x: 0, y: 0 });
-  const posAtDragStart = useRef({ x: 0, y: 0 });
+  const posAtDrag = useRef({ x: 0, y: 0 });
 
-  // ── Derived ──────────────────────────────────────────────────────────────
-  const effectiveQuantity = useQuantityOptions && quantityType === "preset" ? quantity : customQuantity;
-  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId) ?? null;
-  const currentPhoto = uploadedImages[currentImageIndex] ?? null;
-  const canAddToCart = uploadedImages.length > 0;
+  // ── Add-to-cart success flash ─────────────────────────────────────────────
+  const [cartAdded, setCartAdded] = useState(false);
+
+  // ── Derived ───────────────────────────────────────────────────────────────
+  const effectiveQuantity =
+    useQuantityOptions && quantityType === "preset" ? quantity : customQuantity;
+  const requiredImages = effectiveQuantity;
+  const canPreview = uploadedImages.length >= requiredImages && requiredImages > 0;
 
   const selectedVariation =
     variations.find(
@@ -91,113 +97,150 @@ export function ProductConfigurator({
     quantityScaleFactor: useQuantityOptions ? Math.max(effectiveQuantity / 100, 1) : 1,
   });
 
-  // Preview aspect ratio: from selected template, else product dims, else 3:4
-  const aspectRatio =
-    selectedTemplate
-      ? selectedTemplate.width_inches / selectedTemplate.height_inches
-      : printWidthInches && printHeightInches
-      ? printWidthInches / printHeightInches
-      : 3 / 4;
+  // Aspect ratio for the preview canvas
+  const aspectRatio = templateAspectRatio ?? 3 / 4;
 
-  // ── Upload handler ───────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const defaultTransform = (): PrintTransform => ({ posX: 0, posY: 0, scale: 1 });
+
+  /** Save liveTransform back into the imageTransforms array at idx */
+  const flushLive = useCallback(
+    (idx: number, transform: PrintTransform) => {
+      setImageTransforms((prev) => {
+        const next = [...prev];
+        next[idx] = transform;
+        return next;
+      });
+    },
+    []
+  );
+
+  // ── Upload ────────────────────────────────────────────────────────────────
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setUploadedImages((prev) => [
-          ...prev,
-          { id: Date.now() + Math.random(), url: ev.target?.result as string },
-        ]);
-      };
-      reader.readAsDataURL(file);
-    });
+    const slotsLeft = requiredImages - uploadedImages.length;
+    if (slotsLeft <= 0) return;
+    Array.from(files)
+      .slice(0, slotsLeft)
+      .forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setUploadedImages((prev) => [...prev, { id: Date.now() + Math.random(), url: ev.target?.result as string }]);
+          setImageTransforms((prev) => [...prev, defaultTransform()]);
+        };
+        reader.readAsDataURL(file);
+      });
     e.target.value = "";
   };
 
   const removeImage = (idx: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== idx));
-    setCurrentImageIndex((prev) => Math.max(0, Math.min(prev, uploadedImages.length - 2)));
-    resetPhoto();
+    setImageTransforms((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const switchImage = (idx: number) => {
-    setCurrentImageIndex(idx);
-    resetPhoto();
+  // ── Open / navigate / close preview ──────────────────────────────────────
+  const openPreview = (startIdx = 0) => {
+    setPreviewIndex(startIdx);
+    setLiveTransform(imageTransforms[startIdx] ?? defaultTransform());
+    setShowPreview(true);
   };
 
-  // ── Photo transform helpers ──────────────────────────────────────────────
-  const resetPhoto = () => {
-    setPhotoPos({ x: 0, y: 0 });
-    setPhotoScale(1);
-    posAtDragStart.current = { x: 0, y: 0 };
+  const goToPreviewImage = (newIdx: number) => {
+    // Persist current live transform before switching
+    flushLive(previewIndex, liveTransform);
+    const saved = imageTransforms[newIdx] ?? defaultTransform();
+    setPreviewIndex(newIdx);
+    setLiveTransform(saved);
+    // Reset drag refs
+    isDragging.current = false;
+    posAtDrag.current = { x: saved.posX, y: saved.posY };
   };
 
-  const zoom = (delta: number) =>
-    setPhotoScale((s) => Math.max(0.3, Math.min(4, s + delta)));
+  const closePreview = () => {
+    flushLive(previewIndex, liveTransform);
+    setShowPreview(false);
+  };
 
-  // ── Drag (mouse) ─────────────────────────────────────────────────────────
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  // ── Drag (mouse) ──────────────────────────────────────────────────────────
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!templateOverlayUrl) return;
     e.preventDefault();
     isDragging.current = true;
     dragOrigin.current = { x: e.clientX, y: e.clientY };
-    posAtDragStart.current = { ...photoPos };
-  }, [photoPos]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    posAtDrag.current = { x: liveTransform.posX, y: liveTransform.posY };
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current) return;
-    setPhotoPos({
-      x: posAtDragStart.current.x + (e.clientX - dragOrigin.current.x),
-      y: posAtDragStart.current.y + (e.clientY - dragOrigin.current.y),
-    });
-  }, []);
+    setLiveTransform((t) => ({
+      ...t,
+      posX: posAtDrag.current.x + (e.clientX - dragOrigin.current.x),
+      posY: posAtDrag.current.y + (e.clientY - dragOrigin.current.y),
+    }));
+  };
+  const handleMouseUp = () => { isDragging.current = false; };
 
-  const handleMouseUp = useCallback(() => { isDragging.current = false; }, []);
-
-  // ── Drag (touch) ─────────────────────────────────────────────────────────
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  // ── Drag (touch) ──────────────────────────────────────────────────────────
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!templateOverlayUrl) return;
     const t = e.touches[0];
     isDragging.current = true;
     dragOrigin.current = { x: t.clientX, y: t.clientY };
-    posAtDragStart.current = { ...photoPos };
-  }, [photoPos]);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    posAtDrag.current = { x: liveTransform.posX, y: liveTransform.posY };
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging.current) return;
     e.preventDefault();
     const t = e.touches[0];
-    setPhotoPos({
-      x: posAtDragStart.current.x + (t.clientX - dragOrigin.current.x),
-      y: posAtDragStart.current.y + (t.clientY - dragOrigin.current.y),
-    });
-  }, []);
+    setLiveTransform((tr) => ({
+      ...tr,
+      posX: posAtDrag.current.x + (t.clientX - dragOrigin.current.x),
+      posY: posAtDrag.current.y + (t.clientY - dragOrigin.current.y),
+    }));
+  };
+  const handleTouchEnd = () => { isDragging.current = false; };
 
-  const handleTouchEnd = useCallback(() => { isDragging.current = false; }, []);
+  // ── Zoom ──────────────────────────────────────────────────────────────────
+  const zoom = (delta: number) =>
+    setLiveTransform((t) => ({ ...t, scale: Math.max(0.3, Math.min(4, t.scale + delta)) }));
 
-  // ── Cart ─────────────────────────────────────────────────────────────────
-  const [cartSuccess, setCartSuccess] = useState(false);
-
-  const handleAddToCart = () => {
-    const { addItem } = useCartStore.getState();
-    uploadedImages.forEach((img, idx) => {
-      addItem({
-        id: `${Date.now()}-${idx}`,
-        productId,
-        variationId: selectedVariation?.id ?? "",
-        quantity: 1,
-        unitPrice: price,
-        thumbnailDataUrl: img.url,
-        productName: `${productSlug}${uploadedImages.length > 1 ? ` — Photo ${idx + 1}` : ""}`,
-      });
-    });
-    setCartSuccess(true);
-    setTimeout(() => setCartSuccess(false), 2500);
+  const resetTransform = () => {
+    const reset = defaultTransform();
+    setLiveTransform(reset);
+    posAtDrag.current = { x: 0, y: 0 };
   };
 
+  // ── Add to cart ───────────────────────────────────────────────────────────
+  const handleAddToCart = () => {
+    // Flush the live transform one last time before saving
+    const finalTransforms = [...imageTransforms];
+    if (showPreview) finalTransforms[previewIndex] = liveTransform;
+
+    useCartStore.getState().addItem({
+      id: Date.now().toString(),
+      productId,
+      variationId: selectedVariation?.id ?? "",
+      quantity: effectiveQuantity,
+      unitPrice: price,
+      thumbnailDataUrl: uploadedImages[0]?.url ?? null,
+      productName: productSlug,
+      printTransforms: uploadedImages.map((img, i) => ({
+        imageUrl: img.url,
+        posX: finalTransforms[i]?.posX ?? 0,
+        posY: finalTransforms[i]?.posY ?? 0,
+        scale: finalTransforms[i]?.scale ?? 1,
+      })),
+    });
+
+    setCartAdded(true);
+    setTimeout(() => setCartAdded(false), 2500);
+    if (showPreview) closePreview();
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-5">
-      {/* ── Configuration panel ───────────────────────────────────────────── */}
+    <>
+      {/* ── Main configurator ─────────────────────────────────────────────── */}
       <div className="space-y-4 rounded-xl bg-surface-container p-5">
         <h3 className="font-heading text-xl font-semibold">Configure Product</h3>
 
@@ -212,7 +255,7 @@ export function ProductConfigurator({
                     key={q}
                     type="button"
                     data-testid={`quantity-btn-${q}`}
-                    onClick={() => { setQuantity(q); setUploadedImages([]); setCurrentImageIndex(0); }}
+                    onClick={() => { setQuantity(q); setUploadedImages([]); setImageTransforms([]); }}
                     className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                       quantity === q
                         ? "bg-foreground text-background"
@@ -232,6 +275,7 @@ export function ProductConfigurator({
                 onChange={(e) => {
                   setCustomQuantity(Math.max(quantityCustomMin, Math.min(quantityCustomMax, Number(e.target.value))));
                   setUploadedImages([]);
+                  setImageTransforms([]);
                 }}
                 className="w-32 rounded bg-surface-container-low px-3 py-2 text-sm"
               />
@@ -250,9 +294,7 @@ export function ProductConfigurator({
                   type="button"
                   onClick={() => setLamination(opt)}
                   className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                    lamination === opt
-                      ? "bg-foreground text-background"
-                      : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
+                    lamination === opt ? "bg-foreground text-background" : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
                   }`}
                 >
                   {opt.charAt(0).toUpperCase() + opt.slice(1)}
@@ -273,9 +315,7 @@ export function ProductConfigurator({
                   type="button"
                   onClick={() => setPaperStock(opt)}
                   className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                    paperStock === opt
-                      ? "bg-foreground text-background"
-                      : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
+                    paperStock === opt ? "bg-foreground text-background" : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
                   }`}
                 >
                   {opt}
@@ -286,134 +326,80 @@ export function ProductConfigurator({
         )}
 
         <p className="text-xl font-bold">{formatCurrency(price)}</p>
+
+        {/* Template indicator */}
+        {templateOverlayUrl ? (
+          <p className="text-xs text-foreground/50 flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+            Frame template applied — adjust photo position in preview
+          </p>
+        ) : (
+          <p className="text-xs text-foreground/40 flex items-center gap-1.5">
+            <span className="inline-block w-2 h-2 rounded-full bg-foreground/20" />
+            No frame template — your photos will print as-is
+          </p>
+        )}
       </div>
 
-      {/* ── Step 1: Template selection ────────────────────────────────────── */}
+      {/* ── Upload section ────────────────────────────────────────────────── */}
       <div className="rounded-xl bg-surface-container p-5 space-y-3">
-        <div>
-          <h3 className="font-heading text-base font-semibold">Step 1 — Choose a Frame / Template</h3>
-          <p className="text-xs text-foreground/50 mt-0.5">Your photo will show through the transparent centre of the frame</p>
-        </div>
-
-        <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-          {/* No Template card */}
-          <button
-            type="button"
-            data-testid="template-no-template"
-            onClick={() => setSelectedTemplateId(null)}
-            className={`relative flex-shrink-0 w-20 rounded-lg border-2 transition-all overflow-hidden ${
-              selectedTemplateId === null
-                ? "border-foreground shadow-md"
-                : "border-foreground/15 hover:border-foreground/40"
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-heading text-base font-semibold">Upload Photos</h3>
+            <p className="text-xs text-foreground/50 mt-0.5">
+              Need {requiredImages} photo{requiredImages !== 1 ? "s" : ""} for this order
+            </p>
+          </div>
+          <span
+            data-testid="upload-progress"
+            className={`text-sm font-bold tabular-nums ${
+              canPreview ? "text-green-600" : "text-foreground/50"
             }`}
           >
-            <div className="aspect-[3/4] bg-surface-container-low flex flex-col items-center justify-center gap-1 p-2">
-              <div className="w-8 h-8 rounded border-2 border-dashed border-foreground/30 flex items-center justify-center">
-                <span className="text-foreground/30 text-xs font-bold">∅</span>
-              </div>
-              {selectedTemplateId === null && (
-                <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center">
-                  <Check className="h-2.5 w-2.5 text-background" />
-                </div>
-              )}
-            </div>
-            <p className="text-[10px] font-semibold text-center py-1 px-1 bg-background leading-tight">
-              No Frame
-            </p>
-          </button>
-
-          {/* Template cards */}
-          {templates.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              data-testid={`template-${t.id}`}
-              onClick={() => { setSelectedTemplateId(t.id); resetPhoto(); }}
-              className={`relative flex-shrink-0 w-20 rounded-lg border-2 transition-all overflow-hidden ${
-                selectedTemplateId === t.id
-                  ? "border-foreground shadow-md"
-                  : "border-foreground/15 hover:border-foreground/40"
-              }`}
-            >
-              <div className="aspect-[3/4] bg-checkered flex items-center justify-center overflow-hidden">
-                {t.preview_url ? (
-                  <img
-                    src={t.preview_url}
-                    alt={t.name}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-surface-container-low flex items-center justify-center">
-                    <span className="text-xs text-foreground/30">No preview</span>
-                  </div>
-                )}
-                {selectedTemplateId === t.id && (
-                  <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-foreground flex items-center justify-center">
-                    <Check className="h-2.5 w-2.5 text-background" />
-                  </div>
-                )}
-              </div>
-              <p className="text-[10px] font-semibold text-center py-1 px-1 bg-background leading-tight truncate">
-                {t.name}
-              </p>
-            </button>
-          ))}
-
-          {templates.length === 0 && (
-            <p className="text-xs text-foreground/40 self-center">No templates yet — admin can add them in the dashboard.</p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Step 2: Upload photo ──────────────────────────────────────────── */}
-      <div className="rounded-xl bg-surface-container p-5 space-y-3">
-        <div>
-          <h3 className="font-heading text-base font-semibold">Step 2 — Upload Your Photo</h3>
-          <p className="text-xs text-foreground/50 mt-0.5">
-            {uploadedImages.length === 0
-              ? "Upload the photo(s) you want printed"
-              : `${uploadedImages.length} photo(s) uploaded`}
-          </p>
-        </div>
-
-        <label
-          data-testid="photo-upload-area"
-          className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 transition-colors ${
-            uploadedImages.length === 0
-              ? "border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5"
-              : "border-foreground/10 bg-surface-container-low"
-          }`}
-        >
-          <Upload className="h-6 w-6 text-foreground/40" />
-          <span className="text-sm font-medium text-foreground/60">
-            {uploadedImages.length === 0 ? "Click to upload photo(s)" : "Add more photos"}
+            {uploadedImages.length}/{requiredImages}
           </span>
-          <span className="text-xs text-foreground/40">JPG, PNG, WEBP</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </label>
+        </div>
 
+        {/* Progress bar */}
+        <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
+          <div
+            className="h-full rounded-full bg-foreground transition-all duration-300"
+            style={{ width: `${Math.min(100, (uploadedImages.length / requiredImages) * 100)}%` }}
+          />
+        </div>
+
+        {/* Upload area — hidden when all slots filled */}
+        {uploadedImages.length < requiredImages && (
+          <label
+            data-testid="photo-upload-area"
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5"
+          >
+            <Upload className="h-6 w-6 text-foreground/40" />
+            <span className="text-sm font-medium text-foreground/60">
+              Click to upload ({requiredImages - uploadedImages.length} more needed)
+            </span>
+            <span className="text-xs text-foreground/30">JPG, PNG, WEBP</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </label>
+        )}
+
+        {/* Uploaded thumbnails grid */}
         {uploadedImages.length > 0 && (
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
             {uploadedImages.map((img, idx) => (
               <div
                 key={img.id}
-                className={`relative group rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                  idx === currentImageIndex ? "border-foreground" : "border-transparent"
-                }`}
-                onClick={() => switchImage(idx)}
                 data-testid={`photo-thumb-${idx}`}
+                className="relative group rounded-lg overflow-hidden border border-foreground/10 cursor-pointer"
+                onClick={() => canPreview && openPreview(idx)}
               >
-                <img
-                  src={img.url}
-                  alt={`Photo ${idx + 1}`}
-                  className="w-full aspect-square object-cover"
-                />
+                <img src={img.url} alt={`Photo ${idx + 1}`} className="w-full aspect-square object-cover" />
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
@@ -426,164 +412,181 @@ export function ProductConfigurator({
             ))}
           </div>
         )}
+
+        {/* Preview button */}
+        <button
+          type="button"
+          data-testid="preview-btn"
+          disabled={!canPreview}
+          onClick={() => openPreview(0)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-3 text-sm font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-foreground hover:text-background"
+        >
+          <Eye className="h-4 w-4" />
+          {canPreview
+            ? `Preview All ${uploadedImages.length} Photo${uploadedImages.length !== 1 ? "s" : ""}`
+            : `Upload ${requiredImages - uploadedImages.length} more to preview`}
+        </button>
       </div>
 
-      {/* ── Step 3: Live Sandwich Preview ────────────────────────────────── */}
-      {currentPhoto ? (
-        <div className="rounded-xl bg-surface-container p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-heading text-base font-semibold">Step 3 — Preview & Position</h3>
-              <p className="text-xs text-foreground/50 mt-0.5">
-                {selectedTemplate ? `Frame: ${selectedTemplate.name}` : "No frame — your photo as-is"}
-                {currentPhoto && " · Drag to reposition"}
-              </p>
+      {/* ── Preview modal ──────────────────────────────────────────────────── */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="relative flex flex-col w-full max-w-lg max-h-[95vh] rounded-2xl bg-background shadow-2xl overflow-hidden">
+
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-foreground/10">
+              <div>
+                <h2 className="font-heading text-base font-semibold">Preview</h2>
+                <p className="text-xs text-foreground/50 mt-0.5">
+                  {templateOverlayUrl ? "Drag to position · Pinch or use buttons to zoom" : "Your photos as-is"}
+                </p>
+              </div>
+              <button
+                type="button"
+                data-testid="close-preview-btn"
+                onClick={closePreview}
+                className="rounded-full p-2 hover:bg-surface-container transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            {uploadedImages.length > 1 && (
-              <div className="flex items-center gap-2 text-sm">
-                <button
-                  type="button"
-                  disabled={currentImageIndex === 0}
-                  onClick={() => switchImage(currentImageIndex - 1)}
-                  className="rounded p-1 hover:bg-surface-container-high disabled:opacity-30"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="tabular-nums text-xs">{currentImageIndex + 1}/{uploadedImages.length}</span>
-                <button
-                  type="button"
-                  disabled={currentImageIndex === uploadedImages.length - 1}
-                  onClick={() => switchImage(currentImageIndex + 1)}
-                  className="rounded p-1 hover:bg-surface-container-high disabled:opacity-30"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+
+            {/* Image counter */}
+            <div className="flex items-center justify-between px-5 py-2 bg-surface-container-low">
+              <button
+                type="button"
+                data-testid="prev-image-btn"
+                disabled={previewIndex === 0}
+                onClick={() => goToPreviewImage(previewIndex - 1)}
+                className="flex items-center gap-1 rounded px-2 py-1 text-sm hover:bg-surface-container disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Prev
+              </button>
+
+              <span className="text-sm font-semibold tabular-nums" data-testid="image-counter">
+                Photo {previewIndex + 1} of {uploadedImages.length}
+              </span>
+
+              <button
+                type="button"
+                data-testid="next-image-btn"
+                disabled={previewIndex === uploadedImages.length - 1}
+                onClick={() => goToPreviewImage(previewIndex + 1)}
+                className="flex items-center gap-1 rounded px-2 py-1 text-sm hover:bg-surface-container disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Sandwich canvas */}
+            <div className="flex-1 flex items-center justify-center p-4 bg-surface-container-low overflow-hidden">
+              <div
+                data-testid="sandwich-canvas"
+                className={`relative overflow-hidden rounded-lg shadow-xl ${templateOverlayUrl ? "cursor-move" : ""}`}
+                style={{
+                  width: "100%",
+                  maxWidth: 320,
+                  aspectRatio: String(aspectRatio),
+                  background: "#f0f0f0",
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {/* Bottom layer — user's photo */}
+                {uploadedImages[previewIndex] && (
+                  <img
+                    src={uploadedImages[previewIndex].url}
+                    alt={`Photo ${previewIndex + 1}`}
+                    draggable={false}
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                    style={{
+                      transform: `translate(${liveTransform.posX}px, ${liveTransform.posY}px) scale(${liveTransform.scale})`,
+                      transformOrigin: "center center",
+                    }}
+                  />
+                )}
+
+                {/* Top layer — template transparent PNG overlay */}
+                {templateOverlayUrl && (
+                  <img
+                    src={templateOverlayUrl}
+                    alt=""
+                    draggable={false}
+                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                    style={{ zIndex: 10 }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Controls — only when template is set */}
+            {templateOverlayUrl && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-foreground/10">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    data-testid="zoom-in-btn"
+                    onClick={() => zoom(0.15)}
+                    className="flex items-center gap-1 rounded bg-surface-container px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-high transition-colors"
+                  >
+                    <ZoomIn className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="zoom-out-btn"
+                    onClick={() => zoom(-0.15)}
+                    className="flex items-center gap-1 rounded bg-surface-container px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-high transition-colors"
+                  >
+                    <ZoomOut className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="reset-transform-btn"
+                    onClick={resetTransform}
+                    className="flex items-center gap-1 rounded bg-surface-container px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-high transition-colors"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Reset
+                  </button>
+                </div>
+                <span className="text-[11px] text-foreground/40 tabular-nums">
+                  {Math.round(liveTransform.scale * 100)}% · ({Math.round(liveTransform.posX)}, {Math.round(liveTransform.posY)})
+                </span>
               </div>
             )}
-          </div>
 
-          {/* The Sandwich Canvas */}
-          <div
-            data-testid="sandwich-preview"
-            className="relative overflow-hidden rounded-lg mx-auto cursor-move select-none bg-surface-container-low"
-            style={{ maxWidth: 320, aspectRatio: String(aspectRatio) }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {/* Bottom Layer — User's photo */}
-            <img
-              src={currentPhoto.url}
-              alt="Your photo"
-              draggable={false}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              style={{
-                transform: `translate(${photoPos.x}px, ${photoPos.y}px) scale(${photoScale})`,
-                transformOrigin: "center center",
-              }}
-            />
-
-            {/* Top Layer — Template transparent PNG overlay */}
-            {selectedTemplate?.preview_url && (
-              <img
-                src={selectedTemplate.preview_url}
-                alt=""
-                draggable={false}
-                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                style={{ zIndex: 10 }}
-              />
-            )}
-
-            {/* No-template subtle border */}
-            {!selectedTemplate && (
-              <div className="absolute inset-0 ring-1 ring-foreground/10 rounded-lg pointer-events-none" style={{ zIndex: 10 }} />
-            )}
-          </div>
-
-          {/* Controls row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
+            {/* Add to Cart CTA */}
+            <div className="px-5 pb-5 pt-3 space-y-2">
               <button
                 type="button"
-                data-testid="zoom-in-btn"
-                onClick={() => zoom(0.15)}
-                className="flex items-center gap-1 rounded bg-surface-container-high px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-highest transition-colors"
+                data-testid="add-to-cart-btn"
+                onClick={handleAddToCart}
+                className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold transition-all duration-300 ${
+                  cartAdded
+                    ? "bg-green-600 text-white"
+                    : "bg-accent text-accent-foreground hover:bg-accent/90"
+                }`}
               >
-                <ZoomIn className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                data-testid="zoom-out-btn"
-                onClick={() => zoom(-0.15)}
-                className="flex items-center gap-1 rounded bg-surface-container-high px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-highest transition-colors"
-              >
-                <ZoomOut className="h-3.5 w-3.5" />
-              </button>
-              <button
-                type="button"
-                data-testid="reset-btn"
-                onClick={resetPhoto}
-                className="flex items-center gap-1 rounded bg-surface-container-high px-2.5 py-1.5 text-xs font-medium hover:bg-surface-container-highest transition-colors"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>Reset</span>
-              </button>
-            </div>
-            <span className="text-[10px] text-foreground/40 tabular-nums">
-              {Math.round(photoScale * 100)}%
-            </span>
-          </div>
-
-          {/* Add to cart */}
-          <button
-            type="button"
-            data-testid="add-to-cart-btn"
-            disabled={!canAddToCart}
-            onClick={handleAddToCart}
-            className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${
-              cartSuccess
-                ? "bg-green-600 text-white"
-                : "bg-accent text-accent-foreground hover:bg-accent/90"
-            }`}
-          >
-            {cartSuccess ? (
-              <>
-                <Check className="h-4 w-4" />
-                Added to Cart!
-              </>
-            ) : (
-              <>
                 <ShoppingCart className="h-4 w-4" />
-                Add {uploadedImages.length > 1 ? `${uploadedImages.length} Designs` : "to Cart"}
-                <span className="ml-1 opacity-70">· {formatCurrency(price)}</span>
-              </>
-            )}
-          </button>
-        </div>
-      ) : (
-        /* Pre-upload placeholder */
-        <div className="rounded-xl border-2 border-dashed border-foreground/10 p-6 text-center space-y-1">
-          <p className="text-sm font-medium text-foreground/50">Upload a photo above to see your live preview</p>
-          <p className="text-xs text-foreground/30">Your photo + selected frame will be layered together</p>
+                {cartAdded
+                  ? "Added to Cart!"
+                  : `Add to Cart · ${formatCurrency(price)}`}
+              </button>
+              <p className="text-center text-xs text-foreground/40">
+                {uploadedImages.length} photo{uploadedImages.length !== 1 ? "s" : ""}
+                {templateOverlayUrl ? " with frame positions saved" : " will print as uploaded"}
+              </p>
+            </div>
+          </div>
         </div>
       )}
-
-      {/* Checkerboard bg for transparent template previews */}
-      <style>{`
-        .bg-checkered {
-          background-image:
-            linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
-            linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
-            linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
-          background-size: 10px 10px;
-          background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
