@@ -130,11 +130,11 @@ export function AdminProductForm({
         setUploadError(data.error ?? "Upload failed. Make sure you are logged in as admin.");
         return "";
       }
-      if (!data.url) {
+      if (!data.publicUrl) {
         setUploadError("Upload succeeded but no URL returned. Check Supabase Storage bucket.");
         return "";
       }
-      return data.url;
+      return data.publicUrl;
     } catch (err: any) {
       setUploadError(err?.message ?? "Upload failed");
       return "";
