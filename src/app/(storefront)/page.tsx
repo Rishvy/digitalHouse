@@ -1,165 +1,287 @@
 import Link from "next/link";
+import Image from "next/image";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getCategoriesWithCounts } from "@/lib/catalog";
 
-const categoryIcons: Record<string, string> = {
-  "photo-prints": "photo_camera",
-  "wall-art": "wallpaper",
-  signage: "flag",
-  "custom-merchandise": "cards",
-  "stationery-packaging": "inventory_2",
-};
+interface ShowcaseItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url: string;
+  link_url: string;
+  display_order: number;
+}
 
-const categoryDescriptions: Record<string, string> = {
-  "photo-prints": "Polaroids, passport photos, albums, and standard prints for every memory.",
-  "wall-art": "Framed prints, posters, and large-format wall art to transform your space.",
-  signage: "Flex prints, banners, and roll-up standees for indoor and outdoor signage.",
-  "custom-merchandise": "Ceramic mugs and button pins — branded merchandise that stands out.",
-  "stationery-packaging": "Stickers, letterheads, paper bags, and business cards for your brand.",
-};
+async function getShowcaseProducts(): Promise<ShowcaseItem[]> {
+  const supabase = await createSupabaseServerClient();
+  
+  const { data: sections } = await supabase
+    .from("homepage_sections")
+    .select("id")
+    .eq("section_type", "featured_products")
+    .eq("is_active", true)
+    .order("display_order")
+    .limit(1)
+    .maybeSingle() as any;
+
+  if (!sections) return [];
+
+  const { data: items } = await supabase
+    .from("homepage_section_items")
+    .select("*")
+    .eq("section_id", sections.id)
+    .order("display_order") as any;
+
+  return items ?? [];
+}
 
 export default async function HomePage() {
   const categories = await getCategoriesWithCounts();
+  const showcaseProducts = await getShowcaseProducts();
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-foreground/5">
-        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-20">
-          <div className="relative z-10 max-w-4xl">
-            <p className="animate-fade-up mb-4 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent-foreground/60" />
+      {/* Hero - Magazine style with asymmetric layout */}
+      <section className="relative min-h-[90vh] overflow-hidden bg-[#0a0a0a] text-white">
+        {/* Background image with grain */}
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1562564055-71e051d33c77?w=1920&q=80"
+            alt="Print samples"
+            fill
+            className="object-cover opacity-40"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-30" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 mx-auto flex min-h-[90vh] flex-col justify-center px-6 md:px-12 lg:px-24">
+          <div className="max-w-3xl">
+            {/* Eyebrow */}
+            <p className="animate-[fade-up_0.8s_ease-out] mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.3em] text-white/50">
+              <span className="h-px w-8 bg-white/50" />
               Premium Print Solutions
             </p>
-            <h1 className="animate-fade-up stagger-1 font-heading text-4xl font-bold leading-[0.95] tracking-tighter sm:text-5xl md:text-7xl lg:text-8xl">
+
+            {/* Main headline */}
+            <h1 className="animate-[fade-up_0.8s_ease-out_0.1s_forwards] font-[family:var(--font-headline)] text-6xl font-bold leading-[0.9] tracking-tight opacity-0 sm:text-7xl md:text-8xl lg:text-9xl">
               Print That
               <br />
-              <span className="inline-block mt-2 bg-accent px-2 sm:px-3 text-accent-foreground">Commands</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffd709] to-[#ffed4a]">Commands</span>
               <br />
               Attention.
             </h1>
-            <p className="animate-fade-up stagger-2 mt-6 max-w-xl text-sm leading-relaxed text-foreground/70 sm:text-base md:text-lg">
+
+            {/* Subtext */}
+            <p className="animate-[fade-up_0.8s_ease-out_0.2s_forwards] mt-8 max-w-lg text-lg leading-relaxed text-white/70 opacity-0">
               High-speed production. Precision color.
-              <br className="hidden sm:block" />
-              From photo prints to banners — your brand, in print.
+              From photo prints to large format banners — 
+              <span className="text-white">your brand, in print.</span>
             </p>
-            <div className="animate-fade-up stagger-3 mt-8 flex flex-wrap gap-4">
+
+            {/* CTA */}
+            <div className="animate-[fade-up_0.8s_ease-out_0.3s_forwards] mt-12 flex flex-wrap gap-4 opacity-0">
               <Link
                 href="/products/photo-prints"
-                className="group relative inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:bg-foreground/90"
+                className="group inline-flex items-center gap-3 bg-white px-8 py-4 text-sm font-semibold text-black transition-all hover:bg-[#ffd709] hover:shadow-[0_0_30px_rgba(255,215,9,0.3)]"
               >
                 Explore Catalog
-                <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <Link
+                href="/track"
+                className="inline-flex items-center gap-3 border border-white/30 px-8 py-4 text-sm font-semibold text-white transition-all hover:border-white hover:bg-white/10"
+              >
+                Track Order
               </Link>
             </div>
           </div>
         </div>
-        {/* Decorative element */}
-        <div className="absolute -right-32 top-0 h-[500px] w-[500px] rounded-full border border-foreground/5 md:-right-20 md:h-[700px] md:w-[700px]" />
-        <div className="absolute -right-20 top-20 h-[400px] w-[400px] rounded-full border border-foreground/5 md:h-[500px] md:w-[500px]" />
+
+        {/* Scroll indicator */}
+        <div className="animate-[fade-up_0.8s_ease-out_0.5s_forwards] absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0">
+          <div className="flex flex-col items-center gap-2 text-white/30">
+            <span className="text-xs uppercase tracking-widest">Scroll</span>
+            <div className="h-12 w-px bg-gradient-to-b from-white/50 to-transparent" />
+          </div>
+        </div>
       </section>
 
-      {/* Categories grid */}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-        <div className="mb-12 flex items-end justify-between">
+      {/* Featured Products - Masonry Grid */}
+      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+        <div className="mb-16 flex items-end justify-between">
           <div>
-            <p className="animate-fade-up text-xs font-semibold uppercase tracking-[0.2em] text-foreground/40">
-              Product Categories
+            <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
+              Our Work
             </p>
-            <h2 className="animate-fade-up stagger-1 mt-2 font-heading text-3xl font-bold md:text-4xl">
-              What We Print
+            <h2 className="mt-3 font-[family:var(--font-headline)] text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+              Featured Products
             </h2>
           </div>
           <Link
             href="/products/photo-prints"
-            className="animate-fade-up stagger-2 hidden text-sm font-semibold underline-offset-4 hover:underline md:block"
+            className="hidden text-sm font-medium text-white/60 transition-colors hover:text-[#ffd709] md:block"
           >
             View All →
           </Link>
         </div>
-        <div className="grid gap-px bg-foreground/10 md:grid-cols-3">
-          {categories.slice(0, 6).map((cat, i) => {
-            const icon = categoryIcons[cat.slug] ?? "print";
-            const desc = categoryDescriptions[cat.slug] ?? `${cat.product_count} products available.`;
-            return (
-              <Link
-                key={cat.id}
-                href={`/products/${cat.slug}`}
-                className="animate-fade-up group relative bg-background p-6 transition-all hover:bg-accent md:p-8"
-                style={{ animationDelay: `${0.08 + i * 0.06}s` }}
-              >
-                <span className="material-symbols-outlined mb-4 block text-3xl text-foreground/30 transition-all group-hover:scale-110 group-hover:text-accent-foreground">
-                  {icon}
-                </span>
-                <h3 className="font-heading text-xl font-bold transition-colors group-hover:text-accent-foreground">
-                  {cat.name}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/60 transition-colors group-hover:text-accent-foreground/70">
-                  {desc}
-                </p>
-                <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-foreground/40 transition-colors group-hover:text-accent-foreground/60">
-                  {cat.product_count} products
-                </p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* Process / Stats */}
-      <section className="border-t border-foreground/10 bg-foreground text-background">
-        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <div className="grid gap-12 md:grid-cols-2 md:gap-16">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-background/40">
-                How It Works
-              </p>
-              <h2 className="mt-2 font-heading text-3xl font-bold md:text-4xl">
-                Design. Print. Deliver.
-              </h2>
-              <p className="mt-4 leading-relaxed text-background/60">
-                From upload to unboxing, our streamlined workflow ensures precision at every step.
-                Configure your product, preview in real time, and track production from our facility to your door.
-              </p>
-            </div>
-            <div className="grid gap-8">
-              {[
-                { step: "01", title: "Choose & Configure", desc: "Select your product, size, paper stock, and finishing options from our catalog." },
-                { step: "02", title: "We Produce & Ship", desc: "Commercial-grade printing with quality checks, packed and shipped on schedule." },
-              ].map((item) => (
-                <div key={item.step} className="group flex gap-5 border-l border-background/20 pl-5 transition-colors hover:border-accent">
-                  <p className="font-heading text-sm font-bold tracking-wider text-accent">{item.step}</p>
-                  <div>
-                    <p className="font-heading text-lg font-semibold">{item.title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-background/55">{item.desc}</p>
+        {/* Product Grid - from DB */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {showcaseProducts.length > 0 ? (
+            showcaseProducts.map((product, index) => (
+              <Link
+                key={product.id}
+                href={product.link_url}
+                className="group relative aspect-[3/4] overflow-hidden bg-[#151515]"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <Image
+                  src={product.image_url}
+                  alt={product.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <p className="text-xs font-medium uppercase tracking-wider text-[#ffd709]">
+                    {product.subtitle}
+                  </p>
+                  <h3 className="mt-1 font-[family:var(--font-headline)] text-xl font-bold text-white">
+                    {product.title}
+                  </h3>
+                  <div className="mt-4 flex items-center gap-2 text-sm text-white/60 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span>View Details</span>
+                    <span className="transition-transform group-hover:translate-x-1">→</span>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="absolute top-4 right-4 h-0 w-0 border-l-[20px] border-l-transparent border-t-[20px] border-t-[#ffd709] opacity-0 transition-opacity group-hover:opacity-100" />
+              </Link>
+            ))
+          ) : (
+            <p className="col-span-full text-white/50">No featured products yet.</p>
+          )}
+        </div>
+
+        <div className="mt-12 text-center md:hidden">
+          <Link
+            href="/products/photo-prints"
+            className="inline-block border border-white/20 px-8 py-3 text-sm font-semibold text-white transition-colors hover:border-[#ffd709] hover:text-[#ffd709]"
+          >
+            View All Products →
+          </Link>
+        </div>
+      </section>
+
+      {/* Categories - Horizontal scroll on mobile, grid on desktop */}
+      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+        <div className="mb-16">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
+            Browse By
+          </p>
+          <h2 className="mt-3 font-[family:var(--font-headline)] text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+            Product Categories
+          </h2>
+        </div>
+
+        <div className="grid gap-px bg-white/10 md:grid-cols-3">
+          {categories.slice(0, 6).map((cat, index) => (
+            <Link
+              key={cat.id}
+              href={`/products/${cat.slug}`}
+              className="group relative bg-[#0d0d0d] p-8 transition-all hover:bg-[#151515] md:p-12"
+            >
+              <p className="font-[family:var(--font-headline)] text-5xl font-bold text-white/10 transition-colors group-hover:text-[#ffd709]/20 group-hover:text-[#ffd709]">
+                0{index + 1}
+              </p>
+              <h3 className="mt-6 font-[family:var(--font-headline)] text-2xl font-bold text-white transition-colors group-hover:text-[#ffd709]">
+                {cat.name}
+              </h3>
+              <p className="mt-2 text-sm text-white/50">
+                {cat.product_count} products
+              </p>
+              <div className="mt-6 flex h-10 w-10 items-center justify-center border border-white/20 text-white/50 transition-all group-hover:border-[#ffd709] group-hover:bg-[#ffd709] group-hover:text-black">
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Process - Minimal cards */}
+      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+        <div className="grid gap-16 md:grid-cols-2 md:gap-24">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
+              How It Works
+            </p>
+            <h2 className="mt-3 font-[family:var(--font-headline)] text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+              Simple Process.
+              <br />
+              Exceptional Results.
+            </h2>
+            <p className="mt-6 max-w-md text-lg text-white/60">
+              From upload to unboxing, our streamlined workflow ensures precision at every step.
+            </p>
+          </div>
+          <div className="space-y-12">
+            {[
+              { step: "01", title: "Choose & Configure", desc: "Select your product, size, paper stock, and finishing options." },
+              { step: "02", title: "Upload Your Design", desc: "Upload your artwork or use our templates. Preview in real-time." },
+              { step: "03", title: "We Print & Ship", desc: "Quality checks, careful packaging, on-time delivery." },
+            ].map((item) => (
+              <div key={item.step} className="relative pl-12">
+                <p className="absolute left-0 font-[family:var(--font-headline)] text-3xl font-bold text-[#ffd709]">
+                  {item.step}
+                </p>
+                <h3 className="font-[family:var(--font-headline)] text-xl font-bold text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-white/60">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-        <div className="relative overflow-hidden rounded-2xl bg-accent px-6 py-12 md:px-16 md:py-20">
-          <div className="relative z-10 max-w-2xl">
-            <h2 className="font-heading text-3xl font-bold text-accent-foreground md:text-4xl">
-              Ready to make an impression?
-            </h2>
-            <p className="mt-4 text-accent-foreground/70">
-              Start your order in minutes. No minimum quantities, no hidden fees — just exceptional print.
-            </p>
-            <Link
-              href="/products/photo-prints"
-              className="mt-6 inline-flex items-center gap-2 bg-foreground px-6 py-3 text-sm font-semibold text-background transition-all hover:bg-foreground/90"
-            >
-              Start Your Order
-            </Link>
-          </div>
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border border-accent-foreground/10" />
-          <div className="absolute -bottom-20 -right-20 h-60 w-60 rounded-full border border-accent-foreground/10" />
+      {/* CTA - Bold section */}
+      <section className="relative overflow-hidden bg-[#ffd709] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+        <div className="absolute -right-20 top-0 h-[400px] w-[400px] rounded-full border border-black/5" />
+        <div className="absolute -bottom-20 -right-10 h-[300px] w-[300px] rounded-full border border-black/5" />
+        <div className="absolute -left-10 top-1/2 h-[200px] w-[200px] rounded-full bg-black/[0.02]" />
+
+        <div className="relative z-10 max-w-2xl">
+          <h2 className="font-[family:var(--font-headline)] text-4xl font-bold text-black md:text-5xl lg:text-6xl">
+            Ready to make an impression?
+          </h2>
+          <p className="mt-6 text-lg text-black/70">
+            Start your order in minutes. No minimums, no hidden fees — 
+            just exceptional print quality.
+          </p>
+          <Link
+            href="/products/photo-prints"
+            className="mt-8 inline-flex items-center gap-3 bg-black px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-black/90 hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
+          >
+            Start Your Order
+            <span className="transition-transform group-hover:translate-x-1">→</span>
+          </Link>
         </div>
       </section>
+
+      {/* Footer minimal */}
+      <footer className="bg-[#050505] px-6 py-12 md:px-12 md:py-16">
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+          <p className="text-sm text-white/40">
+            © 2025 K.T Digital House. All rights reserved.
+          </p>
+          <div className="flex gap-8 text-sm text-white/40">
+            <Link href="/products/photo-prints" className="hover:text-white">Catalog</Link>
+            <Link href="/track" className="hover:text-white">Track Order</Link>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
