@@ -4,10 +4,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Changed function name from 'middleware' to 'proxy'
 export async function proxy(request: NextRequest) {
-  const ip = request.headers?.get?.("x-forwarded-for") ?? "unknown";
-  const pathname = request.nextUrl?.pathname ?? "/";
-  const isAuthPath = pathname.startsWith("/auth");
-
   let supabaseResponse = NextResponse.next({ request })
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
