@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ShoppingCart, Heart } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -146,8 +145,7 @@ export default function Navbar() {
                             {item.productName}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {item.quantity} ×{" "}
-                            {formatCurrency(item.price)}
+                            {item.quantity} × ₹{item.price}
                           </p>
                         </div>
                       </li>
