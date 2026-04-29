@@ -33,7 +33,7 @@ export function CategoryNavBar() {
       .then((data) => {
         const cats = data.categories || [];
         setCategories(cats);
-        
+
         // Prefetch products for all categories
         cats.forEach((cat: Category) => {
           fetch(`/api/categories/${cat.slug}/products?limit=8`)
@@ -53,7 +53,6 @@ export function CategoryNavBar() {
       if (productsCache.current[hoveredCategory]) {
         setProducts(productsCache.current[hoveredCategory]);
       } else {
-        // Fetch and cache
         fetch(`/api/categories/${hoveredCategory}/products?limit=8`)
           .then((res) => res.json())
           .then((data) => {
@@ -63,12 +62,14 @@ export function CategoryNavBar() {
           })
           .catch(console.error);
       }
-      
+
       // Calculate dropdown position
       const element = categoryRefs.current[hoveredCategory];
       if (element) {
         const rect = element.getBoundingClientRect();
-        const parentRect = element.parentElement?.parentElement?.getBoundingClientRect();
+        const parentRect =
+          element.parentElement?.parentElement?.getBoundingClientRect();
+
         if (parentRect) {
           setDropdownPosition({ left: rect.left - parentRect.left });
         }
@@ -80,7 +81,6 @@ export function CategoryNavBar() {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    // Clear products immediately when switching categories
     if (hoveredCategory !== slug) {
       setProducts([]);
     }
@@ -111,7 +111,9 @@ export function CategoryNavBar() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              ref={(el) => { categoryRefs.current[cat.slug] = el; }}
+              ref={(el) => {
+                categoryRefs.current[cat.slug] = el;
+              }}
               href={`/products/${cat.slug}`}
               onMouseEnter={() => handleMouseEnter(cat.slug)}
               onMouseLeave={handleMouseLeave}
@@ -127,12 +129,12 @@ export function CategoryNavBar() {
         </div>
       </div>
 
-{/* Products Dropdown - Desktop */}
+      {/* Products Dropdown - Desktop */}
       {hoveredCategory && products.length > 0 && (
         <div
           className="hidden md:block absolute top-full z-50 bg-[#1a1a1a] border border-white/10 shadow-2xl rounded-b-lg min-w-[280px] max-w-[320px]"
           style={{
-            left: `${dropdownPosition.left}px`
+            left: `${dropdownPosition.left}px`,
           }}
           onMouseEnter={handleDropdownEnter}
           onMouseLeave={handleDropdownLeave}
@@ -159,7 +161,7 @@ export function CategoryNavBar() {
         </div>
       )}
 
-      {/* Mobile: Show top products inline when category is selected */}
+      {/* Mobile products */}
       {hoveredCategory && products.length > 0 && (
         <div className="md:hidden px-3 py-3 bg-black/40">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -172,10 +174,6 @@ export function CategoryNavBar() {
                 {product.name}
               </Link>
             ))}
-          </div>
-        </div>
-      )}
-    </div>
           </div>
         </div>
       )}
