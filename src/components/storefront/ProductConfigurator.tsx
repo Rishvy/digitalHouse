@@ -382,7 +382,7 @@ export function ProductConfigurator({
         )}
       </div>
 
-<div className="rounded-xl bg-surface-container p-5 space-y-3">
+      <div className="rounded-xl bg-surface-container p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-base font-semibold">Upload Images</h3>
@@ -452,99 +452,7 @@ export function ProductConfigurator({
               rows={2}
             />
           </div>
-        )}
-      </div>
-          <span
-            data-testid="upload-progress"
-            className={`text-sm font-bold tabular-nums ${
-              canPreview ? "text-green-600" : "text-foreground/50"
-            }`}
-          >
-            {uploadedImages.length}/{requiredImages}
-          </span>
-        </div>
-
-        <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
-          <div
-            className="h-full rounded-full bg-foreground transition-all duration-300"
-            style={{ width: `${Math.min(100, (uploadedImages.length / requiredImages) * 100)}%` }}
-          />
-        </div>
-
-        {uploadedImages.length < requiredImages && (
-          <label 
-            data-testid="photo-upload-area" 
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5"
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-          >
-            <Upload className="h-6 w-6 text-foreground/40" />
-            <span className="text-sm font-medium text-foreground/60">Drag and drop or click to upload ({requiredImages - uploadedImages.length} more needed)</span>
-            <span className="text-xs text-foreground/30">JPG, PNG, WEBP</span>
-            <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-          </label>
-        )}
-
-        {uploadedImages.length > 0 && (
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-            {uploadedImages.map((img, idx) => (
-              <div
-                key={img.id}
-                data-testid={`photo-thumb-${idx}`}
-                className="relative group rounded-lg overflow-hidden border border-foreground/10 cursor-pointer"
-                onClick={() => canPreview && openPreview(idx)}
-              >
-                <img src={img.url} alt={`Photo ${idx + 1}`} className="w-full aspect-square object-cover" />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
-                  className="absolute top-0.5 right-0.5 rounded-full bg-error/80 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-3 w-3 text-white" />
-                </button>
-                <span className="absolute bottom-0.5 left-1 text-[9px] font-bold text-white drop-shadow">#{idx + 1}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {uploadGuideline && (
-          <div className="rounded bg-surface-container-high p-3">
-            <p className="text-xs font-medium text-foreground/70">Upload Guideline:</p>
-            <p className="text-xs text-foreground/60 mt-1">{uploadGuideline}</p>
-          </div>
-        )}
-
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold">Design Instructions (Optional)</label>
-          <textarea
-            value={designInstruction}
-            onChange={(e) => setDesignInstruction(e.target.value)}
-            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
-            placeholder="Any specific instructions for your design..."
-            rows={2}
-          />
-        </div>
-
-        <div className="flex gap-2 pt-2">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-3 text-sm font-semibold transition-colors hover:bg-foreground hover:text-background"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveAndProceed}
-            disabled={!canPreview}
-            className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/90"
-          >
-            <Check className="h-4 w-4" />
-            {cartAdded ? "Added!" : "Save & Proceed"}
-          </button>
-        </div>
+)}
       </div>
 
       {showUploadScreen && (
