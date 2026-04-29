@@ -3,25 +3,15 @@ import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import { decrypt } from "@/lib/canva/crypto";
 
 /**
- * This endpoint is called when the user finishes editing in Canva
- * and clicks the "Return" button in the Canva editor.
- * 
- * Canva will redirect to this URL with a correlation_jwt parameter:
- * https://your-app.com/api/canva/return-nav?correlation_jwt={JWT}
- * 
- * The JWT contains:
- * - design_id: The Canva design ID
- * - correlation_state: Our original state data (userId, productId, etc.)
- * - sub: User ID from Canva
- * - team_id: Team ID from Canva
+ * This endpoint processes the Canva return navigation and creates an export job.
+ * Unlike the old return-nav route, this returns JSON instead of redirecting.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const correlationJwt = searchParams.get("correlation_jwt");
 
-  console.log("Return nav called:", {
+  console.log("Return nav process called:", {
     hasJwt: !!correlationJwt,
-    referer: request.headers.get("referer"),
   });
 
   if (!correlationJwt) {
@@ -44,11 +34,9 @@ export async function GET(request: Request) {
     const correlationState = payload.correlation_state as string | undefined;
 
     if (!correlationState) {
-      const finishUrl = new URL("/canva/finish", request.url);
-      finishUrl.searchParams.set("error", "missing_correlation_state");
-      if (designId) finishUrl.searchParams.set("designId", String(designId));
-      return NextResponse.redirect(
-        finishUrl
+      return NextResponse.json(
+        { error: "Missing correlation_state in JWT" },
+        { status: 400 }
       );
     }
 
@@ -62,11 +50,9 @@ export async function GET(request: Request) {
 
     if (stateError || !stateData) {
       console.error("Failed to resolve correlation_state:", stateError);
-      const finishUrl = new URL("/canva/finish", request.url);
-      finishUrl.searchParams.set("error", "invalid_correlation_state");
-      if (designId) finishUrl.searchParams.set("designId", String(designId));
-      return NextResponse.redirect(
-        finishUrl
+      return NextResponse.json(
+        { error: "Invalid correlation_state" },
+        { status: 400 }
       );
     }
 
@@ -74,7 +60,14 @@ export async function GET(request: Request) {
     const productId = stateData.product_id;
     const variationId = stateData.variation_id;
 
-    console.log("Decoded state:", { designId, userId, productId, variationId });
+    console.log("Decoded state:", { 
+      designId, 
+      userId, 
+      productId: productId || "MISSING", 
+      variationId: variationId || "MISSING",
+      hasProductId: !!productId,
+      hasVariationId: !!variationId
+    });
 
     // Get user's Canva access token from database
     const { data: tokenData, error: tokenError } = await supabase
@@ -114,9 +107,6 @@ export async function GET(request: Request) {
         design_id: designId,
         format: {
           type: "png",
-          // You can customize these based on your needs
-          // width: 3000,
-          // height: 3000,
         },
       }),
     });
@@ -136,38 +126,17 @@ export async function GET(request: Request) {
 
     console.log("Export job created:", { jobId, jobStatus });
 
-    // If the job is already complete, get the download URL
-    if (jobStatus === "success" && exportData.job.urls) {
-      const downloadUrl = exportData.job.urls[0];
-      
-      // TODO: Download the file and save it to Supabase Storage
-      // For now, we'll just store the URL and design ID
-      
-      // Store the design info in the database
-      await supabase.from("user_designs").insert({
-        user_id: userId,
-        design_id: designId,
-        export_url: downloadUrl,
-        product_id: productId,
-        variation_id: variationId,
-        created_at: new Date().toISOString(),
-      });
-
-      // Redirect back to the product page or a success page
-      const redirectUrl = productId 
-        ? `/products/${productId}?designComplete=true`
-        : `/dashboard?designComplete=true`;
-      
-      return NextResponse.redirect(new URL(redirectUrl, request.url));
-    }
-
-    // If the job is still in progress, redirect to processing page
-    const processingUrl = `/canva/processing?jobId=${jobId}&userId=${userId}&productId=${productId || ""}&variationId=${variationId || ""}`;
-    
-    return NextResponse.redirect(new URL(processingUrl, request.url));
+    // Return the job ID and context for the client to poll
+    return NextResponse.json({
+      jobId,
+      userId,
+      productId,
+      variationId,
+      status: jobStatus,
+    });
 
   } catch (err: any) {
-    console.error("Return nav error:", err);
+    console.error("Return nav process error:", err);
     return NextResponse.json(
       { error: `Failed to process design: ${err.message}` },
       { status: 500 }

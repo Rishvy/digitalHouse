@@ -59,11 +59,23 @@ export default function CartPage() {
           <article key={item.id} className="rounded-xl bg-surface-container p-4">
             <div className="flex gap-4">
               {item.thumbnailDataUrl && (
-                <img 
-                  src={item.thumbnailDataUrl} 
-                  alt="" 
-                  className="w-20 h-20 object-cover rounded-lg"
-                />
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(item.thumbnailDataUrl!)}
+                  className="relative group cursor-pointer flex-shrink-0"
+                >
+                  <img 
+                    src={item.thumbnailDataUrl} 
+                    alt="Your custom design" 
+                    className="w-20 h-20 object-cover rounded-lg border-2 border-primary/30 hover:border-primary transition-colors"
+                  />
+                  <div className="absolute inset-0 rounded-lg bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <ZoomIn className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                    Custom
+                  </span>
+                </button>
               )}
               <div className="flex-1">
                 <h3 className="font-semibold">{item.productName ?? "Custom Product"}</h3>
@@ -72,6 +84,12 @@ export default function CartPage() {
                 {item.selectedTemplate && (
                   <p className="text-xs text-on-surface/50 mt-1">
                     Template: <span className="text-green-600">Selected</span>
+                  </p>
+                )}
+                {item.selectedTemplate === "canva-edit" && (
+                  <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                    <ImageIcon className="h-3 w-3" />
+                    Edited with Canva
                   </p>
                 )}
                 {item.designInstruction && (
@@ -88,6 +106,30 @@ export default function CartPage() {
                 <X className="h-3 w-3" />
               </button>
             </div>
+
+            {/* Custom Design Preview Section */}
+            {item.thumbnailDataUrl && item.selectedTemplate === "canva-edit" && (
+              <div className="mt-4">
+                <p className="text-xs font-semibold text-on-surface/60 mb-2 flex items-center gap-1">
+                  <ImageIcon className="h-3 w-3" />
+                  Your Custom Design
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(item.thumbnailDataUrl!)}
+                  className="relative group cursor-pointer"
+                >
+                  <img 
+                    src={item.thumbnailDataUrl}
+                    alt="Your custom design"
+                    className="w-14 h-14 object-cover rounded border border-foreground/20 hover:border-accent"
+                  />
+                  <div className="absolute inset-0 rounded bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <ZoomIn className="h-4 w-4 text-white" />
+                  </div>
+                </button>
+              </div>
+            )}
 
             {item.printTransforms && item.printTransforms.length > 0 && (
               <div className="mt-4">

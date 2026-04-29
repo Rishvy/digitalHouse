@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -13,8 +15,13 @@ export async function GET(request: Request) {
 
   const state = crypto.randomUUID();
   
-  // Store state data (with user ID) in a cookie for later retrieval in callback
-  const stateData = JSON.stringify({ csrf: state, userId, productId, variationId });
+  // Generate PKCE code_verifier and code_challenge (required by Canva Connect)
+  const codeVerifier = crypto.randomBytes(96).toString("base64url");
+  const codeChallenge = crypto
+    .createHash("sha256")
+    .update(codeVerifier)
+    .digest("base64url");
+  
   const clientId = process.env.CANVA_CLIENT_ID;
   const redirectUri = process.env.CANVA_REDIRECT_URI;
 
@@ -30,47 +37,35 @@ export async function GET(request: Request) {
     );
   }
 
-  // Store state and product info in cookies
-  const response = NextResponse.redirect(
+  // Store state and code_verifier in database (cookies don't work with OAuth redirects)
+  try {
+    const supabase = createSupabaseServiceRoleClient() as any;
+    await supabase.from("canva_oauth_states").insert({
+      state,
+      code_verifier: codeVerifier,
+      user_id: userId,
+      product_id: productId,
+      variation_id: variationId,
+      expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
+    });
+  } catch (err: any) {
+    console.error("Failed to store OAuth state:", err);
+    return NextResponse.json(
+      { error: "Failed to initialize OAuth flow" },
+      { status: 500 }
+    );
+  }
+
+  // Build authorization URL with PKCE parameters
+  const authUrl = 
     `https://www.canva.com/api/oauth/authorize?` +
+    `code_challenge=${codeChallenge}&` +
+    `code_challenge_method=S256&` +
     `client_id=${clientId}&` +
     `redirect_uri=${encodeURIComponent(redirectUri)}&` +
     `response_type=code&` +
     `scope=${encodeURIComponent("asset:read asset:write design:content:read design:content:write design:meta:read profile:read")}&` +
-    `state=${encodeURIComponent(state)}`
-  );
+    `state=${encodeURIComponent(state)}`;
 
-  response.cookies.set("canva_oauth_state", state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 300, // 5 minutes
-  });
-
-  response.cookies.set("canva_oauth_state_data", stateData, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 300,
-  });
-
-  if (productId) {
-    response.cookies.set("canva_oauth_product_id", productId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 300,
-    });
-  }
-
-  if (variationId) {
-    response.cookies.set("canva_oauth_variation_id", variationId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 300,
-    });
-  }
-
-  return response;
+  return NextResponse.redirect(authUrl);
 }

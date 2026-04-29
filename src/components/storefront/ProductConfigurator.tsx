@@ -66,8 +66,8 @@ export function ProductConfigurator({
       return;
     }
 
-    // Pass user ID to auth route
-    router.push(`/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}&userId=${session.user.id}`);
+    // Use window.location.href for API routes that perform redirects
+    window.location.href = `/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}&userId=${session.user.id}`;
   };
   
   const quantities = variations

@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS public.canva_user_tokens (
 ALTER TABLE public.canva_user_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can only access their own tokens
+DROP POLICY IF EXISTS "Users can manage own Canva tokens" ON public.canva_user_tokens;
 CREATE POLICY "Users can manage own Canva tokens" ON public.canva_user_tokens
   FOR ALL USING (auth.uid() = user_id);
