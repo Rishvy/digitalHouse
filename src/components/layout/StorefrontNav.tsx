@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { Menu, ShoppingCart, Heart, User, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { SearchBar } from "@/components/storefront/SearchBar";
+import { formatCurrency } from "@/lib/pricing/calculatePrice";
 
 const links = [
   { href: "/", label: "Home" },
@@ -29,16 +30,17 @@ interface Product {
 }
 
 export function StorefrontNav() {
-  const count = useCartStore((state) => state.items.length);
+  const items = useCartStore((state) => state.items);
   const wishlistCount = useWishlistStore((state) => state.items.length);
   const [open, setOpen] = useState(false);
+  const [showCartPopup, setShowCartPopup] = useState(false);
   const [showMegaMenu, setShowMegaMenu] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [productsByCategory, setProductsByCategory] = useState<Record<string, Product[]>>({});
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const cartPopupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Fetch categories
     fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => {
@@ -48,7 +50,6 @@ export function StorefrontNav() {
   }, []);
 
   useEffect(() => {
-    // Fetch products for hovered category
     if (hoveredCategory && !productsByCategory[hoveredCategory]) {
       fetch(`/api/categories/${hoveredCategory}/products?limit=6`)
         .then((res) => res.json())
@@ -61,6 +62,22 @@ export function StorefrontNav() {
         .catch(console.error);
     }
   }, [hoveredCategory, productsByCategory]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (cartPopupRef.current && !cartPopupRef.current.contains(event.target as Node)) {
+        setShowCartPopup(false);
+      }
+    }
+    if (showCartPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCartPopup]);
+
+  const cartTotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200">
@@ -110,18 +127,54 @@ export function StorefrontNav() {
               </span>
             )}
           </Link>
-          <Link
-            href="/cart"
-            className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90"
-            title="Cart"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            {count > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
-                {count}
-              </span>
+          <div ref={cartPopupRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCartPopup(!showCartPopup)}
+              className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90"
+              title="Cart"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {items.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                  {items.length}
+                </span>
+              )}
+            </button>
+            {showCartPopup && items.length > 0 && (
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-background shadow-xl border border-foreground/10 p-3">
+                <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-2">Quick View</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {items.slice(0, 3).map((item) => (
+                    <div key={item.id} className="flex gap-2 text-sm">
+                      {item.thumbnailDataUrl && (
+                        <img src={item.thumbnailDataUrl} alt="" className="w-10 h-10 object-cover rounded" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate font-medium">{item.productName ?? "Product"}</p>
+                        <p className="text-xs text-foreground/60">Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {items.length > 3 && (
+                    <p className="text-xs text-foreground/50">+{items.length - 3} more items</p>
+                  )}
+                </div>
+                <div className="mt-3 pt-2 border-t border-foreground/10">
+                  <div className="flex justify-between text-sm font-semibold">
+                    <span>Total</span>
+                    <span>{formatCurrency(cartTotal)}</span>
+                  </div>
+                  <Link 
+                    href="/cart" 
+                    className="mt-2 block w-full rounded bg-primary-container px-3 py-2 text-center text-xs font-semibold text-on-primary-fixed"
+                  >
+                    View Full Cart
+                  </Link>
+                </div>
+              </div>
             )}
-          </Link>
+          </div>
           <button
             type="button"
             className="rounded-lg p-2 text-foreground/60 md:hidden"
@@ -133,7 +186,6 @@ export function StorefrontNav() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       {open && (
         <div className="animate-fade-in border-t border-foreground/10 bg-background px-4 py-4 md:hidden">
           <div className="mb-4">

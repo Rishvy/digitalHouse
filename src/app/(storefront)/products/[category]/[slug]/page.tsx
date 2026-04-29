@@ -65,7 +65,15 @@ export default async function ProductDetailPage({
         </p>
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-on-surface/80">{product.description}</p>
-        <p className="text-sm text-on-surface/75">Starts at {formatCurrency(Number(product.base_price))}</p>
+        <p className="text-sm text-on-surface/75">Starts from {formatCurrency(Number(product.base_price))}</p>
+        {meta.detailed_info && (
+          <p 
+            className="text-sm text-on-surface/60"
+            dangerouslySetInnerHTML={{ 
+              __html: meta.detailed_info.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/&bull;/g, ' • ')
+            }} 
+          />
+        )}
         <BuyMoreSaveMoreBanner tierCount={pricingTiers.length} />
         <QuantityBracketDisplay tiers={pricingTiers} />
         <ProductConfigurator
@@ -86,6 +94,9 @@ export default async function ProductDetailPage({
           quantityType={meta.quantity_type ?? "preset"}
           quantityCustomMin={meta.quantity_custom_min ?? 1}
           quantityCustomMax={meta.quantity_custom_max ?? 10000}
+          uploadGuideline={meta.upload_guideline ?? ""}
+          templates={meta.templates ? meta.templates.split(",").map((t: string) => t.trim()).filter(Boolean) : []}
+          detailedInfo={meta.detailed_info ?? ""}
         />
       </div>
       {related.length > 0 && (

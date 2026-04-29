@@ -3,14 +3,14 @@
 import { useState, useRef, useCallback } from "react";
 import {
   Upload, X, ZoomIn, ZoomOut, RotateCcw,
-  ShoppingCart, ChevronLeft, ChevronRight, Eye,
+  ChevronLeft, ChevronRight, Check,
 } from "lucide-react";
 import type { ProductVariation } from "@/lib/catalog";
 import type { PrintTransform } from "@/stores/cartStore";
 import { calculatePrice, formatCurrency } from "@/lib/pricing/calculatePrice";
 import { useCartStore } from "@/stores/cartStore";
+import { useRouter } from "next/navigation";
 
-// ── Types ────────────────────────────────────────────────────────────────────
 interface UploadedImage { id: number; url: string; }
 
 interface ProductConfiguratorProps {
@@ -19,9 +19,7 @@ interface ProductConfiguratorProps {
   productSlug: string;
   basePrice: number;
   variations: ProductVariation[];
-  /** Transparent PNG overlay URL set by admin on this product — null means no template */
   templateOverlayUrl: string | null;
-  /** w/h ratio of the template (for preview canvas aspect ratio) */
   templateAspectRatio?: number | null;
   useQuantityOptions?: boolean;
   useLaminationOptions?: boolean;
@@ -29,6 +27,9 @@ interface ProductConfiguratorProps {
   quantityType?: "preset" | "custom";
   quantityCustomMin?: number;
   quantityCustomMax?: number;
+  uploadGuideline?: string;
+  templates?: string[];
+  detailedInfo?: string;
 }
 
 export function ProductConfigurator({
@@ -44,8 +45,12 @@ export function ProductConfigurator({
   quantityType = "preset",
   quantityCustomMin = 1,
   quantityCustomMax = 10000,
+  uploadGuideline = "",
+  templates = [],
+  detailedInfo = "",
 }: ProductConfiguratorProps) {
-  // ── Config options ────────────────────────────────────────────────────────
+  const router = useRouter();
+  
   const quantities = variations
     .map((v) => Number(v.attributes.quantity ?? 1))
     .filter(Number.isFinite);
@@ -58,26 +63,22 @@ export function ProductConfigurator({
   const [lamination, setLamination] = useState<string>(laminations[0] ?? "");
   const [paperStock, setPaperStock] = useState<string>(paperStocks[0] ?? "");
 
-  // ── Uploaded images + per-image transforms ────────────────────────────────
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  // One transform entry per uploaded image (parallel array)
   const [imageTransforms, setImageTransforms] = useState<PrintTransform[]>([]);
 
-  // ── Preview modal state ───────────────────────────────────────────────────
   const [showPreview, setShowPreview] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
-  // Live transform for the image currently displayed in the preview
   const [liveTransform, setLiveTransform] = useState<PrintTransform>({ posX: 0, posY: 0, scale: 1 });
 
-  // ── Drag refs ─────────────────────────────────────────────────────────────
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState<number>(-1);
+  const [designInstruction, setDesignInstruction] = useState("");
+
+  const [cartAdded, setCartAdded] = useState(false);
+
   const isDragging = useRef(false);
   const dragOrigin = useRef({ x: 0, y: 0 });
   const posAtDrag = useRef({ x: 0, y: 0 });
 
-  // ── Add-to-cart success flash ─────────────────────────────────────────────
-  const [cartAdded, setCartAdded] = useState(false);
-
-  // ── Derived ───────────────────────────────────────────────────────────────
   const effectiveQuantity =
     useQuantityOptions && quantityType === "preset" ? quantity : customQuantity;
   const requiredImages = effectiveQuantity;
@@ -97,13 +98,14 @@ export function ProductConfigurator({
     quantityScaleFactor: useQuantityOptions ? Math.max(effectiveQuantity / 100, 1) : 1,
   });
 
-  // Aspect ratio for the preview canvas
   const aspectRatio = templateAspectRatio ?? 3 / 4;
+  const hasTemplate = templateOverlayUrl || templates.length > 0;
+  const displayTemplateUrl = selectedTemplateIndex >= 0 && templates[selectedTemplateIndex] 
+    ? templates[selectedTemplateIndex] 
+    : templateOverlayUrl;
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   const defaultTransform = (): PrintTransform => ({ posX: 0, posY: 0, scale: 1 });
 
-  /** Save liveTransform back into the imageTransforms array at idx */
   const flushLive = useCallback(
     (idx: number, transform: PrintTransform) => {
       setImageTransforms((prev) => {
@@ -115,7 +117,6 @@ export function ProductConfigurator({
     []
   );
 
-  // ── Upload ────────────────────────────────────────────────────────────────
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -134,12 +135,31 @@ export function ProductConfigurator({
     e.target.value = "";
   };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (!files) return;
+    const slotsLeft = requiredImages - uploadedImages.length;
+    if (slotsLeft <= 0) return;
+    Array.from(files)
+      .slice(0, slotsLeft)
+      .forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setUploadedImages((prev) => [...prev, { id: Date.now() + Math.random(), url: ev.target?.result as string }]);
+            setImageTransforms((prev) => [...prev, defaultTransform()]);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+  };
+
   const removeImage = (idx: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== idx));
     setImageTransforms((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // ── Open / navigate / close preview ──────────────────────────────────────
   const openPreview = (startIdx = 0) => {
     setPreviewIndex(startIdx);
     setLiveTransform(imageTransforms[startIdx] ?? defaultTransform());
@@ -147,12 +167,10 @@ export function ProductConfigurator({
   };
 
   const goToPreviewImage = (newIdx: number) => {
-    // Persist current live transform before switching
     flushLive(previewIndex, liveTransform);
     const saved = imageTransforms[newIdx] ?? defaultTransform();
     setPreviewIndex(newIdx);
     setLiveTransform(saved);
-    // Reset drag refs
     isDragging.current = false;
     posAtDrag.current = { x: saved.posX, y: saved.posY };
   };
@@ -162,9 +180,8 @@ export function ProductConfigurator({
     setShowPreview(false);
   };
 
-  // ── Drag (mouse) ──────────────────────────────────────────────────────────
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!templateOverlayUrl) return;
+    if (!displayTemplateUrl) return;
     e.preventDefault();
     isDragging.current = true;
     dragOrigin.current = { x: e.clientX, y: e.clientY };
@@ -180,9 +197,8 @@ export function ProductConfigurator({
   };
   const handleMouseUp = () => { isDragging.current = false; };
 
-  // ── Drag (touch) ──────────────────────────────────────────────────────────
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!templateOverlayUrl) return;
+    if (!displayTemplateUrl) return;
     const t = e.touches[0];
     isDragging.current = true;
     dragOrigin.current = { x: t.clientX, y: t.clientY };
@@ -200,7 +216,6 @@ export function ProductConfigurator({
   };
   const handleTouchEnd = () => { isDragging.current = false; };
 
-  // ── Zoom ──────────────────────────────────────────────────────────────────
   const zoom = (delta: number) =>
     setLiveTransform((t) => ({ ...t, scale: Math.max(0.3, Math.min(4, t.scale + delta)) }));
 
@@ -210,9 +225,11 @@ export function ProductConfigurator({
     posAtDrag.current = { x: 0, y: 0 };
   };
 
-  // ── Add to cart ───────────────────────────────────────────────────────────
-  const handleAddToCart = () => {
-    // Flush the live transform one last time before saving
+  const handleBack = () => {
+    router.push(`/products/${productSlug}`);
+  };
+
+  const handleSaveAndProceed = () => {
     const finalTransforms = [...imageTransforms];
     if (showPreview) finalTransforms[previewIndex] = liveTransform;
 
@@ -230,23 +247,21 @@ export function ProductConfigurator({
         posY: finalTransforms[i]?.posY ?? 0,
         scale: finalTransforms[i]?.scale ?? 1,
       })),
+      selectedTemplate: selectedTemplateIndex >= 0 ? templates[selectedTemplateIndex] : (templateOverlayUrl || undefined),
+      designInstruction: designInstruction || undefined,
     });
 
     setCartAdded(true);
     setTimeout(() => {
-      setCartAdded(false);
-      setShowPreview(false);
-    }, 1400);
+      router.push("/cart");
+    }, 800);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* ── Main configurator ─────────────────────────────────────────────── */}
       <div className="space-y-4 rounded-xl bg-surface-container p-5">
         <h3 className="font-heading text-xl font-semibold">Configure Product</h3>
 
-        {/* Quantity */}
         {useQuantityOptions && (
           <div>
             <label className="mb-2 block text-sm font-semibold">Quantity</label>
@@ -285,7 +300,6 @@ export function ProductConfigurator({
           </div>
         )}
 
-        {/* Lamination */}
         {useLaminationOptions && laminations.length > 0 && (
           <div>
             <label className="mb-2 block text-sm font-semibold">Lamination</label>
@@ -306,7 +320,6 @@ export function ProductConfigurator({
           </div>
         )}
 
-        {/* Paper stock */}
         {usePaperStockOptions && paperStocks.length > 0 && (
           <div>
             <label className="mb-2 block text-sm font-semibold">Paper Stock</label>
@@ -329,25 +342,49 @@ export function ProductConfigurator({
 
         <p className="text-xl font-bold">{formatCurrency(price)}</p>
 
-        {/* Template indicator */}
-        {templateOverlayUrl ? (
-          <p className="text-xs text-foreground/50 flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
-            Frame template applied — adjust photo position in preview
-          </p>
-        ) : (
-          <p className="text-xs text-foreground/40 flex items-center gap-1.5">
-            <span className="inline-block w-2 h-2 rounded-full bg-foreground/20" />
-            No frame template — your photos will print as-is
-          </p>
+        {hasTemplate && (
+          <div>
+            <label className="mb-2 block text-sm font-semibold">Select Template</label>
+            <div className="flex flex-wrap gap-2">
+              {templates.length > 0 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTemplateIndex(-1)}
+                    className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                      selectedTemplateIndex === -1 ? "bg-foreground text-background" : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
+                    }`}
+                  >
+                    No Template
+                  </button>
+                  {templates.map((tpl, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedTemplateIndex(idx)}
+                      className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                        selectedTemplateIndex === idx ? "bg-foreground text-background" : "bg-surface-container-high text-foreground/70 hover:bg-foreground/10"
+                      }`}
+                    >
+                      Template {idx + 1}
+                    </button>
+                  ))}
+                </>
+              ) : templateOverlayUrl ? (
+                <p className="text-xs text-foreground/50 flex items-center gap-1.5">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
+                  Frame template applied — adjust photo position in preview
+                </p>
+              ) : null}
+            </div>
+          </div>
         )}
       </div>
 
-      {/* ── Upload section ────────────────────────────────────────────────── */}
       <div className="rounded-xl bg-surface-container p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-heading text-base font-semibold">Upload Photos</h3>
+            <h3 className="font-heading text-base font-semibold">Upload Images</h3>
             <p className="text-xs text-foreground/50 mt-0.5">
               Need {requiredImages} photo{requiredImages !== 1 ? "s" : ""} for this order
             </p>
@@ -362,7 +399,6 @@ export function ProductConfigurator({
           </span>
         </div>
 
-        {/* Progress bar */}
         <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
           <div
             className="h-full rounded-full bg-foreground transition-all duration-300"
@@ -370,17 +406,20 @@ export function ProductConfigurator({
           />
         </div>
 
-        {/* Upload area - hidden when all slots filled */}
         {uploadedImages.length < requiredImages && (
-          <label data-testid="photo-upload-area" className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5">
+          <label 
+            data-testid="photo-upload-area" 
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/20 px-4 py-6 transition-colors hover:border-foreground/40 hover:bg-foreground/5"
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+          >
             <Upload className="h-6 w-6 text-foreground/40" />
-            <span className="text-sm font-medium text-foreground/60">Click to upload ({requiredImages - uploadedImages.length} more needed)</span>
+            <span className="text-sm font-medium text-foreground/60">Drag and drop or click to upload ({requiredImages - uploadedImages.length} more needed)</span>
             <span className="text-xs text-foreground/30">JPG, PNG, WEBP</span>
             <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
           </label>
         )}
 
-        {/* Uploaded thumbnails grid */}
         {uploadedImages.length > 0 && (
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
             {uploadedImages.map((img, idx) => (
@@ -404,32 +443,54 @@ export function ProductConfigurator({
           </div>
         )}
 
-        {/* Preview button */}
-        <button
-          type="button"
-          data-testid="preview-btn"
-          disabled={!canPreview}
-          onClick={() => openPreview(0)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-3 text-sm font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-foreground hover:text-background"
-        >
-          <Eye className="h-4 w-4" />
-          {canPreview
-            ? `Preview All ${uploadedImages.length} Photo${uploadedImages.length !== 1 ? "s" : ""}`
-            : `Upload ${requiredImages - uploadedImages.length} more to preview`}
-        </button>
+        {uploadGuideline && (
+          <div className="rounded bg-surface-container-high p-3">
+            <p className="text-xs font-medium text-foreground/70">Upload Guideline:</p>
+            <p className="text-xs text-foreground/60 mt-1">{uploadGuideline}</p>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold">Design Instructions (Optional)</label>
+          <textarea
+            value={designInstruction}
+            onChange={(e) => setDesignInstruction(e.target.value)}
+            className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
+            placeholder="Any specific instructions for your design..."
+            rows={2}
+          />
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-3 text-sm font-semibold transition-colors hover:bg-foreground hover:text-background"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAndProceed}
+            disabled={!canPreview}
+            className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/90"
+          >
+            <Check className="h-4 w-4" />
+            {cartAdded ? "Added!" : "Save & Proceed"}
+          </button>
+        </div>
       </div>
 
-      {/* ── Preview modal ──────────────────────────────────────────────────── */}
       {showPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="relative flex flex-col w-full max-w-lg max-h-[95vh] rounded-2xl bg-background shadow-2xl overflow-hidden">
 
-            {/* Modal header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-foreground/10">
               <div>
                 <h2 className="font-heading text-base font-semibold">Preview</h2>
                 <p className="text-xs text-foreground/50 mt-0.5">
-                  {templateOverlayUrl ? "Drag to position · Pinch or use buttons to zoom" : "Your photos as-is"}
+                  {displayTemplateUrl ? "Drag to position · Pinch or use buttons to zoom" : "Your photos as-is"}
                 </p>
               </div>
               <button
@@ -442,7 +503,6 @@ export function ProductConfigurator({
               </button>
             </div>
 
-            {/* Image counter */}
             <div className="flex items-center justify-between px-5 py-2 bg-surface-container-low">
               <button
                 type="button"
@@ -471,11 +531,10 @@ export function ProductConfigurator({
               </button>
             </div>
 
-            {/* Sandwich canvas */}
             <div className="flex-1 flex items-center justify-center p-4 bg-surface-container-low overflow-hidden">
               <div
                 data-testid="sandwich-canvas"
-                className={`relative overflow-hidden rounded-lg shadow-xl ${templateOverlayUrl ? "cursor-move" : ""}`}
+                className={`relative overflow-hidden rounded-lg shadow-xl ${displayTemplateUrl ? "cursor-move" : ""}`}
                 style={{
                   width: "100%",
                   maxWidth: 320,
@@ -490,7 +549,6 @@ export function ProductConfigurator({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
               >
-                {/* Bottom layer — user's photo */}
                 {uploadedImages[previewIndex] && (
                   <img
                     src={uploadedImages[previewIndex].url}
@@ -504,10 +562,9 @@ export function ProductConfigurator({
                   />
                 )}
 
-                {/* Top layer — template transparent PNG overlay */}
-                {templateOverlayUrl && (
+                {displayTemplateUrl && (
                   <img
-                    src={templateOverlayUrl}
+                    src={displayTemplateUrl}
                     alt=""
                     draggable={false}
                     className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
@@ -517,8 +574,7 @@ export function ProductConfigurator({
               </div>
             </div>
 
-            {/* Controls — only when template is set */}
-            {templateOverlayUrl && (
+            {displayTemplateUrl && (
               <div className="flex items-center justify-between px-5 py-3 border-t border-foreground/10">
                 <div className="flex items-center gap-1.5">
                   <button
@@ -553,27 +609,14 @@ export function ProductConfigurator({
               </div>
             )}
 
-            {/* Add to Cart CTA */}
-            <div className="px-5 pb-5 pt-3 space-y-2">
+            <div className="px-5 pb-5 pt-3">
               <button
                 type="button"
-                data-testid="add-to-cart-btn"
-                onClick={handleAddToCart}
-                className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold transition-all duration-300 ${
-                  cartAdded
-                    ? "bg-green-600 text-white"
-                    : "bg-accent text-accent-foreground hover:bg-accent/90"
-                }`}
+                onClick={closePreview}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-3 text-sm font-semibold transition-colors hover:bg-foreground hover:text-background"
               >
-                <ShoppingCart className="h-4 w-4" />
-                {cartAdded
-                  ? "Added to Cart!"
-                  : `Add to Cart · ${formatCurrency(price)}`}
+                Done Editing
               </button>
-              <p className="text-center text-xs text-foreground/40">
-                {uploadedImages.length} photo{uploadedImages.length !== 1 ? "s" : ""}
-                {templateOverlayUrl ? " with frame positions saved" : " will print as uploaded"}
-              </p>
             </div>
           </div>
         </div>

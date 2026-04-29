@@ -22,7 +22,7 @@ interface FormState {
   base_price: string;
   description: string;
   category_id: string;
-  pricing_model: "fixed" | "dimensional" | "volume";
+  pricing_model: "fixed" | "dimensional";
   price_per_unit: string;
   use_quantity_options: boolean;
   use_lamination_options: boolean;
@@ -43,6 +43,9 @@ interface FormState {
   template_mode: "required" | "none";
   print_width_inches: string;
   print_height_inches: string;
+  detailed_info: string;
+  upload_guideline: string;
+  templates: string;
 }
 
 interface EditableProduct {
@@ -80,7 +83,7 @@ export function AdminProductForm({
       base_price: editingProduct?.base_price?.toString() ?? "",
       description: editingProduct?.description ?? "",
       category_id: editingProduct?.category_id ?? "",
-      pricing_model: meta.pricing_model ?? "fixed",
+      pricing_model: meta.pricing_model === "dimensional" ? "dimensional" : "fixed",
       price_per_unit: meta.price_per_unit?.toString() ?? "",
       use_quantity_options: meta.use_quantity_options ?? true,
       use_lamination_options: meta.use_lamination_options ?? true,
@@ -101,6 +104,9 @@ export function AdminProductForm({
       template_mode: (editingProduct?.preview_template_url === null || editingProduct?.preview_template_url === "") ? "none" : "required" as "required" | "none",
       print_width_inches: editingProduct?.print_width_inches?.toString() ?? "",
       print_height_inches: editingProduct?.print_height_inches?.toString() ?? "",
+      detailed_info: meta.detailed_info ?? "",
+      upload_guideline: meta.upload_guideline ?? "",
+      templates: meta.templates ?? "",
     };
   });
 
@@ -306,6 +312,9 @@ export function AdminProductForm({
             allowed_formats: form.design_allowed_formats,
             requires_transparency: form.design_requires_transparency,
           },
+          detailed_info: form.detailed_info,
+          upload_guideline: form.upload_guideline,
+          templates: form.templates,
           images: images.map((img, idx) => ({ url: img.url, order: idx })),
           variations: variations.map((v) => ({
             sku: v.sku,
@@ -354,6 +363,9 @@ export function AdminProductForm({
           template_mode: "required",
           print_width_inches: "",
           print_height_inches: "",
+          detailed_info: "",
+          upload_guideline: "",
+          templates: "",
         });
         setVariations([]);
         setImages([]);
@@ -449,6 +461,19 @@ export function AdminProductForm({
         </div>
       </div>
 
+      {/* Detailed Info */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Detailed Info</h4>
+        <p className="text-xs text-on-surface/60">Shown on product page under price. Use <strong>**bold**</strong> for bold text.</p>
+        <textarea
+          value={form.detailed_info}
+          onChange={(e) => setForm({ ...form, detailed_info: e.target.value })}
+          className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+          placeholder="**Free设计** included &bull;GST included &bull;Fast delivery"
+          rows={3}
+        />
+      </div>
+
       {/* Pricing Model */}
       <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
         <h4 className="font-semibold text-sm">Pricing Model</h4>
@@ -480,20 +505,6 @@ export function AdminProductForm({
             <div>
               <p className="text-sm font-semibold">Dimensional Pricing</p>
               <p className="text-xs text-on-surface/60">Per sq. ft / meter calculation</p>
-            </div>
-          </label>
-          <label className={`flex items-center gap-3 rounded border p-3 cursor-pointer transition-all ${form.pricing_model === "volume" ? "border-primary-container bg-primary-container/10" : "border-foreground/10"}`}>
-            <input
-              type="radio"
-              name="pricing_model"
-              value="volume"
-              checked={form.pricing_model === "volume"}
-              onChange={(e) => setForm({ ...form, pricing_model: e.target.value as any })}
-              className="accent-primary-container"
-            />
-            <div>
-              <p className="text-sm font-semibold">Volume Tier Pricing</p>
-              <p className="text-xs text-on-surface/60">Quantity-based unit pricing</p>
             </div>
           </label>
         </div>
@@ -714,6 +725,32 @@ export function AdminProductForm({
             />
           </div>
         </div>
+      </div>
+
+      {/* Templates (Multiple) */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Templates (Multiple)</h4>
+        <p className="text-xs text-on-surface/60">Comma-separated URLs for multiple template options. Users will select one during ordering.</p>
+        <textarea
+          value={form.templates}
+          onChange={(e) => setForm({ ...form, templates: e.target.value })}
+          className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+          placeholder="https://example.com/template1.png, https://example.com/template2.png"
+          rows={2}
+        />
+      </div>
+
+      {/* Upload Guideline */}
+      <div className="rounded-lg bg-surface-container-low p-4 space-y-4">
+        <h4 className="font-semibold text-sm">Upload Guideline</h4>
+        <p className="text-xs text-on-surface/60">Instructions shown to users when uploading their images.</p>
+        <textarea
+          value={form.upload_guideline}
+          onChange={(e) => setForm({ ...form, upload_guideline: e.target.value })}
+          className="w-full rounded bg-surface-container px-3 py-2 text-sm"
+          placeholder="Upload clear photos with good lighting. Avoid blurry or dark images."
+          rows={3}
+        />
       </div>
 
       {/* Variant Toggles */}

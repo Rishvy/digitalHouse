@@ -18,6 +18,8 @@ export interface CartItem {
   thumbnailDataUrl: string | null;
   productName?: string;
   printTransforms?: (PrintTransform & { imageUrl: string })[];
+  selectedTemplate?: string;
+  designInstruction?: string;
 }
 
 interface CartStore {

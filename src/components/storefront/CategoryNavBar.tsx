@@ -127,7 +127,7 @@ export function CategoryNavBar() {
         </div>
       </div>
 
-      {/* Products Dropdown - Compact Box */}
+{/* Products Dropdown - Desktop */}
       {hoveredCategory && products.length > 0 && (
         <div
           className="hidden md:block absolute top-full z-50 bg-[#1a1a1a] border border-white/10 shadow-2xl rounded-b-lg min-w-[280px] max-w-[320px]"
@@ -155,6 +155,27 @@ export function CategoryNavBar() {
                 View All →
               </Link>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile: Show top products inline when category is selected */}
+      {hoveredCategory && products.length > 0 && (
+        <div className="md:hidden px-3 py-3 bg-black/40">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {products.slice(0, 4).map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/${hoveredCategory}/${product.slug}`}
+                className="flex-shrink-0 text-xs text-white/70 hover:text-accent transition-colors whitespace-nowrap bg-white/5 px-2 py-1 rounded"
+              >
+                {product.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
           </div>
         </div>
       )}
