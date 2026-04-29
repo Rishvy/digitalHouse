@@ -517,7 +517,7 @@ export function ProductConfigurator({
               </button>
               <button
                 type="button"
-                onClick={() => { setShowUploadScreen(false); if (hasTemplate && uploadedImages.length > 0) setShowPreview(true); }}
+                onClick={() => { if (canPreview) handleSaveAndProceed(); else { setShowUploadScreen(false); if (hasTemplate && uploadedImages.length > 0) setShowPreview(true); }}}
                 disabled={!canPreview}
                 className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/90"
               >
