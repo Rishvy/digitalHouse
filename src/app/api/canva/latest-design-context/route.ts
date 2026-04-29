@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+type UserDesign = {
+  product_id: string | null;
+  variation_id: string | null;
+  export_url: string | null;
+  created_at: string;
+};
+
 export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
@@ -24,10 +31,12 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    const design = data as UserDesign | null;
+
     return NextResponse.json({
-      productId: data?.product_id ?? null,
-      variationId: data?.variation_id ?? null,
-      imageUrl: data?.export_url ?? null,
+      productId: design?.product_id ?? null,
+      variationId: design?.variation_id ?? null,
+      imageUrl: design?.export_url ?? null,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Internal error" }, { status: 500 });
