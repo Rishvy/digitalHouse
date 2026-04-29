@@ -4,17 +4,34 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
 import { useCartStore } from "@/stores/cartStore";
 import { useState, useEffect } from "react";
-import { X, User, ShoppingCart } from "lucide-react";
+import { X, User, ShoppingCart, ImageIcon } from "lucide-react";
+
+interface RelatedProduct {
+  id: string;
+  name: string;
+  slug: string;
+  base_price: number;
+  thumbnail_url: string | null;
+}
 
 export default function CartPage() {
   const { items, removeItem, clear } = useCartStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
 
   useEffect(() => {
-    // Check auth via cookie/session - simplified for now
     const cookie = document.cookie;
     setIsLoggedIn(cookie.includes("auth-token") || cookie.includes("session"));
   }, []);
+
+  useEffect(() => {
+    if (items.length > 0 && items[0].productId) {
+      fetch(`/api/products/related?productId=${items[0].productId}&limit=4`)
+        .then(res => res.json())
+        .then(data => setRelatedProducts(data.products || []))
+        .catch(console.error);
+    }
+  }, [items]);
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   const shipping = subtotal > 0 ? 120 : 0;
@@ -70,16 +87,38 @@ export default function CartPage() {
                 <X className="h-3 w-3" />
               </button>
             </div>
-            {item.printTransforms && item.printTransforms.length > 1 && (
-              <div className="mt-3 flex gap-1 flex-wrap">
-                {item.printTransforms.map((img, idx) => (
-                  <img 
-                    key={idx}
-                    src={img.imageUrl}
-                    alt={`Image ${idx + 1}`}
-                    className="w-10 h-10 object-cover rounded border border-foreground/20"
-                  />
-                ))}
+
+            {item.printTransforms && item.printTransforms.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-semibold text-on-surface/60 mb-2 flex items-center gap-1">
+                  <ImageIcon className="h-3 w-3" />
+                  Uploaded Images ({item.printTransforms.length})
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {item.printTransforms.map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img 
+                        src={img.imageUrl}
+                        alt={`Image ${idx + 1}`}
+                        className="w-14 h-14 object-cover rounded border border-foreground/20"
+                      />
+                      <span className="absolute -bottom-0.5 -right-0.5 rounded bg-black/70 px-1 text-[9px] text-white">
+                        #{idx + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {item.selectedTemplate && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-on-surface/60 mb-1">Selected Template:</p>
+                <img 
+                  src={item.selectedTemplate}
+                  alt="Selected template"
+                  className="w-20 h-20 object-contain rounded border border-foreground/10"
+                />
               </div>
             )}
           </article>
@@ -108,6 +147,35 @@ export default function CartPage() {
           </button>
         )}
       </aside>
+
+      {relatedProducts.length > 0 && items.length > 0 && (
+        <section className="col-span-full mt-6">
+          <h2 className="text-xl font-bold border-t border-foreground/10 pt-6">You Might Also Like</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {relatedProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/photo-prints/${product.slug}`}
+                className="group rounded-xl bg-surface-container p-3 transition-colors hover:bg-surface-container-high"
+              >
+                {product.thumbnail_url ? (
+                  <img 
+                    src={product.thumbnail_url} 
+                    alt={product.name}
+                    className="w-full aspect-square object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full aspect-square rounded-lg bg-surface-container-low flex items-center justify-center">
+                    <ImageIcon className="h-8 w-8 text-foreground/20" />
+                  </div>
+                )}
+                <h3 className="mt-2 text-sm font-semibold line-clamp-1">{product.name}</h3>
+                <p className="text-xs text-foreground/50">Starting from - {formatCurrency(Number(product.base_price))}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </section>
   );
 }

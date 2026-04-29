@@ -10,8 +10,6 @@ const slides = [
     subtitle: "Make a lasting first impression",
     description: "High-quality printing on premium card stock with multiple finishing options",
     image: "https://images.unsplash.com/photo-1718670014130-ee9ee053598d?w=1920&q=80",
-    cta: "Shop Business Cards",
-    link: "/products/business-cards",
   },
   {
     id: 2,
@@ -19,8 +17,6 @@ const slides = [
     subtitle: "Frame your memories perfectly",
     description: "Premium quality frames in various sizes and finishes to showcase your photos and artwork",
     image: "https://images.unsplash.com/photo-1664206449850-fd63ae4f0ae3?w=1920&q=80",
-    cta: "Browse Frames",
-    link: "/products/frames",
   },
   {
     id: 3,
@@ -28,8 +24,6 @@ const slides = [
     subtitle: "Spread your message effectively",
     description: "Professional printing for marketing materials that get noticed",
     image: "https://images.unsplash.com/photo-1656379817721-774050a70dd0?w=1920&q=80",
-    cta: "View Flyers",
-    link: "/products/flyers-brochures",
   },
   {
     id: 4,
@@ -37,8 +31,6 @@ const slides = [
     subtitle: "Bring your memories to life",
     description: "Museum-quality prints on premium paper with vivid color reproduction",
     image: "https://images.unsplash.com/photo-1684741891614-c244b9df0613?w=1920&q=80",
-    cta: "Order Prints",
-    link: "/products/photo-prints",
   },
 ];
 
@@ -96,10 +88,10 @@ export function HeroSlideshow() {
                 {slide.description}
               </p>
               <Link
-                href={slide.link}
+                href="/products/photo-prints"
                 className="inline-flex items-center justify-center gap-2 bg-accent px-5 md:px-8 py-2.5 md:py-4 text-sm md:text-sm font-semibold text-accent-foreground transition-all hover:bg-accent/90 hover:shadow-lg min-w-[160px] md:min-w-[200px]"
               >
-                <span className="truncate">{slide.cta}</span>
+                <span className="truncate">Explore Products</span>
                 <span className="flex-shrink-0">→</span>
               </Link>
             </div>

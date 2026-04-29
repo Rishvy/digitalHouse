@@ -128,9 +128,8 @@ export function StorefrontNav() {
             )}
           </Link>
           <div ref={cartPopupRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setShowCartPopup(!showCartPopup)}
+            <Link
+              href="/cart"
               className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90"
               title="Cart"
             >
@@ -140,19 +139,29 @@ export function StorefrontNav() {
                   {items.length}
                 </span>
               )}
-            </button>
-            {showCartPopup && items.length > 0 && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-background shadow-xl border border-foreground/10 p-3">
+            </Link>
+            {items.length > 0 && (
+              <div 
+                className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl bg-background shadow-xl border border-foreground/10 p-3"
+                onMouseEnter={() => setShowCartPopup(true)}
+                onMouseLeave={() => setShowCartPopup(false)}
+              >
                 <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-2">Quick View</p>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
+                <div className="space-y-2 max-h-56 overflow-y-auto">
                   {items.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex gap-2 text-sm">
                       {item.thumbnailDataUrl && (
-                        <img src={item.thumbnailDataUrl} alt="" className="w-10 h-10 object-cover rounded" />
+                        <img src={item.thumbnailDataUrl} alt="" className="w-12 h-12 object-cover rounded" />
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="truncate font-medium">{item.productName ?? "Product"}</p>
                         <p className="text-xs text-foreground/60">Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
+                        {item.selectedTemplate && (
+                          <p className="text-[10px] text-green-600">Template selected</p>
+                        )}
+                        {item.printTransforms && item.printTransforms.length > 1 && (
+                          <p className="text-[10px] text-foreground/50">{item.printTransforms.length} images</p>
+                        )}
                       </div>
                     </div>
                   ))}

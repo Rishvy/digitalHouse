@@ -73,7 +73,7 @@ export function ProductCard({
         <p className="mt-1 line-clamp-1 text-sm text-foreground/50">{product.description ?? "Custom print product."}</p>
         <div className="mt-3 flex items-center justify-between">
           <p className="text-sm font-bold">
-            {formatCurrency(startingPrice)}
+            Starting from - {formatCurrency(startingPrice)}
             <span className="text-xs font-normal text-foreground/40">+</span>
           </p>
           <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40 transition-colors group-hover:text-accent-foreground">

@@ -67,6 +67,7 @@ export function ProductConfigurator({
   const [imageTransforms, setImageTransforms] = useState<PrintTransform[]>([]);
 
   const [showPreview, setShowPreview] = useState(false);
+  const [showUploadScreen, setShowUploadScreen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [liveTransform, setLiveTransform] = useState<PrintTransform>({ posX: 0, posY: 0, scale: 1 });
 
@@ -381,7 +382,7 @@ export function ProductConfigurator({
         )}
       </div>
 
-      <div className="rounded-xl bg-surface-container p-5 space-y-3">
+<div className="rounded-xl bg-surface-container p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-heading text-base font-semibold">Upload Images</h3>
@@ -389,6 +390,70 @@ export function ProductConfigurator({
               Need {requiredImages} photo{requiredImages !== 1 ? "s" : ""} for this order
             </p>
           </div>
+          {hasTemplate ? (
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              disabled={uploadedImages.length === 0}
+              className="rounded bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground disabled:opacity-30"
+            >
+              Preview & Adjust
+            </button>
+          ) : null}
+        </div>
+
+        <div className="h-1.5 w-full rounded-full bg-surface-container-high overflow-hidden">
+          <div
+            className="h-full rounded-full bg-foreground transition-all duration-300"
+            style={{ width: `${Math.min(100, (uploadedImages.length / requiredImages) * 100)}%` }}
+          />
+        </div>
+
+        {uploadedImages.length > 0 && (
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+            {uploadedImages.map((img, idx) => (
+              <div
+                key={img.id}
+                data-testid={`photo-thumb-${idx}`}
+                className="relative group rounded-lg overflow-hidden border border-foreground/10"
+              >
+                <img src={img.url} alt={`Photo ${idx + 1}`} className="w-full aspect-square object-cover" />
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                  className="absolute top-0.5 right-0.5 rounded-full bg-error/80 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3 w-3 text-white" />
+                </button>
+                <span className="absolute bottom-0.5 left-1 text-[9px] font-bold text-white drop-shadow">#{idx + 1}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowUploadScreen(true)}
+          disabled={canPreview}
+          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/30 px-4 py-6 text-sm font-semibold transition-colors hover:border-foreground/50 hover:bg-foreground/5 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Upload className="h-5 w-5" />
+          {uploadedImages.length > 0 ? "Add More Images" : "Upload Images"}
+        </button>
+
+        {uploadedImages.length > 0 && (
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold">Design Instructions (Optional)</label>
+            <textarea
+              value={designInstruction}
+              onChange={(e) => setDesignInstruction(e.target.value)}
+              className="w-full rounded bg-surface-container-low px-3 py-2 text-sm"
+              placeholder="Any specific instructions for your design..."
+              rows={2}
+            />
+          </div>
+        )}
+      </div>
           <span
             data-testid="upload-progress"
             className={`text-sm font-bold tabular-nums ${
@@ -481,6 +546,93 @@ export function ProductConfigurator({
           </button>
         </div>
       </div>
+
+      {showUploadScreen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="flex flex-col w-full max-w-2xl max-h-[95vh] rounded-2xl bg-background shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-foreground/10">
+              <div>
+                <h2 className="font-heading text-lg font-semibold">Upload Images</h2>
+                <p className="text-xs text-foreground/50 mt-0.5">
+                  Need {requiredImages} photo{requiredImages !== 1 ? "s" : ""} - {requiredImages - uploadedImages.length} more needed
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowUploadScreen(false)}
+                className="rounded-full p-2 hover:bg-surface-container transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <label 
+                data-testid="photo-upload-area" 
+                className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-foreground/20 px-6 py-12 transition-colors hover:border-foreground/40 hover:bg-foreground/5"
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <Upload className="h-10 w-10 text-foreground/40" />
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground/70">Drag and drop or click to upload</p>
+                  <p className="text-xs text-foreground/40 mt-1">JPG, PNG, WEBP supported</p>
+                </div>
+                <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+              </label>
+
+              {uploadedImages.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {uploadedImages.map((img, idx) => (
+                    <div
+                      key={img.id}
+                      data-testid={`photo-thumb-${idx}`}
+                      className="relative group rounded-lg overflow-hidden border border-foreground/10 aspect-square"
+                    >
+                      <img src={img.url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                        className="absolute top-1 right-1 rounded-full bg-error/80 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </button>
+                      <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">#{idx + 1}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {uploadGuideline && (
+                <div className="rounded-xl bg-surface-container p-4">
+                  <p className="text-xs font-semibold text-foreground/70 mb-1.5">Upload Guidelines:</p>
+                  <p className="text-xs text-foreground/60 leading-relaxed">{uploadGuideline}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 px-5 py-4 border-t border-foreground/10 bg-surface-container">
+              <button
+                type="button"
+                onClick={() => setShowUploadScreen(false)}
+                className="flex-1 flex items-center justify-center gap-2 rounded-lg border-2 border-foreground px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-foreground hover:text-background"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowUploadScreen(false); if (hasTemplate && uploadedImages.length > 0) setShowPreview(true); }}
+                disabled={!canPreview}
+                className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-accent/90"
+              >
+                <Check className="h-4 w-4" />
+                Save & Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
