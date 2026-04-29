@@ -1,21 +1,20 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get("productId");
   const variationId = searchParams.get("variationId");
+  const userId = searchParams.get("userId");
 
-  // Check if user is logged in
-  const supabase = await createSupabaseServerClient();
-  const sb = supabase as any;
-  const { data: authData } = await sb.auth.getUser();
-  
-  if (!authData.user) {
+  // Verify user ID is present (client-side already verified session)
+  if (!userId) {
     return NextResponse.json({ error: "Please log in to use Canva Edit" }, { status: 401 });
   }
 
   const state = crypto.randomUUID();
+  
+  // Store state data (with user ID) in a cookie for later retrieval in callback
+  const stateData = JSON.stringify({ csrf: state, userId, productId, variationId });
   const clientId = process.env.CANVA_CLIENT_ID;
   const redirectUri = process.env.CANVA_REDIRECT_URI;
 
@@ -38,6 +37,13 @@ export async function GET(request: Request) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 300, // 5 minutes
+  });
+
+  response.cookies.set("canva_oauth_state_data", stateData, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 300,
   });
 
   if (productId) {

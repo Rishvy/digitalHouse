@@ -55,10 +55,19 @@ export function ProductConfigurator({
 }: ProductConfiguratorProps) {
   const router = useRouter();
   
-  const handleCanvaEdit = () => {
+  const handleCanvaEdit = async () => {
     if (!productId || !selectedVariation?.id) return;
-    // Always redirect to OAuth flow - it will handle token exchange and design creation
-    router.push(`/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}`);
+
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      alert("Please log in to use Canva Edit");
+      return;
+    }
+
+    // Pass user ID to auth route
+    router.push(`/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}&userId=${session.user.id}`);
   };
   
   const quantities = variations

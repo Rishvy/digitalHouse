@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
-import { encrypt, decrypt } from "@/lib/canva/crypto";
+import { decrypt } from "@/lib/canva/crypto";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,6 +21,27 @@ export async function GET(request: Request) {
 
   if (!code) {
     return NextResponse.json({ error: "No code provided" }, { status: 400 });
+  }
+
+  // Get state data from cookie (contains userId, productId, variationId)
+  const stateDataCookie = request.headers.get("cookie")?.match(/canva_oauth_state_data=([^;]+)/)?.[1];
+  let userId: string | undefined;
+  let productId: string | undefined;
+  let variationId: string | undefined;
+
+  if (stateDataCookie) {
+    try {
+      const stateData = JSON.parse(decodeURIComponent(stateDataCookie));
+      userId = stateData.userId;
+      productId = stateData.productId;
+      variationId = stateData.variationId;
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  if (!userId) {
+    return NextResponse.json({ error: "User ID not found. Please log in again." }, { status: 401 });
   }
 
   // Exchange code for tokens
@@ -57,36 +77,23 @@ export async function GET(request: Request) {
 
     const { access_token, refresh_token, expires_in } = tokenData;
 
-    // Get user from session
-    const supabase = await createSupabaseServerClient();
-    const sb = supabase as any;
-    const { data: authData } = await sb.auth.getUser();
-    
-    if (!authData.user) {
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
-    }
-
     // Encrypt tokens
     const encryptedAccess = encrypt(access_token);
     const encryptedRefresh = encrypt(refresh_token);
 
-    // Store tokens in database
+    // Store tokens in database using the userId from the cookie
     const service = createSupabaseServiceRoleClient() as any;
     const expiresAt = new Date(Date.now() + expires_in * 1000).toISOString();
 
     await service
       .from("canva_user_tokens")
       .upsert({
-        user_id: authData.user.id,
+        user_id: userId,
         encrypted_access_token: encryptedAccess,
         encrypted_refresh_token: encryptedRefresh,
         expires_at: expiresAt,
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
-
-    // Get product and variation IDs from cookies
-    const productId = request.headers.get("cookie")?.match(/canva_oauth_product_id=([^;]+)/)?.[1];
-    const variationId = request.headers.get("cookie")?.match(/canva_oauth_variation_id=([^;]+)/)?.[1];
 
     // Create blank design and redirect to Canva editor
     const designResponse = await fetch("https://api.canva.com/v1/designs", {
@@ -101,17 +108,17 @@ export async function GET(request: Request) {
       }),
     });
 
-     const designData = await designResponse.json();
-     
-     if (!designResponse.ok) {
-       console.error("Canva design creation failed:", designData);
-       return NextResponse.json(
-         { error: `Failed to create design: ${JSON.stringify(designData)}` },
-         { status: 500 }
-       );
-     }
-     
-     console.log("Design created successfully:", designData.design_id);
+    const designData = await designResponse.json();
+    
+    if (!designResponse.ok) {
+      console.error("Canva design creation failed:", designData);
+      return NextResponse.json(
+        { error: `Failed to create design: ${JSON.stringify(designData)}` },
+        { status: 500 }
+      );
+    }
+
+    console.log("Design created successfully:", designData.design_id);
 
     const designId = designData.design_id;
     const returnNavUri = `${process.env.CANVA_RETURN_NAV_URI}?productId=${productId || ""}&variationId=${variationId || ""}`;
@@ -123,6 +130,7 @@ export async function GET(request: Request) {
     
     // Clear cookies
     response.cookies.delete("canva_oauth_state");
+    response.cookies.delete("canva_oauth_state_data");
     response.cookies.delete("canva_oauth_product_id");
     response.cookies.delete("canva_oauth_variation_id");
 
