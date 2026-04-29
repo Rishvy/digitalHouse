@@ -128,23 +128,28 @@ export function StorefrontNav() {
             )}
           </Link>
           <div ref={cartPopupRef} className="relative">
-            <Link
-              href="/cart"
-              className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90"
+            <div
+              className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90 cursor-pointer"
               title="Cart"
+              onMouseEnter={() => setShowCartPopup(true)}
             >
-              <ShoppingCart className="h-4 w-4" />
+              <Link href="/cart" className="flex">
+                <ShoppingCart className="h-4 w-4" />
+              </Link>
               {items.length > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
                   {items.length}
                 </span>
               )}
-            </Link>
-            {items.length > 0 && (
+            </div>
+            {showCartPopup && items.length > 0 && (
               <div 
                 className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl bg-background shadow-xl border border-foreground/10 p-3"
                 onMouseEnter={() => setShowCartPopup(true)}
                 onMouseLeave={() => setShowCartPopup(false)}
+              >
+              <div 
+                className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl bg-background shadow-xl border border-foreground/10 p-3"
               >
                 <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-2">Quick View</p>
                 <div className="space-y-2 max-h-56 overflow-y-auto">

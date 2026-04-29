@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
 import { useCartStore } from "@/stores/cartStore";
 import { useState, useEffect } from "react";
-import { X, User, ShoppingCart, ImageIcon } from "lucide-react";
+import { X, User, ShoppingCart, ImageIcon, ZoomIn } from "lucide-react";
 
 interface RelatedProduct {
   id: string;
@@ -18,6 +18,7 @@ export default function CartPage() {
   const { items, removeItem, clear } = useCartStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProduct[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const cookie = document.cookie;
@@ -96,16 +97,24 @@ export default function CartPage() {
                 </p>
                 <div className="flex gap-2 flex-wrap">
                   {item.printTransforms.map((img, idx) => (
-                    <div key={idx} className="relative group">
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImage(img.imageUrl)}
+                      className="relative group cursor-pointer"
+                    >
                       <img 
                         src={img.imageUrl}
                         alt={`Image ${idx + 1}`}
-                        className="w-14 h-14 object-cover rounded border border-foreground/20"
+                        className="w-14 h-14 object-cover rounded border border-foreground/20 hover:border-accent"
                       />
                       <span className="absolute -bottom-0.5 -right-0.5 rounded bg-black/70 px-1 text-[9px] text-white">
                         #{idx + 1}
                       </span>
-                    </div>
+                      <div className="absolute inset-0 rounded bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <ZoomIn className="h-4 w-4 text-white" />
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -175,6 +184,27 @@ export default function CartPage() {
             ))}
           </div>
         </section>
+      )}
+
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Full size" 
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </section>
   );
