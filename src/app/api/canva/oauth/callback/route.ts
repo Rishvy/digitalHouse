@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
-import { decrypt } from "@/lib/canva/crypto";
+import { encrypt, decrypt } from "@/lib/canva/crypto";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
