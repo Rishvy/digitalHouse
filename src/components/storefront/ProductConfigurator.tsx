@@ -54,78 +54,11 @@ export function ProductConfigurator({
   canvaEditEnabled = false,
 }: ProductConfiguratorProps) {
   const router = useRouter();
-  const [canvaConnected, setCanvaConnected] = useState<boolean | null>(null);
   
-  // Check if user is already connected to Canva
-  useEffect(() => {
-    if (!canvaEditEnabled) return;
-    
-    async function checkCanvaConnection() {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          setCanvaConnected(false);
-          return;
-        }
-        
-        const res = await fetch("/api/canva/templates", {
-          headers: {
-            "Authorization": `Bearer ${session.access_token}`,
-          },
-        });
-        
-        setCanvaConnected(res.ok);
-      } catch {
-        setCanvaConnected(false);
-      }
-    }
-    
-    checkCanvaConnection();
-  }, [canvaEditEnabled]);
-  
-  const handleCanvaEdit = async () => {
+  const handleCanvaEdit = () => {
     if (!productId || !selectedVariation?.id) return;
-    
-    const supabase = createSupabaseBrowserClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      alert("Please log in to use Canva Edit");
-      return;
-    }
-    
-    if (canvaConnected) {
-      // Already connected - create blank design directly
-      try {
-        const res = await fetch("/api/canva/create-design", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            width: 8.5,  // Default US Letter width in inches
-            height: 11,  // Default US Letter height in inches
-          }),
-        });
-        
-        const data = await res.json();
-        
-        if (!res.ok) {
-          throw new Error(data.error || "Failed to create design");
-        }
-        
-        const returnNavUri = `${window.location.origin}/api/canva/return-nav?productId=${productId}&variationId=${selectedVariation.id}`;
-        window.location.href = `https://www.canva.com/design/${data.design_id}/edit?returnTo=${encodeURIComponent(returnNavUri)}`;
-      } catch (err: any) {
-        alert(err.message);
-      }
-    } else {
-      // Not connected - start OAuth flow
-      router.push(`/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}`);
-    }
+    // Always redirect to OAuth flow - it will handle token exchange and design creation
+    router.push(`/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}`);
   };
   
   const quantities = variations
@@ -512,13 +445,12 @@ export function ProductConfigurator({
             <button
               type="button"
               onClick={handleCanvaEdit}
-              disabled={canvaConnected === null}
-              className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[#00c4cc] px-4 py-6 text-sm font-semibold text-[#00c4cc] transition-all hover:bg-[#00c4cc]/10 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[#00c4cc] px-4 py-6 text-sm font-semibold text-[#00c4cc] transition-all hover:bg-[#00c4cc]/10"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
               </svg>
-              {canvaConnected === null ? "Checking..." : canvaConnected ? "Edit on Your Own" : "Connect & Edit on Your Own"}
+              Edit on Your Own
             </button>
           )}
         </div>

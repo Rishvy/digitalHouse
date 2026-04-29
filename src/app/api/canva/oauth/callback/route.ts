@@ -101,14 +101,17 @@ export async function GET(request: Request) {
       }),
     });
 
-    const designData = await designResponse.json();
-    
-    if (!designResponse.ok) {
-      return NextResponse.json(
-        { error: `Failed to create design: ${designData.error}` },
-        { status: 500 }
-      );
-    }
+     const designData = await designResponse.json();
+     
+     if (!designResponse.ok) {
+       console.error("Canva design creation failed:", designData);
+       return NextResponse.json(
+         { error: `Failed to create design: ${JSON.stringify(designData)}` },
+         { status: 500 }
+       );
+     }
+     
+     console.log("Design created successfully:", designData.design_id);
 
     const designId = designData.design_id;
     const returnNavUri = `${process.env.CANVA_RETURN_NAV_URI}?productId=${productId || ""}&variationId=${variationId || ""}`;

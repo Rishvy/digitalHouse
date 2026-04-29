@@ -29,8 +29,8 @@ export async function GET(request: Request) {
     `client_id=${clientId}&` +
     `redirect_uri=${encodeURIComponent(redirectUri)}&` +
     `response_type=code&` +
-    `scope=${encodeURIComponent("asset:read asset:write design:content:read design:content:write design:meta:read brandtemplate:content:read brandtemplate:meta:read profile:read")}&` +
-    `state=${state}`
+    `scope=${encodeURIComponent("asset:read asset:write design:content:read design:content:write design:meta:read profile:read")}&` +
+    `state=${encodeURIComponent(state)}`
   );
 
   response.cookies.set("canva_oauth_state", state, {
