@@ -18,8 +18,16 @@ export async function GET(request: Request) {
   const clientId = process.env.CANVA_CLIENT_ID;
   const redirectUri = process.env.CANVA_REDIRECT_URI;
 
+  console.log("Canva auth config check:", {
+    hasClientId: !!clientId,
+    hasRedirectUri: !!redirectUri,
+  });
+
   if (!clientId || !redirectUri) {
-    return NextResponse.json({ error: "Canva configuration missing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Canva configuration missing", debug: { clientId: !!clientId, redirectUri: !!redirectUri } },
+      { status: 500 }
+    );
   }
 
   // Store state and product info in cookies

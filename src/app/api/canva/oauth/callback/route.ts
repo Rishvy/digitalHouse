@@ -49,8 +49,17 @@ export async function GET(request: Request) {
   const clientSecret = process.env.CANVA_CLIENT_SECRET;
   const redirectUri = process.env.CANVA_REDIRECT_URI;
 
+  console.log("Canva config check:", {
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    hasRedirectUri: !!redirectUri,
+  });
+
   if (!clientId || !clientSecret || !redirectUri) {
-    return NextResponse.json({ error: "Canva configuration missing" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Canva configuration missing", debug: { clientId: !!clientId, clientSecret: !!clientSecret, redirectUri: !!redirectUri } },
+      { status: 500 }
+    );
   }
 
   try {
