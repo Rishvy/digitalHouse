@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Upload, X, ZoomIn, ZoomOut, RotateCcw,
   ChevronLeft, ChevronRight, Check,

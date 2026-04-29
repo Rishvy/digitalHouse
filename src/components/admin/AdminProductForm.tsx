@@ -383,6 +383,7 @@ export function AdminProductForm({
           detailed_info: "",
           upload_guideline: "",
           templates: "",
+          canva_edit_enabled: false,
         });
         setVariations([]);
         setImages([]);
