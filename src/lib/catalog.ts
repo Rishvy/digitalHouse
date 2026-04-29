@@ -21,6 +21,7 @@ export interface Product {
   preview_template_url: string | null;
   print_width_inches: number | null;
   print_height_inches: number | null;
+  canva_edit_enabled: boolean;
   metadata: JsonMap | null;
 }
 

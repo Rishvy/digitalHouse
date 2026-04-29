@@ -97,6 +97,7 @@ export default async function ProductDetailPage({
           uploadGuideline={meta.upload_guideline ?? ""}
           templates={meta.templates ? meta.templates.split(",").map((t: string) => t.trim()).filter(Boolean) : []}
           detailedInfo={meta.detailed_info ?? ""}
+          canvaEditEnabled={product.canva_edit_enabled ?? false}
         />
       </div>
       {related.length > 0 && (

@@ -46,7 +46,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     quantity_type, quantity_custom_min, quantity_custom_max,
     quantity_options, lamination_options, paper_stock_options,
     variant_toggles, preview_template_url, print_width_inches, print_height_inches,
-    design_rules
+    design_rules, canva_edit_enabled
   } = body as {
     name: string;
     slug: string;
@@ -71,6 +71,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     print_width_inches?: number | null;
     print_height_inches?: number | null;
     design_rules?: Record<string, any>;
+    canva_edit_enabled?: boolean;
   };
 
   const normalizedPreviewTemplate =
@@ -110,6 +111,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       preview_template_url: normalizedPreviewTemplate || null,
       print_width_inches: print_width_inches ?? null,
       print_height_inches: print_height_inches ?? null,
+      canva_edit_enabled: canva_edit_enabled ?? false,
       metadata,
     })
     .eq("id", id);

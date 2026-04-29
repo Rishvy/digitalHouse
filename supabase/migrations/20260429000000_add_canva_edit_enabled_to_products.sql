@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS canva_edit_enabled BOOLEAN DEFAULT FALSE;

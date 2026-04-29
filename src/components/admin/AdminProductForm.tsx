@@ -46,6 +46,21 @@ interface FormState {
   detailed_info: string;
   upload_guideline: string;
   templates: string;
+  canva_edit_enabled: boolean;
+}
+
+interface EditableProduct {
+  id: string;
+  name: string;
+  slug: string;
+  base_price: number;
+  description: string | null;
+  category_id: string | null;
+  preview_template_url?: string | null;
+  print_width_inches?: number | null;
+  print_height_inches?: number | null;
+  canva_edit_enabled?: boolean;
+  metadata?: any;
 }
 
 interface EditableProduct {
@@ -107,6 +122,7 @@ export function AdminProductForm({
       detailed_info: meta.detailed_info ?? "",
       upload_guideline: meta.upload_guideline ?? "",
       templates: meta.templates ?? "",
+      canva_edit_enabled: editingProduct?.canva_edit_enabled ?? false,
     };
   });
 
@@ -315,6 +331,7 @@ export function AdminProductForm({
           detailed_info: form.detailed_info,
           upload_guideline: form.upload_guideline,
           templates: form.templates,
+          canva_edit_enabled: form.canva_edit_enabled,
           images: images.map((img, idx) => ({ url: img.url, order: idx })),
           variations: variations.map((v) => ({
             sku: v.sku,
@@ -457,6 +474,18 @@ export function AdminProductForm({
               className="w-full rounded bg-surface-container px-3 py-2 text-sm"
               placeholder="Optional description"
             />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.canva_edit_enabled}
+                onChange={(e) => setForm({ ...form, canva_edit_enabled: e.target.checked })}
+                className="accent-primary-container"
+              />
+              <span className="text-sm font-semibold">Enable Canva Edit</span>
+            </label>
+            <p className="text-xs text-on-surface/60 mt-1">Allow users to edit designs in Canva for this product</p>
           </div>
         </div>
       </div>
