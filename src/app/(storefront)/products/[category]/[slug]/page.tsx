@@ -65,7 +65,7 @@ export default async function ProductDetailPage({
         </p>
         <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-on-surface/80">{product.description}</p>
-        <p className="text-sm text-on-surface/75">Starting from - {formatCurrency(Number(product.base_price))}</p>
+        <p className="text-sm text-on-surface/75">Starting from {formatCurrency(Number(product.base_price))}</p>
         {meta.detailed_info && (
           <p 
             className="text-sm text-on-surface/60"

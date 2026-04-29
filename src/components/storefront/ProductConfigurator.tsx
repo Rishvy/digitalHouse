@@ -34,6 +34,7 @@ interface ProductConfiguratorProps {
 
 export function ProductConfigurator({
   productId,
+  categorySlug,
   productSlug,
   basePrice,
   variations,
@@ -423,8 +424,8 @@ export function ProductConfigurator({
 
         <button
           type="button"
-          onClick={() => setShowUploadScreen(true)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-foreground/30 px-4 py-6 text-sm font-semibold transition-colors hover:border-foreground/50 hover:bg-foreground/5"
+          onClick={() => router.push(`/products/${categorySlug}/${productSlug}/upload?quantity=${effectiveQuantity}&guideline=${encodeURIComponent(uploadGuideline)}&productId=${productId}&category=${categorySlug}&slug=${productSlug}&price=${price}&variationId=${selectedVariation?.id ?? ""}&productName=${encodeURIComponent(productSlug)}`)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#ffd709] px-4 py-6 text-sm font-semibold text-black transition-all hover:bg-[#ffd709]/90"
         >
           <Upload className="h-5 w-5" />
           {uploadedImages.length > 0 ? "Add More Images" : "Upload Images"}

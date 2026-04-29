@@ -9,7 +9,6 @@ import { formatCurrency } from "@/lib/pricing/calculatePrice";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/products/business-cards", label: "Products" },
   { href: "/track", label: "Track Order" },
 ];
 
@@ -61,7 +60,7 @@ export default function StorefrontNav() {
             </Link>
           ))}
           <Link href="/products/photo-prints" className="text-sm font-medium text-foreground/70 hover:text-foreground">
-            Categories
+            Products
           </Link>
         </div>
 

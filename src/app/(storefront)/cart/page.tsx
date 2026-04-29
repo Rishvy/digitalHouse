@@ -179,7 +179,7 @@ export default function CartPage() {
                   </div>
                 )}
                 <h3 className="mt-2 text-sm font-semibold line-clamp-1">{product.name}</h3>
-                <p className="text-xs text-foreground/50">Starting from - {formatCurrency(Number(product.base_price))}</p>
+                <p className="text-xs text-foreground/50">Starting from {formatCurrency(Number(product.base_price))}</p>
               </Link>
             ))}
           </div>
