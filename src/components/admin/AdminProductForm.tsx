@@ -216,19 +216,9 @@ export function AdminProductForm({
 
   async function loadLinkedCanvaTemplates(productId: string) {
     try {
-      const res = await fetch(`/api/admin/products/${productId}`);
+      const res = await fetch(`/api/admin/canva-templates/link?product_id=${productId}`);
       const data = await res.json();
-      const meta = data.product?.metadata ?? {};
-      const templateIds: string[] = meta.canva_template_ids ?? [];
-      if (templateIds.length === 0) return;
-
-      const supabase = (await import("@/lib/supabase/service")).createSupabaseServiceRoleClient();
-      const sb = supabase as any;
-      const { data: templates } = await sb
-        .from("canva_templates")
-        .select("id, name, thumbnail_url, canva_template_id")
-        .in("id", templateIds);
-      setLinkedCanvaTemplates(templates ?? []);
+      setLinkedCanvaTemplates(data.templates ?? []);
     } catch (err) {
       console.error(err);
     }
@@ -268,6 +258,25 @@ export function AdminProductForm({
       setLinkedCanvaTemplates((prev) => prev.filter((t) => t.id !== templateId));
     } catch (err: any) {
       alert(err.message ?? "Failed to remove template");
+    }
+  }
+
+  async function uploadCanvaThumbnail(templateId: string, file: File) {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("templateId", templateId);
+      const res = await fetch("/api/admin/canva-templates/upload-thumbnail", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload failed");
+      setLinkedCanvaTemplates((prev) =>
+        prev.map((t) => (t.id === templateId ? { ...t, thumbnail_url: data.thumbnailUrl } : t))
+      );
+    } catch (err: any) {
+      alert(err.message ?? "Failed to upload thumbnail");
     }
   }
 
@@ -584,20 +593,44 @@ export function AdminProductForm({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {linkedCanvaTemplates.map((tpl) => (
                 <div key={tpl.id} className="relative group rounded-lg border border-foreground/10 bg-surface-container overflow-hidden">
-                  <div className="aspect-[3/4] bg-gray-100 relative">
+                  <div className="aspect-[3/4] relative">
                     {tpl.thumbnail_url ? (
                       <img src={tpl.thumbnail_url} alt={tpl.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-on-surface/40">
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#00c4cc]/10 to-[#00c4cc]/5">
+                        <svg className="w-8 h-8 text-[#00c4cc]" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
+                        <span className="text-[10px] text-[#00c4cc] mt-1 font-medium">Canva Template</span>
                       </div>
                     )}
+                    {/* Upload thumbnail button */}
+                    <label className="absolute top-1 left-1 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) uploadCanvaThumbnail(tpl.id, file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
                   </div>
                   <div className="p-2">
                     <p className="text-xs font-semibold truncate">{tpl.name}</p>
-                    <p className="text-[10px] text-on-surface/50 truncate">{tpl.canva_template_id}</p>
+                    <a
+                      href={`https://www.canva.com/templates/${tpl.canva_template_id}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-[#00c4cc] hover:underline truncate block"
+                    >
+                      Open in Canva
+                    </a>
                   </div>
                   <button
                     type="button"

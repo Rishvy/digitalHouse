@@ -246,6 +246,28 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ ok: true, productId: id });
 }
 
+// GET - Get single product with metadata
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await checkAdmin();
+  if (!auth.authorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: auth.status });
+  }
+
+  const { id } = await params;
+
+  const { data: product, error } = await auth.service
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ product });
+}
+
 // DELETE - Delete product
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await checkAdmin();

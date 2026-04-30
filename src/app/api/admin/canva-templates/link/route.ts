@@ -20,32 +20,6 @@ async function checkAdmin() {
   return { authorized: true, service };
 }
 
-async function fetchCanvaThumbnail(templateUrl: string): Promise<string | null> {
-  try {
-    const response = await fetch(templateUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
-
-    if (!response.ok) return null;
-
-    const html = await response.text();
-    const ogImageMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i);
-    if (ogImageMatch && ogImageMatch[1]) return ogImageMatch[1];
-
-    const twitterImageMatch = html.match(/<meta\s+name="twitter:image"\s+content="([^"]+)"/i);
-    if (twitterImageMatch && twitterImageMatch[1]) return twitterImageMatch[1];
-
-    const imageMatch = html.match(/https:\/\/[^"'\s]+(?:template|thumbnail|preview)[^"'\s]+\.(?:jpg|jpeg|png|webp)/i);
-    if (imageMatch) return imageMatch[0];
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 // POST - Link a Canva template to a product
 export async function POST(request: Request) {
   const auth = await checkAdmin();
@@ -87,14 +61,13 @@ export async function POST(request: Request) {
       .single();
 
     if (!template) {
-      const thumbnailUrl = await fetchCanvaThumbnail(canva_template_url);
       const { data: newTemplate, error: insertError } = await auth.service
         .from("canva_templates")
         .insert({
           canva_template_id: canvaTemplateId,
           canva_template_url,
-          name: `Template ${canvaTemplateId}`,
-          thumbnail_url: thumbnailUrl,
+          name: canvaTemplateId,
+          thumbnail_url: null,
           product_category: "other",
         })
         .select("id, name, thumbnail_url, canva_template_id")
