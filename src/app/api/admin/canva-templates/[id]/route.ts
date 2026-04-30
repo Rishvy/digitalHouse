@@ -8,15 +8,16 @@ import { extractCanvaTemplateId, isValidCanvaTemplateId } from "@/lib/canva/temp
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = createSupabaseServiceRoleClient();
 
     const { data: template, error } = await supabase
       .from("canva_templates")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (error || !template) {
@@ -42,9 +43,10 @@ export async function GET(
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { canva_template_url, name, description, product_category, thumbnail_url } = body;
 
@@ -92,7 +94,7 @@ export async function PATCH(
     const { data: template, error } = await supabase
       .from("canva_templates")
       .update(updates)
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single();
 
@@ -127,23 +129,24 @@ export async function PATCH(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = createSupabaseServiceRoleClient();
 
     // Get template to find thumbnail
     const { data: template } = await supabase
       .from("canva_templates")
       .select("thumbnail_url")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     // Delete template from database
     const { error: deleteError } = await supabase
       .from("canva_templates")
       .delete()
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (deleteError) {
       console.error("Error deleting template:", deleteError);
