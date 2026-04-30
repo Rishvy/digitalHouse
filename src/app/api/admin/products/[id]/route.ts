@@ -83,7 +83,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  // Fetch existing metadata to preserve fields not sent by the form (e.g. canva_template_ids)
+  const { data: existingProduct } = await auth.service
+    .from("products")
+    .select("metadata")
+    .eq("id", id)
+    .single();
+
+  const existingMeta = (existingProduct?.metadata ?? {}) as Record<string, any>;
+
   const metadata = {
+    ...existingMeta,
     pricing_model: pricing_model ?? "fixed",
     price_per_unit: price_per_unit ?? null,
     use_quantity_options: use_quantity_options ?? true,
