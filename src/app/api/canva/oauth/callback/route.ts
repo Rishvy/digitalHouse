@@ -49,6 +49,7 @@ export async function GET(request: Request) {
   const productId = stateData.product_id;
   const variationId = stateData.variation_id;
   const codeVerifier = stateData.code_verifier;
+  const templateId = stateData.template_id; // Retrieved template selection
 
   // Load environment variables
   const clientId = process.env.CANVA_CLIENT_ID;
@@ -128,27 +129,128 @@ export async function GET(request: Request) {
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
 
-    // Create blank A4 design (2480 x 3508 pixels at 300 DPI)
-    const designResponse = await fetch("https://api.canva.com/rest/v1/designs", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    // Retrieve template details if template was selected
+    let canvaTemplateId: string | null = null;
+    if (templateId) {
+      const { data: templateData, error: templateError } = await service
+        .from("canva_templates")
+        .select("canva_template_id")
+        .eq("id", templateId)
+        .single();
+
+      if (!templateError && templateData) {
+        canvaTemplateId = templateData.canva_template_id;
+        console.log("Using template:", canvaTemplateId);
+      } else {
+        console.warn("Template not found, falling back to blank design:", templateError);
+      }
+    }
+
+    // Create design from template or blank canvas
+    let designBody: any;
+    if (canvaTemplateId) {
+      // Create design from template
+      designBody = {
+        title: "Custom Design from Template",
+        design_type: {
+          type: "from_template",
+          template_id: canvaTemplateId,
+        },
+      };
+    } else {
+      // Create blank A4 design (2480 x 3508 pixels at 300 DPI)
+      designBody = {
         title: "Custom Design - A4",
         design_type: {
           type: "custom",
           width: 2480,  // A4 width at 300 DPI (210mm)
           height: 3508  // A4 height at 300 DPI (297mm)
         },
-      }),
+      };
+    }
+
+    const designResponse = await fetch("https://api.canva.com/rest/v1/designs", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(designBody),
     });
 
     const designData = await designResponse.json();
     
     if (!designResponse.ok) {
       console.error("Canva design creation failed:", designData);
+      
+      // If template creation failed, try falling back to blank design
+      if (canvaTemplateId) {
+        console.log("Template creation failed, falling back to blank design");
+        const fallbackResponse = await fetch("https://api.canva.com/rest/v1/designs", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: "Custom Design - A4",
+            design_type: {
+              type: "custom",
+              width: 2480,
+              height: 3508
+            },
+          }),
+        });
+        
+        const fallbackData = await fallbackResponse.json();
+        if (!fallbackResponse.ok) {
+          return NextResponse.json(
+            { error: `Failed to create design: ${JSON.stringify(fallbackData)}` },
+            { status: 500 }
+          );
+        }
+        
+        // Use fallback design
+        const designId = fallbackData.design.id;
+        console.log("Fallback design created successfully:", designId);
+        
+        // Continue with fallback design...
+        const designDetailsResponse = await fetch(
+          `https://api.canva.com/rest/v1/designs/${designId}`,
+          {
+            headers: {
+              "Authorization": `Bearer ${access_token}`,
+            },
+          }
+        );
+
+        const designDetails = await designDetailsResponse.json();
+        
+        if (!designDetailsResponse.ok) {
+          console.error("Failed to get design details:", designDetails);
+          return NextResponse.json(
+            { error: `Failed to get design details: ${JSON.stringify(designDetails)}` },
+            { status: 500 }
+          );
+        }
+
+        const editUrl = designDetails.design.urls.edit_url;
+        
+        await supabase
+          .from("canva_oauth_states")
+          .update({
+            expires_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+          })
+          .eq("state", state);
+        
+        const correlationState = state;
+        const separator = editUrl.includes('?') ? '&' : '?';
+        const canvaEditorUrl = `${editUrl}${separator}correlation_state=${correlationState}`;
+        
+        console.log("Redirecting to Canva editor (fallback):", canvaEditorUrl);
+        return NextResponse.redirect(canvaEditorUrl);
+      }
+      
       return NextResponse.json(
         { error: `Failed to create design: ${JSON.stringify(designData)}` },
         { status: 500 }

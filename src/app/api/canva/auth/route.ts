@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const productId = searchParams.get("productId");
   const variationId = searchParams.get("variationId");
   const userId = searchParams.get("userId");
+  const templateId = searchParams.get("templateId"); // Template selection from template selector page
 
   // Verify user ID is present (client-side already verified session)
   if (!userId) {
@@ -40,14 +41,23 @@ export async function GET(request: Request) {
   // Store state and code_verifier in database (cookies don't work with OAuth redirects)
   try {
     const supabase = createSupabaseServiceRoleClient() as any;
-    await supabase.from("canva_oauth_states").insert({
+    
+    // Build insert data
+    const insertData: any = {
       state,
       code_verifier: codeVerifier,
       user_id: userId,
       product_id: productId,
       variation_id: variationId,
       expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
-    });
+    };
+    
+    // Only add template_id if the column exists (after migration)
+    if (templateId) {
+      insertData.template_id = templateId;
+    }
+    
+    await supabase.from("canva_oauth_states").insert(insertData);
   } catch (err: any) {
     console.error("Failed to store OAuth state:", err);
     return NextResponse.json(
