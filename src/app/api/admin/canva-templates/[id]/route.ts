@@ -12,7 +12,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     const { data: template, error } = await supabase
       .from("canva_templates")
@@ -50,10 +50,10 @@ export async function PATCH(
     const body = await request.json();
     const { canva_template_url, name, description, product_category, thumbnail_url } = body;
 
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     // Build update object
-    const updates: any = {};
+    const updates: Record<string, unknown> = {};
 
     if (name !== undefined) updates.name = name;
     if (description !== undefined) updates.description = description;
@@ -133,7 +133,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     // Get template to find thumbnail
     const { data: template } = await supabase

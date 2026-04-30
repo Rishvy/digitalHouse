@@ -8,7 +8,7 @@ import { extractCanvaTemplateId, isValidCanvaTemplateId } from "@/lib/canva/temp
  */
 export async function GET() {
   try {
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     const { data: templates, error } = await supabase
       .from("canva_templates")
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     // Check if template already exists
     const { data: existing } = await supabase

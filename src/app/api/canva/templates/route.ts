@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     const { data: templates, error } = await supabase
       .from("canva_templates")

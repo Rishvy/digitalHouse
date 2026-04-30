@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createSupabaseServiceRoleClient();
+    const supabase = createSupabaseServiceRoleClient() as any;
 
     // Generate unique filename
     const fileExt = file.name.split(".").pop();
