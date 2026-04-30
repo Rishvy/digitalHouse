@@ -2,53 +2,60 @@
 
 import Link from "next/link";
 import { Menu, ShoppingCart, Heart, User, X } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { useCartStore } from "@/stores/cartStore";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useCartWithTotal } from "@/stores/cartStore";
 import { SearchBar } from "@/components/storefront/SearchBar";
 import { formatCurrency } from "@/lib/pricing/calculatePrice";
+import { useCategoriesData } from "@/hooks/useStorefrontData";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/track", label: "Track Order" },
 ];
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
 export default function StorefrontNav() {
-  const items = useCartStore((state) => state.items);
+  // Use deep hook with computed values - no manual calculation needed
+  const { items, cartTotal, cartItemCount } = useCartWithTotal();
   const [open, setOpen] = useState(false);
   const [showCartPopup, setShowCartPopup] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
   const cartPopupRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []))
-      .catch(console.error);
+  // Use deep hook - hides SWR, API endpoints, response shape
+  const { categories } = useCategoriesData();
+
+  // Use useCallback for stable event handler references
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (cartPopupRef.current && !cartPopupRef.current.contains(event.target as Node)) {
+      setShowCartPopup(false);
+    }
   }, []);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (cartPopupRef.current && !cartPopupRef.current.contains(event.target as Node)) {
-        setShowCartPopup(false);
-      }
-    }
     if (showCartPopup) {
       document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showCartPopup]);
+  }, [showCartPopup, handleClickOutside]);
 
-  const cartTotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const handleCartMouseEnter = useCallback(() => {
+    setShowCartPopup(true);
+  }, []);
+
+  const handleCartMouseLeave = useCallback(() => {
+    setShowCartPopup(false);
+  }, []);
+
+  const handleMobileMenuToggle = useCallback(() => {
+    setOpen((prev) => !prev);
+  }, []);
+
+  const handleLinkClick = useCallback(() => {
+    setOpen(false);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200">
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2.5 md:px-8">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200" role="banner">
+      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2.5 md:px-8" aria-label="Main navigation">
         <Link href="/" className="font-heading text-lg font-bold tracking-tight">
           K.T <span className="text-foreground/60">Digital House</span>
         </Link>
@@ -68,32 +75,34 @@ export default function StorefrontNav() {
           <div className="hidden md:block">
             <SearchBar />
           </div>
-          <Link href="/my-account" className="rounded-lg p-2 text-foreground/60 hover:bg-foreground/5 hover:text-foreground" title="My Account">
-            <User className="h-4 w-4" />
+          <Link href="/my-account" className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg p-2 text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" title="My Account" aria-label="My Account">
+            <User className="h-5 w-5" aria-hidden="true" />
           </Link>
-          <Link href="/my-account/wishlist" className="relative rounded-lg p-2 text-foreground/60 hover:bg-foreground/5 hover:text-foreground" title="Wishlist">
-            <Heart className="h-4 w-4" />
+          <Link href="/my-account/wishlist" className="relative min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg p-2 text-foreground/70 hover:bg-foreground/5 hover:text-foreground transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" title="Wishlist" aria-label="Wishlist">
+            <Heart className="h-5 w-5" aria-hidden="true" />
           </Link>
           <div ref={cartPopupRef} className="relative">
             <div
-              className="relative rounded-lg bg-accent p-2 text-accent-foreground transition-all hover:bg-accent/90 cursor-pointer"
-              title="Cart"
-              onMouseEnter={() => setShowCartPopup(true)}
+              className="relative min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-accent p-2 text-accent-foreground transition-all duration-150 hover:bg-accent/90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              title="Shopping Cart"
+              onMouseEnter={handleCartMouseEnter}
             >
-              <Link href="/cart" className="flex">
-                <ShoppingCart className="h-4 w-4" />
+              <Link href="/cart" className="flex" aria-label={`Shopping cart with ${cartItemCount} items`}>
+                <ShoppingCart className="h-5 w-5" aria-hidden="true" />
               </Link>
-              {items.length > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
-                  {items.length}
+              {cartItemCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background px-1" aria-label={`${cartItemCount} items in cart`}>
+                  {cartItemCount}
                 </span>
               )}
             </div>
-            {showCartPopup && items.length > 0 && (
+            {showCartPopup && cartItemCount > 0 && (
               <div 
-                className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl bg-background shadow-xl border border-foreground/10 p-3"
-                onMouseEnter={() => setShowCartPopup(true)}
-                onMouseLeave={() => setShowCartPopup(false)}
+                className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl bg-background shadow-xl border border-foreground/10 p-3 animate-fade-in"
+                onMouseEnter={handleCartMouseEnter}
+                onMouseLeave={handleCartMouseLeave}
+                role="dialog"
+                aria-label="Cart preview"
               >
                 <p className="text-xs text-foreground/50 uppercase tracking-wider font-semibold mb-2">Quick View</p>
                 <div className="space-y-2 max-h-56 overflow-y-auto">
@@ -114,8 +123,8 @@ export default function StorefrontNav() {
                       </div>
                     </div>
                   ))}
-                  {items.length > 3 && (
-                    <p className="text-xs text-foreground/50">+{items.length - 3} more items</p>
+                  {cartItemCount > 3 && (
+                    <p className="text-xs text-foreground/50">+{cartItemCount - 3} more items</p>
                   )}
                 </div>
                 <div className="mt-3 pt-2 border-t border-foreground/10">
@@ -123,7 +132,7 @@ export default function StorefrontNav() {
                     <span>Total</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
-                  <Link href="/cart" className="mt-2 block w-full rounded bg-primary-container px-3 py-2 text-center text-xs font-semibold text-on-primary-fixed">
+                  <Link href="/cart" className="mt-2 block w-full rounded bg-primary-container px-3 py-2.5 text-center text-sm font-semibold text-on-primary-fixed min-h-[44px] flex items-center justify-center transition-all duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
                     View Full Cart
                   </Link>
                 </div>
@@ -132,17 +141,19 @@ export default function StorefrontNav() {
           </div>
           <button
             type="button"
-            className="rounded-lg p-2 text-foreground/60 md:hidden"
-            onClick={() => setOpen(!open)}
-            aria-label="Toggle navigation"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg p-2 text-foreground/70 md:hidden transition-all duration-150 hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={handleMobileMenuToggle}
+            aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
           >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
           </button>
         </div>
       </nav>
 
       {open && (
-        <div className="animate-fade-in border-t border-foreground/10 bg-background px-4 py-4 md:hidden">
+        <div className="animate-fade-in border-t border-foreground/10 bg-background px-4 py-4 md:hidden" id="mobile-menu" role="navigation" aria-label="Mobile navigation">
           <div className="mb-4">
             <SearchBar />
           </div>
@@ -151,23 +162,23 @@ export default function StorefrontNav() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                onClick={handleLinkClick}
+                className="block min-h-[44px] flex items-center rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {link.label}
               </Link>
             ))}
           </div>
           <div className="mt-4 border-t border-foreground/10 pt-4">
-            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-foreground/40">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-foreground/50">
               Categories
             </p>
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/products/${cat.slug}`}
-                onClick={() => setOpen(false)}
-                className="block rounded-lg px-3 py-2 text-sm text-foreground/70 hover:bg-accent hover:text-accent-foreground"
+                onClick={handleLinkClick}
+                className="block min-h-[44px] flex items-center rounded-lg px-3 py-2.5 text-sm text-foreground/80 hover:bg-accent hover:text-accent-foreground transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {cat.name}
               </Link>

@@ -18,6 +18,13 @@ CREATE INDEX IF NOT EXISTS idx_user_designs_created_at ON user_designs(created_a
 -- Enable Row Level Security
 ALTER TABLE user_designs ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for idempotent migrations)
+DROP POLICY IF EXISTS "Users can view their own designs" ON user_designs;
+DROP POLICY IF EXISTS "Users can insert their own designs" ON user_designs;
+DROP POLICY IF EXISTS "Users can update their own designs" ON user_designs;
+DROP POLICY IF EXISTS "Users can delete their own designs" ON user_designs;
+DROP POLICY IF EXISTS "Service role has full access to user_designs" ON user_designs;
+
 -- Policy: Users can view their own designs
 CREATE POLICY "Users can view their own designs"
   ON user_designs
@@ -56,6 +63,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS user_designs_updated_at ON user_designs;
 
 CREATE TRIGGER user_designs_updated_at
   BEFORE UPDATE ON user_designs

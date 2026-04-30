@@ -1,30 +1,51 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import TemplateSelector from "@/components/canva/TemplateSelector";
+import { useTemplateSelection } from "@/lib/canva/template-selection";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function TemplateSelectionContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
 
   const category = searchParams.get("category") || "business_cards";
   const productId = searchParams.get("productId") || undefined;
   const variationId = searchParams.get("variationId") || undefined;
 
+  // Get user ID from session
+  useEffect(() => {
+    async function getUserId() {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id);
+    }
+    getUserId();
+  }, []);
+
+  // Use deep module - hides template fetching, OAuth URL construction
+  const { templates, loading, error, startWithTemplate } = useTemplateSelection(
+    category,
+    { userId, productId, variationId }
+  );
+
   const handleTemplateSelect = async (templateId: string | null) => {
+    if (!userId) {
+      alert("Please log in to continue");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      // Build the OAuth authorize URL with template selection
-      const params = new URLSearchParams();
-      if (productId) params.set("productId", productId);
-      if (variationId) params.set("variationId", variationId);
-      if (templateId) params.set("templateId", templateId);
-
+      // Get OAuth URL from deep module
+      const oauthUrl = startWithTemplate(templateId);
+      
       // Redirect to OAuth flow
-      router.push(`/api/canva/oauth/authorize?${params.toString()}`);
+      router.push(oauthUrl);
     } catch (error) {
       console.error("Error starting OAuth flow:", error);
       setIsProcessing(false);
@@ -47,9 +68,9 @@ function TemplateSelectionContent() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <TemplateSelector
-        category={category}
-        productId={productId}
-        variationId={variationId}
+        templates={templates}
+        loading={loading}
+        error={error}
         onSelect={handleTemplateSelect}
       />
     </div>

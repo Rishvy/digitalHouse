@@ -305,7 +305,7 @@ Thumbnails should be:
 
 For issues or questions:
 - Check [Canva API Documentation](https://canva.dev/docs/connect/)
-- Review [docs/canva-template-selection.md](docs/canva-template-selection.md)
+- Review [canva-template-selection.md](canva-template-selection.md)
 - Check server logs for errors
 - Verify database migrations completed successfully
 

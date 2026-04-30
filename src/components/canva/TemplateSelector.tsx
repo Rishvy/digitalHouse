@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface CanvaTemplate {
@@ -13,54 +12,24 @@ interface CanvaTemplate {
 }
 
 interface TemplateSelectorProps {
-  category: string;
-  productId?: string;
-  variationId?: string;
+  templates: CanvaTemplate[];
+  loading: boolean;
+  error: string | null;
   onSelect: (templateId: string | null) => void;
 }
 
+/**
+ * Pure presentation component for template selection.
+ * 
+ * All data fetching and OAuth logic handled by parent via deep module.
+ * This component only renders UI and calls onSelect callback.
+ */
 export default function TemplateSelector({
-  category,
-  productId,
-  variationId,
+  templates,
+  loading,
+  error,
   onSelect,
 }: TemplateSelectorProps) {
-  const [templates, setTemplates] = useState<CanvaTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchTemplates() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch(
-          `/api/canva/templates?category=${encodeURIComponent(category)}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load templates");
-        }
-
-        const data = await response.json();
-        setTemplates(data.templates || []);
-      } catch (err) {
-        console.error("Error fetching templates:", err);
-        setError("Unable to load templates. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTemplates();
-  }, [category]);
-
-  const handleTemplateSelect = (templateId: string | null) => {
-    setSelectedTemplate(templateId);
-    onSelect(templateId);
-  };
 
   if (loading) {
     return (
@@ -94,7 +63,7 @@ export default function TemplateSelector({
           </div>
           <p className="text-gray-700 mb-4">{error}</p>
           <button
-            onClick={() => handleTemplateSelect(null)}
+            onClick={() => onSelect(null)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Start with Blank Canvas
@@ -118,12 +87,8 @@ export default function TemplateSelector({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Blank Canvas Option */}
         <button
-          onClick={() => handleTemplateSelect(null)}
-          className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-200 ${
-            selectedTemplate === null
-              ? "border-blue-600 shadow-lg scale-105"
-              : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-          }`}
+          onClick={() => onSelect(null)}
+          className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
         >
           <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
             <div className="text-center">
@@ -146,29 +111,14 @@ export default function TemplateSelector({
               <p className="text-sm text-gray-500 mt-1">Start from scratch</p>
             </div>
           </div>
-          {selectedTemplate === null && (
-            <div className="absolute top-3 right-3 bg-blue-600 text-white rounded-full p-1">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-          )}
         </button>
 
         {/* Template Options */}
         {templates.map((template) => (
           <button
             key={template.id}
-            onClick={() => handleTemplateSelect(template.id)}
-            className={`group relative overflow-hidden rounded-xl border-2 transition-all duration-200 ${
-              selectedTemplate === template.id
-                ? "border-blue-600 shadow-lg scale-105"
-                : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-            }`}
+            onClick={() => onSelect(template.id)}
+            className="group relative overflow-hidden rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
           >
             <div className="aspect-[3/4] bg-gray-100 relative">
               {template.thumbnail_url ? (
@@ -207,17 +157,6 @@ export default function TemplateSelector({
                 </p>
               )}
             </div>
-            {selectedTemplate === template.id && (
-              <div className="absolute top-3 right-3 bg-blue-600 text-white rounded-full p-1">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
           </button>
         ))}
       </div>
@@ -228,7 +167,7 @@ export default function TemplateSelector({
             No templates available for this category yet.
           </p>
           <button
-            onClick={() => handleTemplateSelect(null)}
+            onClick={() => onSelect(null)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Start with Blank Canvas

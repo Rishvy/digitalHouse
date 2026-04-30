@@ -10,19 +10,26 @@ CREATE TABLE IF NOT EXISTS canva_templates (
   thumbnail_url TEXT, -- URL to thumbnail in Supabase Storage
   product_category TEXT NOT NULL, -- e.g., 'business_cards', 'flyers', 'posters'
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  -- Add check constraints for data validation
+  CONSTRAINT check_name_not_empty CHECK (length(trim(name)) > 0),
+  CONSTRAINT check_category_not_empty CHECK (length(trim(product_category)) > 0),
+  CONSTRAINT check_template_id_not_empty CHECK (length(trim(canva_template_id)) > 0)
 );
 
--- Index for fast category filtering
-CREATE INDEX IF NOT EXISTS idx_canva_templates_category ON canva_templates(product_category);
+-- Composite index for category filtering with sorting by created_at
+-- This is more efficient than separate indexes when you filter by category and sort
+CREATE INDEX IF NOT EXISTS idx_canva_templates_category_created 
+  ON canva_templates(product_category, created_at DESC);
 
--- Index for template ID lookup
+-- Index for template ID lookup (already unique, but explicit for clarity)
 CREATE INDEX IF NOT EXISTS idx_canva_templates_template_id ON canva_templates(canva_template_id);
 
 -- Enable RLS
 ALTER TABLE canva_templates ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Anyone can read templates (public catalog)
+-- Using SELECT wrapper for better RLS performance
 DROP POLICY IF EXISTS "Anyone can read templates" ON canva_templates;
 CREATE POLICY "Anyone can read templates" 
   ON canva_templates 
@@ -54,6 +61,13 @@ CREATE POLICY "Service role can upload template thumbnails"
   ON storage.objects FOR INSERT
   TO service_role
   WITH CHECK (bucket_id = 'canva-template-thumbnails');
+
+-- Storage policy: Service role can update thumbnails
+DROP POLICY IF EXISTS "Service role can update template thumbnails" ON storage.objects;
+CREATE POLICY "Service role can update template thumbnails"
+  ON storage.objects FOR UPDATE
+  TO service_role
+  USING (bucket_id = 'canva-template-thumbnails');
 
 -- Storage policy: Service role can delete thumbnails
 DROP POLICY IF EXISTS "Service role can delete template thumbnails" ON storage.objects;
