@@ -14,6 +14,13 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface UploadedImage { id: number; url: string; }
 
+interface CanvaTemplate {
+  id: string;
+  name: string;
+  thumbnail_url: string | null;
+  canva_template_id: string;
+}
+
 interface ProductConfiguratorProps {
   productId: string;
   categorySlug: string;
@@ -32,6 +39,7 @@ interface ProductConfiguratorProps {
   templates?: string[];
   detailedInfo?: string;
   canvaEditEnabled?: boolean;
+  canvaTemplates?: CanvaTemplate[];
 }
 
 export function ProductConfigurator({
@@ -52,10 +60,11 @@ export function ProductConfigurator({
   templates = [],
   detailedInfo = "",
   canvaEditEnabled = false,
+  canvaTemplates = [],
 }: ProductConfiguratorProps) {
   const router = useRouter();
   
-  const handleCanvaEdit = async () => {
+  const handleCanvaEdit = async (templateId?: string) => {
     if (!productId || !selectedVariation?.id) return;
 
     const supabase = createSupabaseBrowserClient();
@@ -66,8 +75,14 @@ export function ProductConfigurator({
       return;
     }
 
-    // Use window.location.href for API routes that perform redirects
-    window.location.href = `/api/canva/auth?productId=${productId}&variationId=${selectedVariation.id}&userId=${session.user.id}`;
+    const params = new URLSearchParams({
+      productId,
+      variationId: selectedVariation.id,
+      userId: session.user.id,
+    });
+    if (templateId) params.set("templateId", templateId);
+
+    window.location.href = `/api/canva/auth?${params.toString()}`;
   };
   
   const quantities = variations
@@ -451,16 +466,45 @@ export function ProductConfigurator({
           </button>
           
           {canvaEditEnabled && (
-            <button
-              type="button"
-              onClick={handleCanvaEdit}
-              className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[#00c4cc] px-4 py-6 text-sm font-semibold text-[#00c4cc] transition-all hover:bg-[#00c4cc]/10"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              Edit on Your Own
-            </button>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-on-surface/60">Edit on Your Own</p>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Blank Canvas */}
+                <button
+                  type="button"
+                  onClick={() => handleCanvaEdit()}
+                  className="group relative aspect-[3/4] rounded-lg border-2 border-dashed border-[#00c4cc]/40 flex flex-col items-center justify-center gap-1 transition-all hover:border-[#00c4cc] hover:bg-[#00c4cc]/5"
+                >
+                  <svg className="w-6 h-6 text-[#00c4cc]/60 group-hover:text-[#00c4cc]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span className="text-[10px] font-medium text-[#00c4cc]/60 group-hover:text-[#00c4cc]">Blank</span>
+                </button>
+
+                {/* Template Cards */}
+                {canvaTemplates.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handleCanvaEdit(tpl.id)}
+                    className="group relative aspect-[3/4] rounded-lg border border-foreground/10 overflow-hidden transition-all hover:ring-2 hover:ring-[#00c4cc]"
+                  >
+                    {tpl.thumbnail_url ? (
+                      <img src={tpl.thumbnail_url} alt={tpl.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-1">
+                      <p className="text-[9px] font-medium text-white truncate">{tpl.name}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>

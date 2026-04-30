@@ -8,6 +8,7 @@ import { ProductImageGallery } from "@/components/storefront/ProductImageGallery
 import { QuantityBracketDisplay } from "@/components/storefront/QuantityBracketDisplay";
 import { BuyMoreSaveMoreBanner } from "@/components/storefront/BuyMoreSaveMoreBanner";
 import { ProductCard } from "@/components/storefront/ProductCard";
+import { createSupabaseServiceRoleClient } from "@/lib/supabase/service";
 
 export async function generateMetadata({
   params,
@@ -56,6 +57,18 @@ export default async function ProductDetailPage({
 
   const meta = (product as any).metadata ?? {};
 
+  // Fetch linked Canva templates
+  let canvaTemplates: Array<{ id: string; name: string; thumbnail_url: string | null; canva_template_id: string }> = [];
+  const canvaTemplateIds: string[] = meta.canva_template_ids ?? [];
+  if (canvaTemplateIds.length > 0 && product.canva_edit_enabled) {
+    const supabase = createSupabaseServiceRoleClient() as any;
+    const { data: tplData } = await supabase
+      .from("canva_templates")
+      .select("id, name, thumbnail_url, canva_template_id")
+      .in("id", canvaTemplateIds);
+    canvaTemplates = tplData ?? [];
+  }
+
   return (
     <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1.1fr_0.9fr] md:px-8">
       <ProductImageGallery images={galleryImages} productName={product.name} />
@@ -98,6 +111,7 @@ export default async function ProductDetailPage({
           templates={meta.templates ? meta.templates.split(",").map((t: string) => t.trim()).filter(Boolean) : []}
           detailedInfo={meta.detailed_info ?? ""}
           canvaEditEnabled={product.canva_edit_enabled ?? false}
+          canvaTemplates={canvaTemplates}
         />
       </div>
       {related.length > 0 && (
