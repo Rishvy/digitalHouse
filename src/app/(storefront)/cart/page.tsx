@@ -58,25 +58,6 @@ export default function CartPage() {
         {items.map((item) => (
           <article key={item.id} className="rounded-xl bg-surface-container p-4">
             <div className="flex gap-4">
-              {item.thumbnailDataUrl && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedImage(item.thumbnailDataUrl!)}
-                  className="relative group cursor-pointer flex-shrink-0"
-                >
-                  <img 
-                    src={item.thumbnailDataUrl} 
-                    alt="Your custom design" 
-                    className="w-20 h-20 object-cover rounded-lg border-2 border-primary/30 hover:border-primary transition-colors"
-                  />
-                  <div className="absolute inset-0 rounded-lg bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <ZoomIn className="h-5 w-5 text-white" />
-                  </div>
-                  <span className="absolute -top-1 -right-1 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                    Custom
-                  </span>
-                </button>
-              )}
               <div className="flex-1">
                 <h3 className="font-semibold">{item.productName ?? "Custom Product"}</h3>
                 <p className="text-sm text-on-surface/70">Quantity: {item.quantity}</p>
@@ -162,16 +143,7 @@ export default function CartPage() {
               </div>
             )}
 
-            {item.selectedTemplate && (
-              <div className="mt-3">
-                <p className="text-xs font-semibold text-on-surface/60 mb-1">Selected Template:</p>
-                <img 
-                  src={item.selectedTemplate}
-                  alt="Selected template"
-                  className="w-20 h-20 object-contain rounded border border-foreground/10"
-                />
-              </div>
-            )}
+            {/* Template selection hidden - design is shown in "Your Custom Design" section */}
           </article>
         ))}
       </div>
