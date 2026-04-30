@@ -135,6 +135,7 @@ export function AdminProductForm({
   const [uploadError, setUploadError] = useState("");
   const [linkedCanvaTemplates, setLinkedCanvaTemplates] = useState<Array<{ id: string; name: string; thumbnail_url: string | null; canva_template_id: string }>>([]);
   const [canvaUrlInput, setCanvaUrlInput] = useState("");
+  const [canvaThumbnailFile, setCanvaThumbnailFile] = useState<File | null>(null);
   const [addingCanvaTemplate, setAddingCanvaTemplate] = useState(false);
 
   async function uploadTemplateImage(file: File): Promise<string> {
@@ -238,8 +239,19 @@ export function AdminProductForm({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to add template");
-      setLinkedCanvaTemplates((prev) => [...prev, data.template]);
+
+      // Upload thumbnail if file was selected
+      if (canvaThumbnailFile && data.template?.id) {
+        await uploadCanvaThumbnail(data.template.id, canvaThumbnailFile);
+        // Re-fetch to get updated thumbnail_url
+        const refreshRes = await fetch(`/api/admin/canva-templates/link?product_id=${editingProduct.id}`);
+        const refreshData = await refreshRes.json();
+        setLinkedCanvaTemplates(refreshData.templates ?? []);
+      } else {
+        setLinkedCanvaTemplates((prev) => [...prev, data.template]);
+      }
       setCanvaUrlInput("");
+      setCanvaThumbnailFile(null);
     } catch (err: any) {
       alert(err.message ?? "Failed to add template");
     } finally {
@@ -567,25 +579,37 @@ export function AdminProductForm({
           <h4 className="font-semibold text-sm">Canva Templates</h4>
           <p className="text-xs text-on-surface/60">Add Canva template URLs. Users will see these as choices when editing. "Blank Canvas" is always available.</p>
 
-          {/* URL Input + Add Button */}
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={canvaUrlInput}
-              onChange={(e) => setCanvaUrlInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCanvaTemplate())}
-              className="flex-1 rounded bg-surface-container px-3 py-2 text-sm"
-              placeholder="https://www.canva.com/templates/XXXXX/"
-              disabled={addingCanvaTemplate}
-            />
-            <button
-              type="button"
-              onClick={addCanvaTemplate}
-              disabled={addingCanvaTemplate || !canvaUrlInput.trim()}
-              className="rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-container disabled:opacity-50"
-            >
-              {addingCanvaTemplate ? "Adding..." : "Add"}
-            </button>
+          {/* URL Input + Optional Thumbnail + Add Button */}
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={canvaUrlInput}
+                onChange={(e) => setCanvaUrlInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCanvaTemplate())}
+                className="flex-1 rounded bg-surface-container px-3 py-2 text-sm"
+                placeholder="https://www.canva.com/templates/XXXXX/"
+                disabled={addingCanvaTemplate}
+              />
+              <button
+                type="button"
+                onClick={addCanvaTemplate}
+                disabled={addingCanvaTemplate || !canvaUrlInput.trim()}
+                className="rounded bg-primary-container px-4 py-2 text-sm font-semibold text-on-primary-container disabled:opacity-50"
+              >
+                {addingCanvaTemplate ? "Adding..." : "Add"}
+              </button>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-on-surface/60 cursor-pointer">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="text-xs"
+                onChange={(e) => setCanvaThumbnailFile(e.target.files?.[0] ?? null)}
+              />
+              <span>Thumbnail (optional)</span>
+              {canvaThumbnailFile && <span className="text-[#00c4cc]">{canvaThumbnailFile.name}</span>}
+            </label>
           </div>
 
           {/* Linked Templates */}

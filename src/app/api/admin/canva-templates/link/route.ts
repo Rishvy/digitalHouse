@@ -20,6 +20,39 @@ async function checkAdmin() {
   return { authorized: true, service };
 }
 
+// GET - Fetch linked canva templates for a product
+export async function GET(request: Request) {
+  const auth = await checkAdmin();
+  if (!auth.authorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: auth.status });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const product_id = searchParams.get("product_id");
+  if (!product_id) {
+    return NextResponse.json({ error: "Missing product_id param" }, { status: 400 });
+  }
+
+  const { data: product } = await auth.service
+    .from("products")
+    .select("metadata")
+    .eq("id", product_id)
+    .single();
+
+  const meta = (product?.metadata ?? {}) as Record<string, any>;
+  const templateIds: string[] = meta.canva_template_ids ?? [];
+  if (templateIds.length === 0) {
+    return NextResponse.json({ templates: [] });
+  }
+
+  const { data: templates } = await auth.service
+    .from("canva_templates")
+    .select("id, name, thumbnail_url, canva_template_id, canva_template_url")
+    .in("id", templateIds);
+
+  return NextResponse.json({ templates: templates ?? [] });
+}
+
 // POST - Link a Canva template to a product
 export async function POST(request: Request) {
   const auth = await checkAdmin();
