@@ -50,7 +50,7 @@ export default async function HomePage() {
       <HeroSlideshow />
 
       {/* Featured Products - Masonry Grid */}
-      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+      <section className="bg-[#0a0a0a] px-6 pt-24 pb-10 md:px-12 md:pt-32 md:pb-12 lg:px-24">
         <div className="mb-16 flex items-end justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
@@ -75,7 +75,7 @@ export default async function HomePage() {
               <Link
                 key={product.id}
                 href={product.link_url}
-                className="group relative aspect-[3/4] overflow-hidden bg-[#151515]"
+                className="group relative aspect-[4/4.4] overflow-hidden bg-[#151515]"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <Image
@@ -116,7 +116,7 @@ export default async function HomePage() {
       </section>
 
       {/* Categories - Horizontal scroll on mobile, grid on desktop */}
-      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+      <section className="bg-[#0a0a0a] px-6 pt-24 pb-10 md:px-12 md:pt-32 md:pb-12 lg:px-24">
         <div className="mb-16">
           <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
             Browse By
@@ -151,7 +151,7 @@ export default async function HomePage() {
       </section>
 
       {/* Process - Minimal cards */}
-      <section className="bg-[#0a0a0a] px-6 py-24 md:px-12 md:py-32 lg:px-24">
+      <section className="bg-[#0a0a0a] px-6 pt-10 pb-24 md:px-12 md:pt-12 md:pb-32 lg:px-24">
         <div className="grid gap-16 md:grid-cols-2 md:gap-24">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#ffd709]">
